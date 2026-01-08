@@ -44,8 +44,10 @@ COPY tsconfig.json ./
 # Generate Prisma client
 RUN npm run prisma:generate --workspace=apps/backend
 
-# Build application
+# Build application with NODE_ENV=build to skip env validation
+ENV NODE_ENV=build
 RUN npm run build --workspace=apps/backend
+ENV NODE_ENV=production
 
 # Production stage
 FROM node:20-alpine AS production
