@@ -159,12 +159,28 @@
                     @else
                     <div class="flex flex-wrap gap-2 mb-3">
                         @foreach($book->tags as $tag)
-                        <div class="flex items-center gap-2 text-white px-3 py-1 rounded-full text-sm" style="background-color: {{ $tag->color ?? '#6366f1' }}">
-                            <a href="{{ route('tags.show', $tag) }}" class="hover:underline">{{ $tag->name }}</a>
+                        @php
+                            // Map colors to lighter backgrounds with darker text
+                            $colorMap = [
+                                '#ef4444' => ['bg' => '#fee2e2', 'text' => '#991b1b'], // Red
+                                '#f97316' => ['bg' => '#ffedd5', 'text' => '#9a3412'], // Orange
+                                '#eab308' => ['bg' => '#fef9c3', 'text' => '#854d0e'], // Yellow
+                                '#22c55e' => ['bg' => '#dcfce7', 'text' => '#166534'], // Green
+                                '#06b6d4' => ['bg' => '#cffafe', 'text' => '#155e75'], // Cyan
+                                '#3b82f6' => ['bg' => '#dbeafe', 'text' => '#1e40af'], // Blue
+                                '#6366f1' => ['bg' => '#e0e7ff', 'text' => '#3730a3'], // Indigo
+                                '#a855f7' => ['bg' => '#f3e8ff', 'text' => '#6b21a8'], // Purple
+                                '#ec4899' => ['bg' => '#fce7f3', 'text' => '#9f1239'], // Pink
+                                '#64748b' => ['bg' => '#f1f5f9', 'text' => '#334155'], // Gray
+                            ];
+                            $colors = $colorMap[$tag->color] ?? ['bg' => '#e0e7ff', 'text' => '#3730a3'];
+                        @endphp
+                        <div class="flex items-center gap-2 px-3 py-1 rounded-full text-sm" style="background-color: {{ $colors['bg'] }}; color: {{ $colors['text'] }}">
+                            <a href="{{ route('tags.show', $tag) }}" class="hover:underline" style="color: {{ $colors['text'] }}">{{ $tag->name }}</a>
                             <form action="{{ route('tags.remove-book', [$tag, $book]) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="hover:bg-white/20 rounded-full p-0.5">
+                                <button type="submit" class="hover:opacity-70 rounded-full p-0.5">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>

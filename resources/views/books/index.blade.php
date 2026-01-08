@@ -155,9 +155,25 @@
                 @if($book->tags->isNotEmpty())
                 <div class="flex flex-wrap gap-1 mt-2">
                     @foreach($book->tags as $tag)
+                    @php
+                        // Map colors to lighter backgrounds with darker text
+                        $colorMap = [
+                            '#ef4444' => ['bg' => '#fee2e2', 'text' => '#991b1b'], // Red
+                            '#f97316' => ['bg' => '#ffedd5', 'text' => '#9a3412'], // Orange
+                            '#eab308' => ['bg' => '#fef9c3', 'text' => '#854d0e'], // Yellow
+                            '#22c55e' => ['bg' => '#dcfce7', 'text' => '#166534'], // Green
+                            '#06b6d4' => ['bg' => '#cffafe', 'text' => '#155e75'], // Cyan
+                            '#3b82f6' => ['bg' => '#dbeafe', 'text' => '#1e40af'], // Blue
+                            '#6366f1' => ['bg' => '#e0e7ff', 'text' => '#3730a3'], // Indigo
+                            '#a855f7' => ['bg' => '#f3e8ff', 'text' => '#6b21a8'], // Purple
+                            '#ec4899' => ['bg' => '#fce7f3', 'text' => '#9f1239'], // Pink
+                            '#64748b' => ['bg' => '#f1f5f9', 'text' => '#334155'], // Gray
+                        ];
+                        $colors = $colorMap[$tag->color] ?? ['bg' => '#e0e7ff', 'text' => '#3730a3'];
+                    @endphp
                     <a href="{{ route('tags.show', $tag) }}"
-                       class="px-2 py-0.5 rounded-full text-xs font-medium text-white hover:opacity-80 transition-opacity"
-                       style="background-color: {{ $tag->color ?? '#6366f1' }}">
+                       class="px-2 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity"
+                       style="background-color: {{ $colors['bg'] }}; color: {{ $colors['text'] }}">
                         {{ $tag->name }}
                     </a>
                     @endforeach
