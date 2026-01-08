@@ -1,0 +1,32 @@
+name: Deploy to Coolify
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Deploy to Coolify
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.COOLIFY_HOST }}
+          username: ${{ secrets.COOLIFY_USER }}
+          key: ${{ secrets.COOLIFY_SSH_KEY }}
+          script: |
+            cd /path/to/leafmark
+            git pull origin main
+            docker compose -f docker-compose.production.yml down
+            docker compose -f docker-compose.production.yml build --no-cache
+            docker compose -f docker-compose.production.yml up -d
+            docker compose -f docker-compose.production.yml exec -T backend npm run prisma:migrate:deploy --workspace=apps/backend

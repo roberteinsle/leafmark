@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:11
+    container_name: leafmark-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - leafmark-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+      target: production
+    container_name: leafmark-backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      PORT: 3001
+      CORS_ORIGIN: ${FRONTEND_URL}
+      GOOGLE_BOOKS_API_KEY: ${GOOGLE_BOOKS_API_KEY:-}
+      ISBNDB_API_KEY: ${ISBNDB_API_KEY:-}
+    networks:
+      - leafmark-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      target: production
+      args:
+        VITE_API_URL: ${API_URL}
+    container_name: leafmark-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "${PORT:-3000}:80"
+    networks:
+      - leafmark-network
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  leafmark-network:
+    driver: bridge
