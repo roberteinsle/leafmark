@@ -44,11 +44,34 @@
             </div>
 
             <div>
-                <label for="color" class="block text-sm font-medium text-gray-700">Tag Color</label>
-                <div class="mt-1 flex items-center gap-3">
-                    <input type="color" name="color" id="color" value="{{ old('color', $tag->color ?? '#6366f1') }}"
-                           class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
-                    <span class="text-sm text-gray-500">Choose a color for this tag</span>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tag Color</label>
+                <div class="grid grid-cols-5 gap-3">
+                    @php
+                    $colors = [
+                        '#ef4444' => 'Red',
+                        '#f97316' => 'Orange',
+                        '#eab308' => 'Yellow',
+                        '#22c55e' => 'Green',
+                        '#06b6d4' => 'Cyan',
+                        '#3b82f6' => 'Blue',
+                        '#6366f1' => 'Indigo',
+                        '#a855f7' => 'Purple',
+                        '#ec4899' => 'Pink',
+                        '#64748b' => 'Gray',
+                    ];
+                    $selectedColor = old('color', $tag->color ?? '#6366f1');
+                    @endphp
+
+                    @foreach($colors as $colorValue => $colorName)
+                    <label class="flex flex-col items-center cursor-pointer">
+                        <input type="radio" name="color" value="{{ $colorValue }}"
+                               {{ $selectedColor === $colorValue ? 'checked' : '' }}
+                               class="sr-only peer" required>
+                        <div class="w-12 h-12 rounded-lg border-2 border-gray-300 peer-checked:border-gray-900 peer-checked:ring-2 peer-checked:ring-gray-900 transition-all"
+                             style="background-color: {{ $colorValue }}"></div>
+                        <span class="text-xs text-gray-600 mt-1">{{ $colorName }}</span>
+                    </label>
+                    @endforeach
                 </div>
                 @error('color')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
