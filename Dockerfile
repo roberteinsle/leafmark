@@ -17,17 +17,13 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-# Increase Composer memory limit and create fresh Laravel project
+# Download Laravel skeleton directly from GitHub
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer create-project --prefer-dist --no-dev laravel/laravel html && \
-    cd html && \
-    rm -rf .git
-
-# Set working directory to Laravel root
-WORKDIR /var/www/html
+RUN curl -L https://github.com/laravel/laravel/archive/refs/heads/11.x.tar.gz | tar xz --strip-components=1 && \
+    composer install --no-dev --optimize-autoloader --no-interaction
 
 # Create Laravel directories if they don't exist
 RUN mkdir -p storage/framework/cache/data \
