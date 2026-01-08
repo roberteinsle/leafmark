@@ -19,8 +19,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Create fresh Laravel project
-RUN composer create-project laravel/laravel html "^11.0" --no-dev --prefer-dist && \
+# Increase Composer memory limit and create fresh Laravel project
+ENV COMPOSER_MEMORY_LIMIT=-1
+ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN composer create-project --prefer-dist --no-dev laravel/laravel html && \
     cd html && \
     rm -rf .git
 
