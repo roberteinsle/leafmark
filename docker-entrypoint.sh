@@ -35,6 +35,9 @@ ENVFILE
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Clear config cache to ensure new .env is loaded
+php artisan config:clear
+
 # Wait for database to be ready
 echo "Waiting for database..."
 until php artisan db:show --database=mysql 2>&1 | grep -q "MySQL\|MariaDB"; do
@@ -46,8 +49,7 @@ echo "Database is up - continuing"
 # Run migrations
 php artisan migrate --force || echo "Migration failed, continuing..."
 
-# Clear and cache config
-php artisan config:clear
+# Cache config
 php artisan config:cache
 
 # Start Apache
