@@ -19,11 +19,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Download Laravel skeleton directly from GitHub
+# Copy application files
+COPY . /var/www/html
+
+# Install dependencies
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN curl -L https://github.com/laravel/laravel/archive/refs/heads/11.x.tar.gz | tar xz --strip-components=1 && \
-    composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Create Laravel directories if they don't exist
 RUN mkdir -p storage/framework/cache/data \
