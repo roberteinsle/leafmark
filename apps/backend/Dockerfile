@@ -39,7 +39,9 @@ COPY apps/backend/package*.json ./apps/backend/
 COPY packages/shared/package*.json ./packages/shared/
 
 # Install ALL dependencies including devDependencies (needed for build)
-RUN npm install
+RUN npm install && \
+    echo "✓ npm install completed" && \
+    ls -la node_modules/.bin | head -20
 
 # Copy source code
 COPY apps/backend ./apps/backend
@@ -47,11 +49,16 @@ COPY packages/shared ./packages/shared
 COPY tsconfig.json ./
 
 # Generate Prisma client
-RUN npm run prisma:generate --workspace=apps/backend
+RUN npm run prisma:generate --workspace=apps/backend && \
+    echo "✓ Prisma client generated"
 
 # Build application with NODE_ENV=build to skip env validation
 ENV NODE_ENV=build
-RUN npm run build --workspace=apps/backend
+RUN echo "Starting TypeScript build..." && \
+    cd apps/backend && \
+    npx tsc && \
+    echo "✓ TypeScript build completed" && \
+    ls -la dist/
 ENV NODE_ENV=production
 
 # Production stage
