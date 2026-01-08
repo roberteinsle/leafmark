@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
     return view('welcome');
 });
 
