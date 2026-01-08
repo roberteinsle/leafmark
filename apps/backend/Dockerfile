@@ -28,8 +28,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy all package files
+# Copy root package files for workspace setup
 COPY package*.json ./
+
+# Create workspace directories structure
+RUN mkdir -p apps/backend apps/frontend packages/shared
+
+# Copy workspace package files
 COPY apps/backend/package*.json ./apps/backend/
 COPY packages/shared/package*.json ./packages/shared/
 
