@@ -17,18 +17,15 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
+WORKDIR /var/www
+
+# Create fresh Laravel project
+RUN composer create-project laravel/laravel html "^11.0" --no-dev --prefer-dist && \
+    cd html && \
+    rm -rf .git
+
+# Set working directory to Laravel root
 WORKDIR /var/www/html
-
-# Copy application files
-COPY . /var/www/html
-
-# Install Laravel if composer.json exists, otherwise create new Laravel project
-RUN if [ -f "composer.json" ]; then \
-        composer install --no-dev --optimize-autoloader; \
-    else \
-        composer create-project laravel/laravel . "^11.0" --no-dev --prefer-dist; \
-        rm -rf .git; \
-    fi
 
 # Create Laravel directories if they don't exist
 RUN mkdir -p storage/framework/cache/data \
