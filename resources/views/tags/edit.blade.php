@@ -43,6 +43,18 @@
                 @enderror
             </div>
 
+            <div>
+                <label for="color" class="block text-sm font-medium text-gray-700">Tag Color</label>
+                <div class="mt-1 flex items-center gap-3">
+                    <input type="color" name="color" id="color" value="{{ old('color', $tag->color ?? '#6366f1') }}"
+                           class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                    <span class="text-sm text-gray-500">Choose a color for this tag</span>
+                </div>
+                @error('color')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             <div class="flex justify-end space-x-4 pt-6">
                 <a href="{{ route('tags.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg">
                     Cancel

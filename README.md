@@ -16,15 +16,15 @@ A Laravel-based web application for tracking your personal book collection and r
 - **Backend:** Laravel 11 + PHP 8.2
 - **Database:** MariaDB 11
 - **Frontend:** Blade Templates + Tailwind CSS
-- **Deployment:** Docker + Coolify
+- **Deployment:** Docker Compose
 
-## Deployment on Coolify
+## Deployment with Docker
 
-This project is configured for easy deployment on Coolify using Docker Compose.
+This project is configured for deployment using Docker Compose.
 
 ### Environment Variables
 
-Set these in Coolify:
+Configure these environment variables:
 
 - `APP_KEY` - Laravel application key (generate with `php artisan key:generate`)
 - `DB_PASSWORD` - Database password
@@ -32,11 +32,11 @@ Set these in Coolify:
 - `GOOGLE_BOOKS_API_KEY` - (Optional) Google Books API key
 - `ISBNDB_API_KEY` - (Optional) ISBNdb API key
 
-### Build Configuration
+### Docker Setup
 
-- Build Pack: **Docker Compose**
-- Port: **80**
-- Deploy: Automatic on push to `main`
+- Port: **80** (mapped to host)
+- Services: `app` (Laravel + Apache), `db` (MariaDB)
+- Persistent storage: Database volume mounted for data persistence
 
 ## Local Development
 

@@ -159,12 +159,12 @@
                     @else
                     <div class="flex flex-wrap gap-2 mb-3">
                         @foreach($book->tags as $tag)
-                        <div class="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">
+                        <div class="flex items-center gap-2 text-white px-3 py-1 rounded-full text-sm" style="background-color: {{ $tag->color ?? '#6366f1' }}">
                             <a href="{{ route('tags.show', $tag) }}" class="hover:underline">{{ $tag->name }}</a>
                             <form action="{{ route('tags.remove-book', [$tag, $book]) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="hover:bg-indigo-200 rounded-full p-0.5">
+                                <button type="submit" class="hover:bg-white/20 rounded-full p-0.5">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>

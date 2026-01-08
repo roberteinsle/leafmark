@@ -152,6 +152,18 @@
                     </select>
                 </form>
 
+                @if($book->tags->isNotEmpty())
+                <div class="flex flex-wrap gap-1 mt-2">
+                    @foreach($book->tags as $tag)
+                    <a href="{{ route('tags.show', $tag) }}"
+                       class="px-2 py-0.5 rounded-full text-xs font-medium text-white hover:opacity-80 transition-opacity"
+                       style="background-color: {{ $tag->color ?? '#6366f1' }}">
+                        {{ $tag->name }}
+                    </a>
+                    @endforeach
+                </div>
+                @endif
+
                 @if($book->status === 'currently_reading' && $book->page_count)
                 <div class="mt-2">
                     <div class="flex justify-between text-xs text-gray-600 mb-1">

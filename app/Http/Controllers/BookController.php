@@ -37,7 +37,8 @@ class BookController extends Controller
             $query->where('status', $request->status);
         }
 
-        $books = $query->orderBy('added_at', 'desc')
+        $books = $query->with('tags')
+            ->orderBy('added_at', 'desc')
             ->paginate(20)
             ->withQueryString();
 

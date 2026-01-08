@@ -15,6 +15,7 @@ class Tag extends Model
         'user_id',
         'name',
         'description',
+        'color',
         'is_default',
         'sort_order',
     ];
