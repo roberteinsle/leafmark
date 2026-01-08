@@ -28,13 +28,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy all package files
 COPY package*.json ./
 COPY apps/backend/package*.json ./apps/backend/
 COPY packages/shared/package*.json ./packages/shared/
 
-# Install dependencies
-RUN npm ci --workspace=apps/backend --workspace=packages/shared
+# Install ALL dependencies first (full workspace)
+RUN npm ci
 
 # Copy source code
 COPY apps/backend ./apps/backend
@@ -52,13 +52,13 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Copy package files (need all for workspace resolution)
+# Copy package files
 COPY package*.json ./
 COPY apps/backend/package*.json ./apps/backend/
 COPY packages/shared/package*.json ./packages/shared/
 
-# Install production dependencies only
-RUN npm ci --workspace=apps/backend --workspace=packages/shared --omit=dev
+# Install ALL dependencies, then prune
+RUN npm ci && npm prune --omit=dev
 
 # Copy built application and prisma
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist

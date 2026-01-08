@@ -25,13 +25,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy all package files
 COPY package*.json ./
 COPY apps/frontend/package*.json ./apps/frontend/
 COPY packages/shared/package*.json ./packages/shared/
 
-# Install dependencies
-RUN npm ci --workspace=apps/frontend --workspace=packages/shared
+# Install ALL dependencies (full workspace)
+RUN npm ci
 
 # Copy source code
 COPY apps/frontend ./apps/frontend
