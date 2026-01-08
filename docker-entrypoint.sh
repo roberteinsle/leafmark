@@ -1,10 +1,9 @@
 #!/bin/bash
 set -e
 
-# Create .env file from environment variables if it doesn't exist
-if [ ! -f /var/www/html/.env ]; then
-    echo "Creating .env file from environment variables..."
-    cat > /var/www/html/.env << ENVFILE
+# Always recreate .env file from environment variables
+echo "Creating .env file from environment variables..."
+cat > /var/www/html/.env << ENVFILE
 APP_NAME="${APP_NAME:-Laravel}"
 APP_ENV="${APP_ENV:-production}"
 APP_KEY="${APP_KEY}"
@@ -31,7 +30,6 @@ SESSION_LIFETIME=120
 GOOGLE_BOOKS_API_KEY="${GOOGLE_BOOKS_API_KEY}"
 ISBNDB_API_KEY="${ISBNDB_API_KEY}"
 ENVFILE
-fi
 
 # Fix permissions
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
