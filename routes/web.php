@@ -30,7 +30,7 @@ Route::post('/logout', [LoginController::class, 'logout'])
 // Protected routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return redirect()->route('books.index');
     })->name('dashboard');
 
     // Books routes
