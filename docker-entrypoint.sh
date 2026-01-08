@@ -40,7 +40,7 @@ php artisan config:clear
 
 # Wait for database to be ready
 echo "Waiting for database..."
-until php artisan db:show --database=mysql 2>&1 | grep -q "MySQL\|MariaDB"; do
+until php -r "new PDO('mysql:host=db;dbname=${DB_DATABASE:-leafmark}', 'root', '${MYSQL_ROOT_PASSWORD}');" 2>/dev/null; do
     echo "Database is unavailable - sleeping"
     sleep 2
 done
