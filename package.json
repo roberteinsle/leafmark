@@ -1,0 +1,47 @@
+{
+  "name": "leafmark",
+  "version": "1.0.0",
+  "description": "Your personal book tracking web app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "build": "npm run build --workspaces",
+    "build:backend": "npm run build --workspace=apps/backend",
+    "build:frontend": "npm run build --workspace=apps/frontend",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
+    "prisma:migrate": "npm run prisma:migrate:dev --workspace=apps/backend",
+    "prisma:studio": "npm run prisma:studio --workspace=apps/backend",
+    "prisma:seed": "npm run prisma:seed --workspace=apps/backend",
+    "docker:dev": "docker compose up",
+    "docker:dev:build": "docker compose up --build",
+    "docker:prod": "docker compose -f docker-compose.production.yml up -d",
+    "docker:prod:build": "docker compose -f docker-compose.production.yml up -d --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
+  },
+  "keywords": [
+    "book-tracking",
+    "reading",
+    "books",
+    "web-app"
+  ],
+  "author": "Robert Einsle <robert@einsle.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  }
+}
