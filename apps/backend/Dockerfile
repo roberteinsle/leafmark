@@ -57,12 +57,12 @@ COPY package*.json ./
 COPY apps/backend/package*.json ./apps/backend/
 COPY packages/shared/package*.json ./packages/shared/
 
-# Install ALL dependencies, then prune
-RUN npm ci && npm prune --omit=dev
+# Copy node_modules from builder (includes all dependencies)
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/backend/node_modules ./apps/backend/node_modules
 
 # Copy built application and prisma
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
-COPY --from=builder /app/apps/backend/node_modules/.prisma ./apps/backend/node_modules/.prisma
 COPY apps/backend/prisma ./apps/backend/prisma
 
 # Create non-root user
