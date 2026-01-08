@@ -40,7 +40,7 @@ COPY tsconfig.json ./
 
 # Build for production
 ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL:-http://localhost:3001}
 
 RUN npm run build --workspace=apps/frontend
 
