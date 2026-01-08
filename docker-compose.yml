@@ -1,81 +1,53 @@
 version: '3.8'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - APP_NAME=${APP_NAME:-Leafmark}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_URL=${APP_URL:-http://localhost}
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-leafmark}
+      - DB_USERNAME=${DB_USERNAME:-leafmark}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - GOOGLE_BOOKS_API_KEY=${GOOGLE_BOOKS_API_KEY}
+      - ISBNDB_API_KEY=${ISBNDB_API_KEY}
+    depends_on:
+      - db
+    volumes:
+      - ./storage:/var/www/html/storage
+    networks:
+      - leafmark
+
   db:
     image: mariadb:11
-    container_name: leafmark-db-dev
-    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-leafmark_dev}
-      MYSQL_USER: ${MYSQL_USER:-leafmark}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-leafmark_password}
-    ports:
-      - "3306:3306"
+      - MYSQL_DATABASE=${DB_DATABASE:-leafmark}
+      - MYSQL_USER=${DB_USERNAME:-leafmark}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
-      - db_data_dev:/var/lib/mysql
+      - db_data:/var/lib/mysql
+    networks:
+      - leafmark
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
-      retries: 5
-    networks:
-      - leafmark-dev
-
-  backend:
-    build:
-      context: .
-      dockerfile: apps/backend/Dockerfile
-      target: development
-    container_name: leafmark-backend-dev
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: mysql://${MYSQL_USER:-leafmark}:${MYSQL_PASSWORD:-leafmark_password}@db:3306/${MYSQL_DATABASE:-leafmark_dev}
-      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-production-min-32-characters}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-jwt-refresh-secret-change-in-production-min-32}
-      PORT: 3001
-      CORS_ORIGIN: http://localhost:5173
-      GOOGLE_BOOKS_API_KEY: ${GOOGLE_BOOKS_API_KEY:-}
-      ISBNDB_API_KEY: ${ISBNDB_API_KEY:-}
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./apps/backend/src:/app/apps/backend/src
-      - ./apps/backend/prisma:/app/apps/backend/prisma
-      - ./packages/shared/src:/app/packages/shared/src
-    networks:
-      - leafmark-dev
-    command: npm run dev --workspace=apps/backend
-
-  frontend:
-    build:
-      context: .
-      dockerfile: apps/frontend/Dockerfile
-      target: development
-    container_name: leafmark-frontend-dev
-    restart: unless-stopped
-    depends_on:
-      - backend
-    environment:
-      VITE_API_URL: http://localhost:3001
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./apps/frontend/src:/app/apps/frontend/src
-      - ./apps/frontend/public:/app/apps/frontend/public
-      - ./packages/shared/src:/app/packages/shared/src
-    networks:
-      - leafmark-dev
-    command: npm run dev --workspace=apps/frontend
+      retries: 3
 
 volumes:
-  db_data_dev:
-    driver: local
+  db_data:
 
 networks:
-  leafmark-dev:
+  leafmark:
     driver: bridge

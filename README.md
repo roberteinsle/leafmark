@@ -1,195 +1,62 @@
-# 🍃 Leafmark
+# Leafmark - Personal Book Tracking Web App
 
-**Your personal book tracking web app**
+A Laravel-based web application for tracking your personal book collection and reading progress.
 
-Leafmark helps you organize your books and keep track of your reading progress. No more forgotten books or lost page counts.
+## Features
 
-## ✨ Features
+- User Authentication
+- Book Management (Add, Edit, Delete)
+- Reading Status (Want to Read, Currently Reading, Read)
+- Custom Shelves
+- Book Search Integration (Google Books, Open Library, ISBNdb)
+- Multi-language Support (English & German)
 
-- 📖 **Manage books** – Add, edit, and organize your personal library
-- 📊 **Track reading progress** – Log which page you're on
-- 📚 **Shelves & lists** – Sort books into "Read", "Currently Reading", and "Want to Read"
-- 🔍 **Book search** – Find books quickly by ISBN or title
-- 📈 **Statistics** – Get insights into your reading habits (coming soon)
-- 🎯 **Reading goals** – Set yearly goals and track your progress (coming soon)
+## Tech Stack
 
-## 🚀 Tech Stack
+- **Backend:** Laravel 11 + PHP 8.2
+- **Database:** MariaDB 11
+- **Frontend:** Blade Templates + Tailwind CSS
+- **Deployment:** Docker + Coolify
 
-- **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS
-- **Backend:** Node.js + Fastify + TypeScript
-- **Database:** MariaDB
-- **ORM:** Prisma
-- **Authentication:** JWT (Email/Password)
-- **Deployment:** Docker Compose on Coolify
-- **API Integration:** Google Books, Open Library, ISBNdb (with fallback chain)
+## Deployment on Coolify
 
-## 📁 Project Structure
+This project is configured for easy deployment on Coolify using Docker Compose.
 
-This is a monorepo managed with npm workspaces:
+### Environment Variables
 
-```
-leafmark/
-├── apps/
-│   ├── backend/          # Fastify API server
-│   └── frontend/         # React application
-├── packages/
-│   └── shared/           # Shared types and constants
-├── .github/workflows/    # CI/CD configuration
-├── docker-compose.yml    # Local development
-└── docker-compose.production.yml  # Production deployment
-```
+Set these in Coolify:
 
-## 🛠️ Setup & Development
+- `APP_KEY` - Laravel application key (generate with `php artisan key:generate`)
+- `DB_PASSWORD` - Database password
+- `MYSQL_ROOT_PASSWORD` - MySQL root password
+- `GOOGLE_BOOKS_API_KEY` - (Optional) Google Books API key
+- `ISBNDB_API_KEY` - (Optional) ISBNdb API key
 
-### Prerequisites
+### Build Configuration
 
-- Node.js 20 or higher
-- Docker & Docker Compose
-- Git
+- Build Pack: **Docker Compose**
+- Port: **80**
+- Deploy: Automatic on push to `main`
 
-### Installation
+## Local Development
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/roberteinsle/leafmark.git
-cd leafmark
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Setup environment variables:
-```bash
+# Copy environment file
 cp .env.example .env
-# Edit .env with your configuration
+
+# Start services
+docker-compose up -d
+
+# Generate app key
+docker-compose exec app php artisan key:generate
+
+# Run migrations
+docker-compose exec app php artisan migrate
+
+# Access the app
+open http://localhost
 ```
 
-4. Generate JWT secrets:
-```bash
-openssl rand -base64 32  # Use for JWT_SECRET
-openssl rand -base64 32  # Use for JWT_REFRESH_SECRET
-```
+## License
 
-5. Start the database:
-```bash
-docker compose up db -d
-```
-
-6. Run database migrations:
-```bash
-npm run prisma:migrate
-```
-
-7. Seed the database (optional):
-```bash
-npm run prisma:seed
-```
-
-8. Start development servers:
-```bash
-npm run dev
-```
-
-This will start:
-- Backend API: http://localhost:3001
-- Frontend: http://localhost:5173
-- Database: localhost:3306
-
-## 🐳 Docker Development
-
-Start all services with Docker Compose:
-
-```bash
-# Start all services
-npm run docker:dev
-
-# Start with rebuild
-npm run docker:dev:build
-
-# View logs
-npm run docker:logs
-
-# Stop all services
-npm run docker:down
-```
-
-## 📝 Available Scripts
-
-### Root
-- `npm run dev` - Start both frontend and backend
-- `npm run build` - Build all workspaces
-- `npm run lint` - Lint all TypeScript files
-- `npm run format` - Format code with Prettier
-
-### Backend
-- `npm run dev:backend` - Start backend dev server
-- `npm run prisma:migrate` - Run database migrations
-- `npm run prisma:studio` - Open Prisma Studio
-
-### Frontend
-- `npm run dev:frontend` - Start frontend dev server
-
-## 🚢 Deployment
-
-The application is configured for automatic deployment to Coolify:
-
-1. Push to `main` branch triggers GitHub Actions
-2. GitHub Actions connects to Coolify server via SSH
-3. Docker images are built and deployed
-4. Database migrations run automatically
-
-### Required GitHub Secrets
-
-- `COOLIFY_HOST` - Your Coolify server hostname/IP
-- `COOLIFY_USER` - SSH username
-- `COOLIFY_SSH_KEY` - Private SSH key
-
-## 🌍 Internationalization
-
-The application supports multiple languages:
-- 🇬🇧 English
-- 🇩🇪 German
-
-More languages can be added easily via the i18n system.
-
-## 🔒 Security
-
-- JWT-based authentication
-- bcrypt password hashing
-- CORS protection
-- Rate limiting
-- Security headers (Helmet)
-- SQL injection prevention (Prisma)
-- Environment variable protection
-
-## 📝 Roadmap
-
-- [x] Basic book management
-- [x] Book search via API (Google Books, Open Library, ISBNdb)
-- [x] Shelves system
-- [x] User authentication
-- [ ] Reading progress tracking
-- [ ] Statistics & yearly overview
-- [ ] Export/Import functionality
-- [ ] Mobile-optimized view
-- [ ] Additional languages
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to open an issue or submit a pull request.
-
-## 📄 License
-
-[MIT](LICENSE)
-
-## 👤 Author
-
-**Robert Einsle**
-- Email: robert@einsle.com
-- GitHub: [@roberteinsle](https://github.com/roberteinsle)
-
----
-
-**Leafmark** – Because every book you read counts. 🍃
+MIT License

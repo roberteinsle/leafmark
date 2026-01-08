@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(powershell -Command \"Get-ChildItem -Force | Format-List\")",
+      "Bash(git init:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: Project setup\n\n- Initialize Git repository\n- Create monorepo structure with npm workspaces\n- Add root package.json with dev scripts\n- Configure TypeScript base config\n- Setup ESLint and Prettier\n- Create .gitignore for Node.js, TypeScript, and Docker\n- Add .env.example template\n- Create comprehensive README.md\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git commit:*)",
+      "Bash(git reset:*)",
+      "Bash(git mv:*)",
+      "Bash(set NODE_ENV=build)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx:*)",
+      "Bash(git checkout:*)",
+      "Bash(git rm:*)",
+      "Bash(composer create-project:*)",
+      "Bash(where:*)"
+    ]
+  }
+}

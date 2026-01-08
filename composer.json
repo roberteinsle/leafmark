@@ -1,0 +1,22 @@
+{
+    "name": "leafmark/leafmark",
+    "type": "project",
+    "description": "Personal book tracking web application",
+    "keywords": ["laravel", "books", "reading", "tracker"],
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
