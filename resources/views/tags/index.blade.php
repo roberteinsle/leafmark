@@ -36,14 +36,32 @@
     @else
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach($tags as $tag)
+        @php
+            // Map colors to lighter backgrounds with darker text
+            $colorMap = [
+                '#ef4444' => ['bg' => '#fee2e2', 'text' => '#991b1b', 'icon' => '#ef4444'], // Red
+                '#f97316' => ['bg' => '#ffedd5', 'text' => '#9a3412', 'icon' => '#f97316'], // Orange
+                '#eab308' => ['bg' => '#fef9c3', 'text' => '#854d0e', 'icon' => '#eab308'], // Yellow
+                '#22c55e' => ['bg' => '#dcfce7', 'text' => '#166534', 'icon' => '#22c55e'], // Green
+                '#06b6d4' => ['bg' => '#cffafe', 'text' => '#155e75', 'icon' => '#06b6d4'], // Cyan
+                '#3b82f6' => ['bg' => '#dbeafe', 'text' => '#1e40af', 'icon' => '#3b82f6'], // Blue
+                '#6366f1' => ['bg' => '#e0e7ff', 'text' => '#3730a3', 'icon' => '#6366f1'], // Indigo
+                '#a855f7' => ['bg' => '#f3e8ff', 'text' => '#6b21a8', 'icon' => '#a855f7'], // Purple
+                '#ec4899' => ['bg' => '#fce7f3', 'text' => '#9f1239', 'icon' => '#ec4899'], // Pink
+                '#64748b' => ['bg' => '#f1f5f9', 'text' => '#334155', 'icon' => '#64748b'], // Gray
+            ];
+            $colors = $colorMap[$tag->color] ?? ['bg' => '#e0e7ff', 'text' => '#3730a3', 'icon' => '#6366f1'];
+        @endphp
         <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                            </svg>
+                            <div class="p-2 rounded-lg" style="background-color: {{ $colors['bg'] }}">
+                                <svg class="w-5 h-5" style="color: {{ $colors['icon'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                            </div>
                             <h3 class="text-lg font-semibold text-gray-900">{{ $tag->name }}</h3>
                             @if($tag->is_default)
                             <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded">Default</span>
