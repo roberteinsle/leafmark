@@ -30,8 +30,6 @@ services:
       - ISBNDB_API_KEY=${ISBNDB_API_KEY}
     depends_on:
       - db
-    volumes:
-      - ./storage:/var/www/html/storage
     networks:
       - leafmark
       - coolify
