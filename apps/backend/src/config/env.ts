@@ -7,10 +7,10 @@ dotenv.config();
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().transform(Number).default('3001'),
-  DATABASE_URL: z.string().url(),
-  JWT_SECRET: z.string().min(32),
-  JWT_REFRESH_SECRET: z.string().min(32),
-  CORS_ORIGIN: z.string().url(),
+  DATABASE_URL: z.string().url().optional().default('mysql://localhost:3306/leafmark'),
+  JWT_SECRET: z.string().min(32).optional().default('build-time-placeholder-min-32-characters-long'),
+  JWT_REFRESH_SECRET: z.string().min(32).optional().default('build-time-placeholder-min-32-characters-long'),
+  CORS_ORIGIN: z.string().url().optional().default('http://localhost:5173'),
   GOOGLE_BOOKS_API_KEY: z.string().optional(),
   ISBNDB_API_KEY: z.string().optional(),
 });
