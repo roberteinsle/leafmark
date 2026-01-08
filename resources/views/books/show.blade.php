@@ -150,6 +150,58 @@
                 </div>
                 @endif
 
+                <!-- Tags Section -->
+                <div class="mt-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-3">Tags</h2>
+
+                    @if($book->tags->isEmpty())
+                    <p class="text-sm text-gray-500 mb-3">No tags added yet</p>
+                    @else
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        @foreach($book->tags as $tag)
+                        <div class="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">
+                            <a href="{{ route('tags.show', $tag) }}" class="hover:underline">{{ $tag->name }}</a>
+                            <form action="{{ route('tags.remove-book', [$tag, $book]) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="hover:bg-indigo-200 rounded-full p-0.5">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                        @endforeach
+                    </div>
+                    @endif
+
+                    <!-- Add Tag Dropdown -->
+                    @php
+                        $availableTags = auth()->user()->tags()->whereNotIn('id', $book->tags->pluck('id'))->get();
+                    @endphp
+
+                    @if($availableTags->isNotEmpty())
+                    <form action="" method="POST" id="add-tag-form">
+                        @csrf
+                        <div class="flex gap-2">
+                            <select id="tag-select" class="block px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">Add a tag...</option>
+                                @foreach($availableTags as $availableTag)
+                                <option value="{{ route('tags.add-book', [$availableTag, $book]) }}">{{ $availableTag->name }}</option>
+                                @endforeach
+                            </select>
+                            <button type="button" onclick="addTag()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm">
+                                Add
+                            </button>
+                        </div>
+                    </form>
+                    @endif
+
+                    <a href="{{ route('tags.index') }}" class="text-sm text-indigo-600 hover:text-indigo-700 mt-2 inline-block">
+                        Manage Tags →
+                    </a>
+                </div>
+
                 <div class="mt-6 text-sm text-gray-500">
                     <p>Added: {{ $book->added_at->format('M d, Y') }}</p>
                     @if($book->started_at)
@@ -164,3 +216,28 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function addTag() {
+    const select = document.getElementById('tag-select');
+    const url = select.value;
+
+    if (url) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = url;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+@endpush
