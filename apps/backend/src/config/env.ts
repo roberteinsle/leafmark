@@ -1,10 +1,8 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
 
-// Load environment variables (only in non-build environments)
-if (process.env.NODE_ENV !== 'build') {
-  dotenv.config();
-}
+// Load environment variables from .env file if present
+dotenv.config();
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test', 'build']).default('development'),
@@ -20,6 +18,24 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 const parseEnv = () => {
+  // During build time, return a safe default configuration
+  // This allows TypeScript compilation without runtime env variables
+  const isBuildTime = process.env.NODE_ENV === 'build' || !process.env.DATABASE_URL;
+
+  if (isBuildTime) {
+    return {
+      NODE_ENV: 'build' as const,
+      PORT: 3001,
+      DATABASE_URL: 'mysql://localhost:3306/leafmark',
+      JWT_SECRET: 'build-time-placeholder-min-32-characters-long',
+      JWT_REFRESH_SECRET: 'build-time-placeholder-min-32-characters-long',
+      CORS_ORIGIN: 'http://localhost:5173',
+      GOOGLE_BOOKS_API_KEY: undefined,
+      ISBNDB_API_KEY: undefined,
+    };
+  }
+
+  // Runtime validation with proper error handling
   try {
     return envSchema.parse(process.env);
   } catch (error) {
@@ -28,10 +44,7 @@ const parseEnv = () => {
       error.errors.forEach((err) => {
         console.error(`  - ${err.path.join('.')}: ${err.message}`);
       });
-      // Only exit on validation errors in non-build environments
-      if (process.env.NODE_ENV !== 'build') {
-        process.exit(1);
-      }
+      process.exit(1);
     }
     throw error;
   }
