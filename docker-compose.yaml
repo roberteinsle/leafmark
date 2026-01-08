@@ -47,6 +47,7 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - leafmark
+      - coolify
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
