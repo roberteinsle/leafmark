@@ -9,11 +9,19 @@ services:
       - 80
     labels:
       - "traefik.enable=true"
+      # HTTPS Router
+      - "traefik.http.routers.leafmark-app-secure.rule=Host(`leafmark.einsle.cloud`)"
+      - "traefik.http.routers.leafmark-app-secure.entrypoints=websecure"
+      - "traefik.http.routers.leafmark-app-secure.tls=true"
+      - "traefik.http.routers.leafmark-app-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.leafmark-app-secure.service=leafmark-app"
+      # HTTP Router (redirect to HTTPS)
       - "traefik.http.routers.leafmark-app.rule=Host(`leafmark.einsle.cloud`)"
-      - "traefik.http.routers.leafmark-app.entrypoints=websecure"
-      - "traefik.http.routers.leafmark-app.tls=true"
-      - "traefik.http.routers.leafmark-app.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.leafmark-app.service=leafmark-app"
+      - "traefik.http.routers.leafmark-app.entrypoints=web"
+      - "traefik.http.routers.leafmark-app.middlewares=leafmark-redirect"
+      - "traefik.http.middlewares.leafmark-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.leafmark-redirect.redirectscheme.permanent=true"
+      # Service
       - "traefik.http.services.leafmark-app.loadbalancer.server.port=80"
       - "traefik.docker.network=coolify"
     environment:
