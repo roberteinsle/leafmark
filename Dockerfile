@@ -19,13 +19,19 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . /var/www/html
+# Copy composer files first
+COPY composer.json composer.lock /var/www/html/
 
 # Install dependencies
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+
+# Copy application files
+COPY . /var/www/html
+
+# Run composer scripts
+RUN composer dump-autoload --optimize
 
 # Create Laravel directories if they don't exist
 RUN mkdir -p storage/framework/cache/data \

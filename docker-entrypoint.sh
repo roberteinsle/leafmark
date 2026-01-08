@@ -31,12 +31,19 @@ GOOGLE_BOOKS_API_KEY="${GOOGLE_BOOKS_API_KEY}"
 ISBNDB_API_KEY="${ISBNDB_API_KEY}"
 ENVFILE
 
+# Verify artisan exists
+if [ ! -f /var/www/html/artisan ]; then
+    echo "ERROR: artisan file not found!"
+    ls -la /var/www/html/
+    exit 1
+fi
+
 # Fix permissions
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Clear config cache to ensure new .env is loaded
-php artisan config:clear
+php artisan config:clear || echo "Config clear failed, continuing..."
 
 # Wait for database to be ready
 echo "Waiting for database..."
