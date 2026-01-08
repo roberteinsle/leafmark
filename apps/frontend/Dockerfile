@@ -30,8 +30,8 @@ COPY package*.json ./
 COPY apps/frontend/package*.json ./apps/frontend/
 COPY packages/shared/package*.json ./packages/shared/
 
-# Install ALL dependencies (using install for better compatibility)
-RUN npm install --ignore-scripts
+# Install ALL dependencies including devDependencies (needed for build)
+RUN npm install
 
 # Copy source code
 COPY apps/frontend ./apps/frontend
