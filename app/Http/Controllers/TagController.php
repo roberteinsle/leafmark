@@ -27,6 +27,7 @@ class TagController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'color' => 'required|string|size:7|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
         auth()->user()->tags()->create($validated);
@@ -64,6 +65,7 @@ class TagController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'color' => 'required|string|size:7|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
         $tag->update($validated);
