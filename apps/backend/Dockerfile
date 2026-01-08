@@ -52,12 +52,13 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files (need all for workspace resolution)
 COPY package*.json ./
 COPY apps/backend/package*.json ./apps/backend/
+COPY packages/shared/package*.json ./packages/shared/
 
 # Install production dependencies only
-RUN npm ci --workspace=apps/backend --omit=dev
+RUN npm ci --workspace=apps/backend --workspace=packages/shared --omit=dev
 
 # Copy built application and prisma
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
