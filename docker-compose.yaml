@@ -24,10 +24,11 @@ services:
       - DB_HOST=db
       - DB_PORT=3306
       - DB_DATABASE=${DB_DATABASE:-leafmark}
-      - DB_USERNAME=${DB_USERNAME:-leafmark}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USERNAME=root
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - GOOGLE_BOOKS_API_KEY=${GOOGLE_BOOKS_API_KEY}
       - ISBNDB_API_KEY=${ISBNDB_API_KEY}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     depends_on:
       - db
     networks:
