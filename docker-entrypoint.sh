@@ -37,8 +37,20 @@ fi
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Wait for database to be ready
+echo "Waiting for database..."
+until php artisan db:show --database=mysql 2>&1 | grep -q "MySQL\|MariaDB"; do
+    echo "Database is unavailable - sleeping"
+    sleep 2
+done
+echo "Database is up - continuing"
+
 # Run migrations
 php artisan migrate --force || echo "Migration failed, continuing..."
+
+# Clear and cache config
+php artisan config:clear
+php artisan config:cache
 
 # Start Apache
 exec apache2-foreground
