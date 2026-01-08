@@ -9,11 +9,13 @@ services:
       - 80
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.leafmark.rule=Host(`leafmark.einsle.cloud`)"
-      - "traefik.http.routers.leafmark.entrypoints=websecure"
-      - "traefik.http.routers.leafmark.tls=true"
-      - "traefik.http.routers.leafmark.tls.certresolver=letsencrypt"
-      - "traefik.http.services.leafmark.loadbalancer.server.port=80"
+      - "traefik.http.routers.leafmark-app.rule=Host(`leafmark.einsle.cloud`)"
+      - "traefik.http.routers.leafmark-app.entrypoints=websecure"
+      - "traefik.http.routers.leafmark-app.tls=true"
+      - "traefik.http.routers.leafmark-app.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.leafmark-app.service=leafmark-app"
+      - "traefik.http.services.leafmark-app.loadbalancer.server.port=80"
+      - "traefik.docker.network=coolify"
     environment:
       - APP_NAME=${APP_NAME:-Leafmark}
       - APP_ENV=${APP_ENV:-production}
