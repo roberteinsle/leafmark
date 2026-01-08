@@ -56,7 +56,7 @@ RUN npm run prisma:generate --workspace=apps/backend && \
 ENV NODE_ENV=build
 RUN echo "Starting TypeScript build..." && \
     cd apps/backend && \
-    npx tsc && \
+    ../../node_modules/.bin/tsc && \
     echo "✓ TypeScript build completed" && \
     ls -la dist/
 ENV NODE_ENV=production
