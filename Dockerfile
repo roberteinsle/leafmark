@@ -30,6 +30,13 @@ RUN if [ -f "composer.json" ]; then \
         rm -rf .git; \
     fi
 
+# Create Laravel directories if they don't exist
+RUN mkdir -p storage/framework/cache/data \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
