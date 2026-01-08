@@ -25,8 +25,8 @@
                         <a href="{{ route('books.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Books
                         </a>
-                        <a href="{{ route('shelves.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Shelves
+                        <a href="{{ route('tags.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Tags
                         </a>
                     </div>
                     @endauth
@@ -34,6 +34,9 @@
                 <div class="flex items-center">
                     @auth
                     <div class="flex items-center space-x-4">
+                        <a href="{{ route('settings.edit') }}" class="text-sm text-gray-500 hover:text-gray-700">
+                            Settings
+                        </a>
                         <span class="text-sm text-gray-700">{{ Auth::user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -70,5 +73,7 @@
             @yield('content')
         </div>
     </main>
+
+    @stack('scripts')
 </body>
 </html>

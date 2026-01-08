@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Shelf extends Model
+class Tag extends Model
 {
     use HasFactory;
 
@@ -31,7 +31,7 @@ class Shelf extends Model
 
     public function books(): BelongsToMany
     {
-        return $this->belongsToMany(Book::class, 'shelf_books')
+        return $this->belongsToMany(Book::class, 'book_tag')
             ->withTimestamps()
             ->withPivot('added_at')
             ->orderByPivot('added_at', 'desc');

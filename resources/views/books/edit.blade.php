@@ -16,7 +16,7 @@
     <div class="bg-white rounded-lg shadow-lg p-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Edit Book</h1>
 
-        <form method="POST" action="{{ route('books.update', $book) }}" class="space-y-6">
+        <form method="POST" action="{{ route('books.update', $book) }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
 
@@ -106,18 +106,71 @@
             </div>
 
             <div>
-                <label for="cover_url" class="block text-sm font-medium text-gray-700">Cover URL</label>
-                <input type="url" name="cover_url" id="cover_url" value="{{ old('cover_url', $book->cover_url) }}"
-                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('cover_url') border-red-500 @enderror">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
+
+                @if($book->cover_image)
+                <div class="mb-4">
+                    <div class="flex items-start gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">Current cover:</p>
+                            <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" class="w-32 h-48 object-cover rounded border border-gray-300">
+                        </div>
+                        @if($book->local_cover_path)
+                        <div>
+                            <form action="{{ route('books.delete-cover', $book) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this cover?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete Cover
+                                </button>
+                            </form>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
+                <div class="space-y-2">
+                    <label for="cover_image" class="block text-sm font-medium text-gray-700">Upload New Cover</label>
+
+                    <!-- Drag & Drop Zone -->
+                    <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-indigo-500 transition-colors cursor-pointer">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-600">
+                            <span class="font-semibold text-indigo-600">Click to upload</span> or drag and drop
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">JPEG, PNG, GIF, or WebP. Max 5MB.</p>
+                        <p id="file-name" class="mt-2 text-sm text-gray-700 font-medium hidden"></p>
+                    </div>
+
+                    <input type="file" name="cover_image" id="cover_image" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="hidden">
+
+                    @error('cover_image')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div>
+                <label for="cover_url" class="block text-sm font-medium text-gray-700">Cover URL (for reference)</label>
+                <input type="url" name="cover_url" id="cover_url" value="{{ old('cover_url', $book->cover_url) }}" readonly
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-600 @error('cover_url') border-red-500 @enderror">
+                <p class="text-xs text-gray-500 mt-1">Original API cover URL (read-only)</p>
                 @error('cover_url')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
 
             <div>
-                <label for="thumbnail" class="block text-sm font-medium text-gray-700">Thumbnail URL</label>
-                <input type="url" name="thumbnail" id="thumbnail" value="{{ old('thumbnail', $book->thumbnail) }}"
-                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('thumbnail') border-red-500 @enderror">
+                <label for="thumbnail" class="block text-sm font-medium text-gray-700">Thumbnail URL (for reference)</label>
+                <input type="url" name="thumbnail" id="thumbnail" value="{{ old('thumbnail', $book->thumbnail) }}" readonly
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-600 @error('thumbnail') border-red-500 @enderror">
+                <p class="text-xs text-gray-500 mt-1">Original API thumbnail URL (read-only)</p>
                 @error('thumbnail')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -134,6 +187,66 @@
                 @error('status')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
+            </div>
+
+            <div>
+                <label for="format" class="block text-sm font-medium text-gray-700">Format</label>
+                <select name="format" id="format"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('format') border-red-500 @enderror">
+                    <option value="">-- Select Format --</option>
+                    <option value="digital" {{ old('format', $book->format) === 'digital' ? 'selected' : '' }}>Digital</option>
+                    <option value="paperback" {{ old('format', $book->format) === 'paperback' ? 'selected' : '' }}>Paperback</option>
+                    <option value="hardcover" {{ old('format', $book->format) === 'hardcover' ? 'selected' : '' }}>Hardcover</option>
+                    <option value="audiobook" {{ old('format', $book->format) === 'audiobook' ? 'selected' : '' }}>Audiobook</option>
+                    <option value="magazine" {{ old('format', $book->format) === 'magazine' ? 'selected' : '' }}>Magazine</option>
+                    <option value="spiral_bound" {{ old('format', $book->format) === 'spiral_bound' ? 'selected' : '' }}>Spiral Bound</option>
+                    <option value="leather_bound" {{ old('format', $book->format) === 'leather_bound' ? 'selected' : '' }}>Leather Bound</option>
+                    <option value="journal" {{ old('format', $book->format) === 'journal' ? 'selected' : '' }}>Journal</option>
+                    <option value="comic" {{ old('format', $book->format) === 'comic' ? 'selected' : '' }}>Comic</option>
+                    <option value="graphic_novel" {{ old('format', $book->format) === 'graphic_novel' ? 'selected' : '' }}>Graphic Novel</option>
+                    <option value="manga" {{ old('format', $book->format) === 'manga' ? 'selected' : '' }}>Manga</option>
+                    <option value="box_set" {{ old('format', $book->format) === 'box_set' ? 'selected' : '' }}>Box Set</option>
+                    <option value="omnibus" {{ old('format', $book->format) === 'omnibus' ? 'selected' : '' }}>Omnibus</option>
+                    <option value="reference" {{ old('format', $book->format) === 'reference' ? 'selected' : '' }}>Reference</option>
+                    <option value="other" {{ old('format', $book->format) === 'other' ? 'selected' : '' }}>Other</option>
+                </select>
+                @error('format')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div class="col-span-1">
+                    <label for="purchase_date" class="block text-sm font-medium text-gray-700">Purchase Date</label>
+                    <input type="date" name="purchase_date" id="purchase_date" value="{{ old('purchase_date', $book->purchase_date ? $book->purchase_date->format('Y-m-d') : '') }}"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('purchase_date') border-red-500 @enderror">
+                    @error('purchase_date')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="col-span-1">
+                    <label for="purchase_price" class="block text-sm font-medium text-gray-700">Purchase Price</label>
+                    <input type="number" step="0.01" name="purchase_price" id="purchase_price" value="{{ old('purchase_price', $book->purchase_price) }}"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('purchase_price') border-red-500 @enderror">
+                    @error('purchase_price')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="col-span-1">
+                    <label for="purchase_currency" class="block text-sm font-medium text-gray-700">Currency</label>
+                    <select name="purchase_currency" id="purchase_currency"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('purchase_currency') border-red-500 @enderror">
+                        <option value="EUR" {{ old('purchase_currency', $book->purchase_currency) === 'EUR' ? 'selected' : '' }}>EUR (€)</option>
+                        <option value="USD" {{ old('purchase_currency', $book->purchase_currency) === 'USD' ? 'selected' : '' }}>USD ($)</option>
+                        <option value="GBP" {{ old('purchase_currency', $book->purchase_currency) === 'GBP' ? 'selected' : '' }}>GBP (£)</option>
+                        <option value="CHF" {{ old('purchase_currency', $book->purchase_currency) === 'CHF' ? 'selected' : '' }}>CHF</option>
+                    </select>
+                    @error('purchase_currency')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <div>
@@ -157,3 +270,85 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('cover_image');
+    const fileNameDisplay = document.getElementById('file-name');
+
+    // Click to upload
+    dropZone.addEventListener('click', function(e) {
+        if (e.target.tagName !== 'INPUT') {
+            fileInput.click();
+        }
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', function(e) {
+        handleFiles(this.files);
+    });
+
+    // Drag & Drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Highlight drop zone when dragging over
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function() {
+            dropZone.classList.add('border-indigo-500', 'bg-indigo-50');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function() {
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-50');
+        });
+    });
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', function(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFiles(files);
+        }
+    });
+
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please upload a valid image file (JPEG, PNG, GIF, or WebP).');
+                fileInput.value = '';
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB.');
+                fileInput.value = '';
+                return;
+            }
+
+            // Display file name
+            fileNameDisplay.textContent = '✓ Selected: ' + file.name;
+            fileNameDisplay.classList.remove('hidden');
+            dropZone.classList.add('border-green-500');
+        }
+    }
+});
+</script>
+@endpush

@@ -3,7 +3,8 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BookController;
-use App\Http\Controllers\ShelfController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\UserSettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -35,11 +36,18 @@ Route::middleware('auth')->group(function () {
 
     // Books routes
     Route::resource('books', BookController::class);
+    Route::post('/books/store-from-api', [BookController::class, 'storeFromApi'])->name('books.store-from-api');
+    Route::post('/books/bulk-delete', [BookController::class, 'bulkDelete'])->name('books.bulk-delete');
     Route::patch('/books/{book}/progress', [BookController::class, 'updateProgress'])->name('books.progress');
     Route::patch('/books/{book}/status', [BookController::class, 'updateStatus'])->name('books.status');
+    Route::delete('/books/{book}/cover', [BookController::class, 'deleteCover'])->name('books.delete-cover');
 
-    // Shelves routes
-    Route::resource('shelves', ShelfController::class);
-    Route::post('/shelves/{shelf}/books/{book}', [ShelfController::class, 'addBook'])->name('shelves.add-book');
-    Route::delete('/shelves/{shelf}/books/{book}', [ShelfController::class, 'removeBook'])->name('shelves.remove-book');
+    // Tags routes
+    Route::resource('tags', TagController::class);
+    Route::post('/tags/{tag}/books/{book}', [TagController::class, 'addBook'])->name('tags.add-book');
+    Route::delete('/tags/{tag}/books/{book}', [TagController::class, 'removeBook'])->name('tags.remove-book');
+
+    // User settings routes
+    Route::get('/settings', [UserSettingsController::class, 'edit'])->name('settings.edit');
+    Route::patch('/settings', [UserSettingsController::class, 'update'])->name('settings.update');
 });

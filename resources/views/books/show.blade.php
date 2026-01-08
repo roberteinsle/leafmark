@@ -16,8 +16,8 @@
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
         <div class="md:flex">
             <div class="md:flex-shrink-0 md:w-64">
-                @if($book->cover_url)
-                <img src="{{ $book->cover_url }}" alt="{{ $book->title }}" class="w-full h-96 object-cover">
+                @if($book->cover_image)
+                <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" class="w-full h-96 object-cover">
                 @else
                 <div class="w-full h-96 bg-gray-200 flex items-center justify-center">
                     <svg class="h-32 w-32 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,6 +87,12 @@
                 @endif
 
                 <div class="mt-6 grid grid-cols-2 gap-4 text-sm">
+                    @if($book->format)
+                    <div>
+                        <span class="text-gray-600">Format:</span>
+                        <span class="ml-2 font-medium">{{ ucwords(str_replace('_', ' ', $book->format)) }}</span>
+                    </div>
+                    @endif
                     @if($book->isbn)
                     <div>
                         <span class="text-gray-600">ISBN:</span>
@@ -121,6 +127,18 @@
                     <div>
                         <span class="text-gray-600">Language:</span>
                         <span class="ml-2 font-medium">{{ strtoupper($book->language) }}</span>
+                    </div>
+                    @endif
+                    @if($book->purchase_date)
+                    <div>
+                        <span class="text-gray-600">Purchase Date:</span>
+                        <span class="ml-2 font-medium">{{ $book->purchase_date->format('M d, Y') }}</span>
+                    </div>
+                    @endif
+                    @if($book->purchase_price)
+                    <div>
+                        <span class="text-gray-600">Purchase Price:</span>
+                        <span class="ml-2 font-medium">{{ $book->purchase_currency }} {{ number_format($book->purchase_price, 2) }}</span>
                     </div>
                     @endif
                 </div>

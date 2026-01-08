@@ -15,6 +15,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'preferred_language',
     ];
 
     protected $hidden = [
@@ -35,19 +36,19 @@ class User extends Authenticatable
         return $this->hasMany(Book::class);
     }
 
-    public function shelves(): HasMany
+    public function tags(): HasMany
     {
-        return $this->hasMany(Shelf::class)->ordered();
+        return $this->hasMany(Tag::class)->ordered();
     }
 
     // Helper methods
-    public function getDefaultShelves(): \Illuminate\Database\Eloquent\Collection
+    public function getDefaultTags(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->shelves()->default()->get();
+        return $this->tags()->default()->get();
     }
 
-    public function getCustomShelves(): \Illuminate\Database\Eloquent\Collection
+    public function getCustomTags(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->shelves()->custom()->get();
+        return $this->tags()->custom()->get();
     }
 }

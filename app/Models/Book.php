@@ -24,8 +24,13 @@ class Book extends Model
         'language',
         'cover_url',
         'thumbnail',
+        'local_cover_path',
         'current_page',
         'status',
+        'format',
+        'purchase_date',
+        'purchase_price',
+        'purchase_currency',
         'added_at',
         'started_at',
         'finished_at',
@@ -35,11 +40,19 @@ class Book extends Model
 
     protected $casts = [
         'published_date' => 'date',
+        'purchase_date' => 'date',
         'added_at' => 'datetime',
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
         'page_count' => 'integer',
         'current_page' => 'integer',
+        'purchase_price' => 'decimal:2',
+    ];
+
+    protected $appends = [
+        'cover_image',
+        'thumbnail_image',
+        'reading_progress',
     ];
 
     public function user(): BelongsTo
@@ -47,11 +60,48 @@ class Book extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function shelves(): BelongsToMany
+    public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Shelf::class, 'shelf_books')
+        return $this->belongsToMany(Tag::class, 'book_tag')
             ->withTimestamps()
             ->withPivot('added_at');
+    }
+
+    /**
+     * Get the route key - use Unix timestamp from added_at
+     */
+    public function getRouteKey()
+    {
+        // Use Unix timestamp as unique identifier
+        // Fall back to ID if added_at is not set yet (e.g., during creation)
+        return $this->added_at ? $this->added_at->timestamp : $this->id;
+    }
+
+    /**
+     * Retrieve the model for a bound value using Unix timestamp
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        // Scope to current user's books for security
+        $query = $this->where('user_id', auth()->id());
+
+        // If it's a Unix timestamp, find by added_at
+        if (is_numeric($value) && $value > 1000000000) {
+            // Convert timestamp to datetime and find the book
+            $datetime = \Carbon\Carbon::createFromTimestamp($value);
+            $book = $query->where('added_at', $datetime)->first();
+
+            if ($book) {
+                return $book;
+            }
+        }
+
+        // Fallback to ID for backwards compatibility
+        if (is_numeric($value)) {
+            return $query->where('id', $value)->first();
+        }
+
+        return null;
     }
 
     // Scopes for filtering
@@ -95,5 +145,29 @@ class Book extends Model
             'finished_at' => now(),
             'current_page' => $this->page_count ?? 0,
         ]);
+    }
+
+    /**
+     * Get the cover image URL (local or remote)
+     */
+    public function getCoverImageAttribute(): ?string
+    {
+        if ($this->local_cover_path) {
+            return asset('storage/' . $this->local_cover_path);
+        }
+
+        return $this->cover_url;
+    }
+
+    /**
+     * Get the thumbnail image URL (local or remote)
+     */
+    public function getThumbnailImageAttribute(): ?string
+    {
+        if ($this->local_cover_path) {
+            return asset('storage/' . $this->local_cover_path);
+        }
+
+        return $this->thumbnail ?? $this->cover_url;
     }
 }
