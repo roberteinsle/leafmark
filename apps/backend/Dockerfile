@@ -33,8 +33,8 @@ COPY package*.json ./
 COPY apps/backend/package*.json ./apps/backend/
 COPY packages/shared/package*.json ./packages/shared/
 
-# Install ALL dependencies first (full workspace)
-RUN npm ci
+# Install ALL dependencies (using install instead of ci for better compatibility)
+RUN npm install --ignore-scripts
 
 # Copy source code
 COPY apps/backend ./apps/backend
