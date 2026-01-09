@@ -7,12 +7,15 @@ use Illuminate\Support\Facades\Log;
 
 class GoogleBooksService
 {
-    protected string $apiKey;
+    protected ?string $apiKey;
     protected string $baseUrl = 'https://www.googleapis.com/books/v1';
 
     public function __construct()
     {
-        $this->apiKey = config('services.google_books.api_key');
+        // Try user's API key first, fallback to env config
+        $this->apiKey = auth()->check() && auth()->user()->google_books_api_key
+            ? auth()->user()->google_books_api_key
+            : config('services.google_books.api_key');
     }
 
     /**
@@ -25,10 +28,14 @@ class GoogleBooksService
 
         $params = [
             'q' => $searchQuery,
-            'key' => $this->apiKey,
             'maxResults' => $maxResults,
             'orderBy' => 'relevance',
         ];
+
+        // Add API key if available
+        if ($this->apiKey) {
+            $params['key'] = $this->apiKey;
+        }
 
         // Add language filter if specified
         if ($language) {
@@ -64,9 +71,14 @@ class GoogleBooksService
     public function getBook(string $googleBooksId): ?array
     {
         try {
-            $response = Http::get("{$this->baseUrl}/volumes/{$googleBooksId}", [
-                'key' => $this->apiKey,
-            ]);
+            $params = [];
+
+            // Add API key if available
+            if ($this->apiKey) {
+                $params['key'] = $this->apiKey;
+            }
+
+            $response = Http::get("{$this->baseUrl}/volumes/{$googleBooksId}", $params);
 
             if ($response->successful()) {
                 $data = $response->json();

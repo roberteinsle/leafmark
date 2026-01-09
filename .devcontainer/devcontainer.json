@@ -4,8 +4,7 @@
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
-    },
-    "ghcr.io/devcontainers-contrib/features/composer:2": {}
+    }
   },
   "forwardPorts": [8000, 3306],
   "portsAttributes": {
@@ -17,7 +16,7 @@
       "label": "MariaDB"
     }
   },
-  "postCreateCommand": "composer install && cp .env.example .env && php artisan key:generate",
+  "postCreateCommand": "composer install && cp .env.example .env && php artisan key:generate && npm install -g @anthropic-ai/claude-code",
   "customizations": {
     "vscode": {
       "extensions": [

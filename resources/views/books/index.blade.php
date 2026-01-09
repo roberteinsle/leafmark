@@ -24,12 +24,16 @@
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
 
+            @if(request('sort'))
+                <input type="hidden" name="sort" value="{{ request('sort') }}">
+            @endif
+
             <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700">
                 Search
             </button>
 
             @if(request('search'))
-                <a href="{{ route('books.index', request()->only('status')) }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
+                <a href="{{ route('books.index', request()->only(['status', 'sort'])) }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
                     Clear
                 </a>
             @endif
@@ -52,21 +56,45 @@
         @endif
     </div>
 
-    <!-- Filter Tabs -->
+    <!-- Filter Tabs with Sort -->
     <div class="mb-6">
-        <div class="flex space-x-4">
-            <a href="{{ route('books.index', request()->only('search')) }}" class="px-4 py-2 rounded-lg {{ !request('status') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
-                All Books <span class="ml-2 text-sm opacity-75">({{ $counts['all'] }})</span>
-            </a>
-            <a href="{{ route('books.index', array_merge(request()->only('search'), ['status' => 'want_to_read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'want_to_read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
-                Want to Read <span class="ml-2 text-sm opacity-75">({{ $counts['want_to_read'] }})</span>
-            </a>
-            <a href="{{ route('books.index', array_merge(request()->only('search'), ['status' => 'currently_reading'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'currently_reading' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
-                Currently Reading <span class="ml-2 text-sm opacity-75">({{ $counts['currently_reading'] }})</span>
-            </a>
-            <a href="{{ route('books.index', array_merge(request()->only('search'), ['status' => 'read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
-                Read <span class="ml-2 text-sm opacity-75">({{ $counts['read'] }})</span>
-            </a>
+        <div class="flex justify-between items-center">
+            <div class="flex space-x-4">
+                <a href="{{ route('books.index', request()->only(['search', 'sort'])) }}" class="px-4 py-2 rounded-lg {{ !request('status') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
+                    All Books <span class="ml-2 text-sm opacity-75">({{ $counts['all'] }})</span>
+                </a>
+                <a href="{{ route('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'want_to_read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'want_to_read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
+                    Want to Read <span class="ml-2 text-sm opacity-75">({{ $counts['want_to_read'] }})</span>
+                </a>
+                <a href="{{ route('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'currently_reading'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'currently_reading' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
+                    Currently Reading <span class="ml-2 text-sm opacity-75">({{ $counts['currently_reading'] }})</span>
+                </a>
+                <a href="{{ route('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
+                    Read <span class="ml-2 text-sm opacity-75">({{ $counts['read'] }})</span>
+                </a>
+            </div>
+
+            <!-- Sort Dropdown -->
+            <form action="{{ route('books.index') }}" method="GET" class="inline-block">
+                @if(request('status'))
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                @endif
+                @if(request('search'))
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
+                <select name="sort"
+                        onchange="this.form.submit()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                    <option value="added_at_desc" {{ request('sort', 'added_at_desc') === 'added_at_desc' ? 'selected' : '' }}>Sort: Added (Newest)</option>
+                    <option value="added_at_asc" {{ request('sort') === 'added_at_asc' ? 'selected' : '' }}>Sort: Added (Oldest)</option>
+                    <option value="title_asc" {{ request('sort') === 'title_asc' ? 'selected' : '' }}>Sort: Title (A-Z)</option>
+                    <option value="title_desc" {{ request('sort') === 'title_desc' ? 'selected' : '' }}>Sort: Title (Z-A)</option>
+                    <option value="author_asc" {{ request('sort') === 'author_asc' ? 'selected' : '' }}>Sort: Author (A-Z)</option>
+                    <option value="author_desc" {{ request('sort') === 'author_desc' ? 'selected' : '' }}>Sort: Author (Z-A)</option>
+                    <option value="published_date_desc" {{ request('sort') === 'published_date_desc' ? 'selected' : '' }}>Sort: Release Date (Newest)</option>
+                    <option value="published_date_asc" {{ request('sort') === 'published_date_asc' ? 'selected' : '' }}>Sort: Release Date (Oldest)</option>
+                </select>
+            </form>
         </div>
     </div>
 
@@ -130,6 +158,12 @@
             </a>
             <div class="p-3">
                 <h3 class="font-semibold text-gray-900 text-sm line-clamp-2 h-10">{{ $book->title }}</h3>
+                @if($book->series)
+                <a href="{{ route('books.series', ['series' => $book->series]) }}"
+                   class="text-xs text-purple-600 hover:text-purple-800 hover:underline truncate mt-1 block">
+                    {{ $book->series }}@if($book->series_position) #{{ $book->series_position }}@endif
+                </a>
+                @endif
                 @if($book->author)
                 <a href="{{ route('books.index', ['author' => $book->author]) }}"
                    class="text-xs text-indigo-600 hover:text-indigo-800 hover:underline truncate mt-1 block">

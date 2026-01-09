@@ -13,20 +13,17 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ route('dashboard') }}" class="text-xl font-bold text-gray-800">
+                        <a href="{{ route('books.index') }}" class="text-xl font-bold text-gray-800">
                             📚 {{ config('app.name', 'Leafmark') }}
                         </a>
                     </div>
                     @auth
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="{{ route('dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Dashboard
-                        </a>
                         <a href="{{ route('books.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Books
+                            {{ __('app.nav.books') }}
                         </a>
                         <a href="{{ route('tags.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Tags
+                            {{ __('app.nav.tags') }}
                         </a>
                     </div>
                     @endauth
@@ -38,23 +35,23 @@
                             <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
-                            Add Book
+                            {{ __('app.nav.add_book') }}
                         </a>
                         <a href="{{ route('settings.edit') }}" class="text-sm text-gray-500 hover:text-gray-700">
-                            Settings
+                            {{ __('app.nav.settings') }}
                         </a>
                         <span class="text-sm text-gray-700">{{ Auth::user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="text-sm text-gray-500 hover:text-gray-700">
-                                Logout
+                                {{ __('app.nav.logout') }}
                             </button>
                         </form>
                     </div>
                     @else
                     <div class="space-x-4">
-                        <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:text-gray-900">Login</a>
-                        <a href="{{ route('register') }}" class="text-sm text-gray-700 hover:text-gray-900">Register</a>
+                        <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:text-gray-900">{{ __('app.nav.login') }}</a>
+                        <a href="{{ route('register') }}" class="text-sm text-gray-700 hover:text-gray-900">{{ __('app.nav.register') }}</a>
                     </div>
                     @endauth
                 </div>

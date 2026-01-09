@@ -30,7 +30,30 @@
       "Bash(docker-compose config:*)",
       "Bash(docker-compose ps:*)",
       "Bash(export MYSQL_ROOT_PASSWORD=leafmark123)",
-      "Bash(MYSQL_ROOT_PASSWORD=leafmark123 docker-compose up:*)"
+      "Bash(MYSQL_ROOT_PASSWORD=leafmark123 docker-compose up:*)",
+      "Bash(docker compose:*)",
+      "Bash(php artisan serve:*)",
+      "Bash(echo:*)",
+      "Bash(php artisan migrate:status:*)",
+      "Bash(php -m:*)",
+      "Bash(php artisan migrate:*)",
+      "Bash(php artisan config:clear:*)",
+      "Bash(php artisan cache:clear:*)",
+      "Bash(curl:*)",
+      "Bash(php artisan:*)",
+      "Bash(gh codespace ports:*)",
+      "Bash(timeout 10 php:*)",
+      "Bash(kill:*)",
+      "Bash(pkill:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)",
+      "Bash(ls:*)",
+      "Bash(php -r:*)",
+      "Bash(php -i:*)",
+      "Bash(sudo tee:*)",
+      "Bash(sudo service apache2 restart:*)",
+      "Bash(sudo apachectl restart:*)",
+      "Bash(sudo killall:*)"
     ]
   }
 }

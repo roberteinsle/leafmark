@@ -16,11 +16,13 @@ class User extends Authenticatable
         'email',
         'password',
         'preferred_language',
+        'google_books_api_key',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'google_books_api_key',
     ];
 
     protected function casts(): array

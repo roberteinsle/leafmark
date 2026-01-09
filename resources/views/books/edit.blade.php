@@ -16,6 +16,14 @@
     <div class="bg-white rounded-lg shadow-lg p-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Edit Book</h1>
 
+        <!-- Separate form for deleting cover (must be outside main form) -->
+        @if($book->local_cover_path)
+        <form id="delete-cover-form" action="{{ route('books.delete-cover', $book) }}" method="POST" style="display: none;">
+            @csrf
+            @method('DELETE')
+        </form>
+        @endif
+
         <form method="POST" action="{{ route('books.update', $book) }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
@@ -36,6 +44,26 @@
                 @error('author')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="series" class="block text-sm font-medium text-gray-700">Series</label>
+                    <input type="text" name="series" id="series" value="{{ old('series', $book->series) }}"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('series') border-red-500 @enderror">
+                    @error('series')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="series_position" class="block text-sm font-medium text-gray-700">Series Position</label>
+                    <input type="number" name="series_position" id="series_position" min="1" value="{{ old('series_position', $book->series_position) }}"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('series_position') border-red-500 @enderror">
+                    @error('series_position')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -96,6 +124,26 @@
                 @enderror
             </div>
 
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="started_at" class="block text-sm font-medium text-gray-700">Started Reading</label>
+                    <input type="date" name="started_at" id="started_at" value="{{ old('started_at', $book->started_at ? $book->started_at->format('Y-m-d') : '') }}"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('started_at') border-red-500 @enderror">
+                    @error('started_at')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="finished_at" class="block text-sm font-medium text-gray-700">Finished Reading</label>
+                    <input type="date" name="finished_at" id="finished_at" value="{{ old('finished_at', $book->finished_at ? $book->finished_at->format('Y-m-d') : '') }}"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('finished_at') border-red-500 @enderror">
+                    @error('finished_at')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
                 <textarea name="description" id="description" rows="4"
@@ -106,54 +154,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
-
-                @if($book->cover_image)
-                <div class="mb-4">
-                    <div class="flex items-start gap-4">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-2">Current cover:</p>
-                            <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" class="w-32 h-48 object-cover rounded border border-gray-300">
-                        </div>
-                        @if($book->local_cover_path)
-                        <div>
-                            <form action="{{ route('books.delete-cover', $book) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this cover?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                    Delete Cover
-                                </button>
-                            </form>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-                @endif
-
-                <div class="space-y-2">
-                    <label for="cover_image" class="block text-sm font-medium text-gray-700">Upload New Cover</label>
-
-                    <!-- Drag & Drop Zone -->
-                    <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-indigo-500 transition-colors cursor-pointer">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <p class="mt-2 text-sm text-gray-600">
-                            <span class="font-semibold text-indigo-600">Click to upload</span> or drag and drop
-                        </p>
-                        <p class="text-xs text-gray-500 mt-1">JPEG, PNG, GIF, or WebP. Max 5MB.</p>
-                        <p id="file-name" class="mt-2 text-sm text-gray-700 font-medium hidden"></p>
-                    </div>
-
-                    <input type="file" name="cover_image" id="cover_image" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="hidden">
-
-                    @error('cover_image')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cover Images</label>
+                <p class="text-sm text-gray-500 mb-4">Cover images are managed below, after saving this form.</p>
             </div>
 
             <div>
@@ -267,6 +269,84 @@
                 </button>
             </div>
         </form>
+
+        <!-- Cover Management Section (separate from main form) -->
+        <div class="mt-8 pt-8 border-t border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Cover Images</h2>
+
+            <!-- Multiple Covers Gallery -->
+            @if($book->covers->count() > 0)
+            <div class="mb-8">
+                <p class="text-sm text-gray-600 mb-3">Current covers (hover to delete or set as default):</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    @foreach($book->covers as $cover)
+                    <div class="relative group cover-item">
+                        <img src="{{ $cover->url }}"
+                             alt="{{ $book->title }}"
+                             class="w-full h-48 object-cover rounded border-2 {{ $cover->is_primary ? 'border-indigo-500' : 'border-gray-300' }}">
+
+                        <!-- Hover overlay with delete button -->
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity rounded flex items-center justify-center">
+                            <button type="button"
+                                    onclick="deleteCover({{ $cover->id }})"
+                                    class="opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 text-white p-3 rounded-full transition-opacity">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Primary badge -->
+                        @if($cover->is_primary)
+                        <div class="absolute top-2 left-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded">
+                            Default
+                        </div>
+                        @else
+                        <button type="button"
+                                onclick="setPrimary({{ $cover->id }})"
+                                class="absolute top-2 left-2 bg-gray-600 hover:bg-indigo-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Set Default
+                        </button>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <!-- Upload New Cover Form (completely separate) -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <form action="{{ route('books.covers.upload', $book) }}" method="POST" enctype="multipart/form-data" id="cover-upload-form">
+                    @csrf
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload New Cover</label>
+
+                    <!-- Drag & Drop Zone -->
+                    <div id="drop-zone-covers" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-indigo-500 transition-colors cursor-pointer bg-white">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-600">
+                            <span class="font-semibold text-indigo-600">Click to upload</span> or drag and drop
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">JPEG, PNG, GIF, or WebP. Max 25MB. You can select multiple files.</p>
+                        <p id="file-name-covers" class="mt-2 text-sm text-gray-700 font-medium hidden"></p>
+                    </div>
+
+                    <input type="file" name="cover_images[]" id="cover_images_input" multiple accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="hidden">
+
+                    @error('cover_images')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    @error('cover_images.*')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+
+                    <button type="submit" class="mt-3 w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        Upload Cover(s)
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -336,9 +416,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Validate file size (5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 5MB.');
+            // Validate file size (25MB)
+            if (file.size > 25 * 1024 * 1024) {
+                alert('File size must be less than 25MB.');
                 fileInput.value = '';
                 return;
             }
@@ -350,5 +430,144 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// Cover management functions
+function deleteCover(coverId) {
+    if (!confirm('Are you sure you want to delete this cover?')) {
+        return;
+    }
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/books/{{ $book->id }}/covers/${coverId}`;
+
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = '_token';
+    csrf.value = '{{ csrf_token() }}';
+
+    const method = document.createElement('input');
+    method.type = 'hidden';
+    method.name = '_method';
+    method.value = 'DELETE';
+
+    form.appendChild(csrf);
+    form.appendChild(method);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function setPrimary(coverId) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/books/{{ $book->id }}/covers/${coverId}/primary`;
+
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = '_token';
+    csrf.value = '{{ csrf_token() }}';
+
+    const method = document.createElement('input');
+    method.type = 'hidden';
+    method.name = '_method';
+    method.value = 'PATCH';
+
+    form.appendChild(csrf);
+    form.appendChild(method);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Drag & Drop for cover upload
+const dropZoneCovers = document.getElementById('drop-zone-covers');
+const fileInputCovers = document.getElementById('cover_images_input');
+const fileNameDisplayCovers = document.getElementById('file-name-covers');
+
+if (dropZoneCovers && fileInputCovers) {
+    // Click to upload
+    dropZoneCovers.addEventListener('click', () => fileInputCovers.click());
+
+    // File input change
+    fileInputCovers.addEventListener('change', function() {
+        handleCoverFiles(this.files);
+    });
+
+    // Drag & Drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZoneCovers.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZoneCovers.addEventListener(eventName, function() {
+            dropZoneCovers.classList.add('border-indigo-500', 'bg-indigo-50');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZoneCovers.addEventListener(eventName, function() {
+            dropZoneCovers.classList.remove('border-indigo-500', 'bg-indigo-50');
+        });
+    });
+
+    // Handle dropped files
+    dropZoneCovers.addEventListener('drop', function(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            fileInputCovers.files = files;
+            handleCoverFiles(files);
+        }
+    });
+
+    function handleCoverFiles(files) {
+        if (files.length > 0) {
+            // Validate each file
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            let validCount = 0;
+            let invalidFiles = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+
+                // Validate file type
+                if (!allowedTypes.includes(file.type)) {
+                    invalidFiles.push(file.name + ' (invalid type)');
+                    continue;
+                }
+
+                // Validate file size (25MB)
+                if (file.size > 25 * 1024 * 1024) {
+                    invalidFiles.push(file.name + ' (too large)');
+                    continue;
+                }
+
+                validCount++;
+            }
+
+            if (invalidFiles.length > 0) {
+                alert('Some files are invalid:\n' + invalidFiles.join('\n'));
+            }
+
+            if (validCount > 0) {
+                // Display file names
+                if (validCount === 1) {
+                    fileNameDisplayCovers.textContent = '✓ Selected: ' + files[0].name;
+                } else {
+                    fileNameDisplayCovers.textContent = `✓ Selected ${validCount} file(s)`;
+                }
+                fileNameDisplayCovers.classList.remove('hidden');
+                dropZoneCovers.classList.add('border-green-500');
+            } else {
+                fileInputCovers.value = '';
+            }
+        }
+    }
+}
 </script>
 @endpush

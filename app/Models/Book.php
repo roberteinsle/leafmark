@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends Model
 {
@@ -14,6 +15,8 @@ class Book extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'series',
+        'series_position',
         'author',
         'isbn',
         'isbn13',
@@ -36,6 +39,10 @@ class Book extends Model
         'finished_at',
         'api_source',
         'external_id',
+        'openlibrary_edition_id',
+        'goodreads_id',
+        'librarything_id',
+        'openlibrary_url',
     ];
 
     protected $casts = [
@@ -46,6 +53,7 @@ class Book extends Model
         'finished_at' => 'datetime',
         'page_count' => 'integer',
         'current_page' => 'integer',
+        'series_position' => 'integer',
         'purchase_price' => 'decimal:2',
     ];
 
@@ -65,6 +73,16 @@ class Book extends Model
         return $this->belongsToMany(Tag::class, 'book_tag')
             ->withTimestamps()
             ->withPivot('added_at');
+    }
+
+    public function covers(): HasMany
+    {
+        return $this->hasMany(BookCover::class)->ordered();
+    }
+
+    public function progressHistory(): HasMany
+    {
+        return $this->hasMany(ReadingProgressHistory::class)->orderBy('recorded_at', 'desc');
     }
 
     /**
@@ -148,26 +166,45 @@ class Book extends Model
     }
 
     /**
-     * Get the cover image URL (local or remote)
+     * Get the cover image URL - prefers multiple covers, then local cover, falls back to external URLs
      */
     public function getCoverImageAttribute(): ?string
     {
+        // First check for primary cover in covers relationship
+        $primaryCover = $this->covers()->primary()->first();
+        if ($primaryCover) {
+            return $primaryCover->url;
+        }
+
+        // Fallback to first cover if no primary set
+        $firstCover = $this->covers()->first();
+        if ($firstCover) {
+            return $firstCover->url;
+        }
+
+        // Legacy: Prefer local cover if available
         if ($this->local_cover_path) {
             return asset('storage/' . $this->local_cover_path);
         }
 
+        // Fallback to external URLs
         return $this->cover_url;
     }
 
     /**
-     * Get the thumbnail image URL (local or remote)
+     * Get the thumbnail image URL - prefers multiple covers, then local cover, falls back to external URLs
      */
     public function getThumbnailImageAttribute(): ?string
     {
+        // Use same logic as cover_image for consistency
+        return $this->cover_image;
+
+        // Legacy: Prefer local cover if available
         if ($this->local_cover_path) {
             return asset('storage/' . $this->local_cover_path);
         }
 
+        // Fallback to external URLs
         return $this->thumbnail ?? $this->cover_url;
     }
 }

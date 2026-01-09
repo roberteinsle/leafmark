@@ -16,8 +16,30 @@
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
         <div class="md:flex">
             <div class="md:flex-shrink-0 md:w-64">
-                @if($book->cover_image)
-                <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" class="w-full h-96 object-cover">
+                @if($book->covers->count() > 0)
+                    <!-- Multiple Covers Gallery -->
+                    <div class="relative">
+                        <div id="cover-gallery" class="w-full h-96">
+                            @foreach($book->covers as $index => $cover)
+                            <img src="{{ $cover->url }}"
+                                 alt="{{ $book->title }}"
+                                 data-cover-index="{{ $index }}"
+                                 class="cover-slide absolute inset-0 w-full h-96 object-cover {{ $index === 0 ? '' : 'hidden' }}">
+                            @endforeach
+                        </div>
+
+                        @if($book->covers->count() > 1)
+                        <!-- Gallery Navigation -->
+                        <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                            @foreach($book->covers as $index => $cover)
+                            <button onclick="showCover({{ $index }})"
+                                    class="cover-dot w-2 h-2 rounded-full {{ $index === 0 ? 'bg-white' : 'bg-white/50' }}"></button>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                @elseif($book->cover_image)
+                    <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" class="w-full h-96 object-cover">
                 @else
                 <div class="w-full h-96 bg-gray-200 flex items-center justify-center">
                     <svg class="h-32 w-32 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,6 +52,13 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900">{{ $book->title }}</h1>
+                        @if($book->series)
+                        <p class="text-lg text-indigo-600 mt-1">
+                            <a href="{{ route('books.series', ['series' => $book->series]) }}" class="hover:underline">
+                                {{ $book->series }}@if($book->series_position) #{{ $book->series_position }}@endif
+                            </a>
+                        </p>
+                        @endif
                         @if($book->author)
                         <p class="text-xl text-gray-600 mt-2">by {{ $book->author }}</p>
                         @endif
@@ -83,6 +112,33 @@
                             <div class="bg-indigo-600 h-3 rounded-full" style="width: {{ $book->reading_progress }}%"></div>
                         </div>
                     </div>
+
+                    @if($book->progressHistory->isNotEmpty())
+                    <div class="mt-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Reading Progress History</h3>
+                        <div class="space-y-2 max-h-48 overflow-y-auto">
+                            @foreach($book->progressHistory as $entry)
+                            <div class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded text-sm">
+                                <div class="flex items-center space-x-3">
+                                    <span class="font-medium text-gray-900">Page {{ $entry->page_number }}</span>
+                                    <span class="text-gray-500">{{ $entry->recorded_at->format('M d, Y H:i') }}</span>
+                                </div>
+                                <form method="POST" action="{{ route('books.progress.delete', [$book, $entry->id]) }}" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            onclick="return confirm('Delete this progress entry? Current page will revert to the previous entry.')"
+                                            class="text-red-600 hover:text-red-800">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
                 @endif
 
@@ -146,9 +202,121 @@
                 @if($book->description)
                 <div class="mt-6">
                     <h2 class="text-lg font-semibold text-gray-900 mb-2">Description</h2>
-                    <p class="text-gray-700 leading-relaxed">{{ $book->description }}</p>
+                    <div class="text-gray-700 leading-relaxed prose max-w-none">{!! nl2br(e($book->description)) !!}</div>
                 </div>
                 @endif
+
+                <!-- Edition Identifiers Section -->
+                @if($book->openlibrary_edition_id || $book->goodreads_id || $book->librarything_id)
+                <div class="mt-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-3">Edition Identifiers</h2>
+                    <div class="space-y-2 text-sm">
+                        @if($book->openlibrary_edition_id)
+                        <div>
+                            <span class="text-gray-600">OL:</span>
+                            <a href="{{ $book->openlibrary_url ?? 'https://openlibrary.org/books/' . $book->openlibrary_edition_id }}"
+                               target="_blank"
+                               class="ml-2 text-indigo-600 hover:text-indigo-700 hover:underline">
+                                {{ $book->openlibrary_edition_id }}
+                                <svg class="inline w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        @endif
+                        @if($book->goodreads_id)
+                        <div>
+                            <span class="text-gray-600">Goodreads:</span>
+                            <a href="https://www.goodreads.com/book/show/{{ $book->goodreads_id }}"
+                               target="_blank"
+                               class="ml-2 text-indigo-600 hover:text-indigo-700 hover:underline">
+                                {{ $book->goodreads_id }}
+                                <svg class="inline w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        @endif
+                        @if($book->librarything_id)
+                        <div>
+                            <span class="text-gray-600">LibraryThing:</span>
+                            <a href="https://www.librarything.com/work/{{ $book->librarything_id }}"
+                               target="_blank"
+                               class="ml-2 text-indigo-600 hover:text-indigo-700 hover:underline">
+                                {{ $book->librarything_id }}
+                                <svg class="inline w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
+                <!-- Update from External Source -->
+                <div class="mt-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-3">Update from External Source</h2>
+                    <form method="POST" action="{{ route('books.update-from-url', $book) }}" class="space-y-3">
+                        @csrf
+                        @method('PATCH')
+                        <div>
+                            <label for="source" class="block text-sm font-medium text-gray-700 mb-1">
+                                Source
+                            </label>
+                            <select
+                                name="source"
+                                id="source"
+                                class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 mb-3"
+                                onchange="updatePlaceholder()"
+                            >
+                                <option value="openlibrary">OpenLibrary</option>
+                                <option value="googlebooks">Google Books</option>
+                                <option value="amazon">Amazon</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="url" class="block text-sm font-medium text-gray-700 mb-1">
+                                URL or ID
+                            </label>
+                            <input
+                                type="text"
+                                name="url"
+                                id="url"
+                                placeholder="https://openlibrary.org/books/OL9064566M/..."
+                                class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                required
+                            >
+                            <p id="help-text" class="mt-1 text-xs text-gray-500">
+                                Paste an OpenLibrary edition URL to auto-update this book's information and cover
+                            </p>
+                        </div>
+                        <button
+                            type="submit"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm"
+                        >
+                            Update Book Info
+                        </button>
+                    </form>
+                    <script>
+                        function updatePlaceholder() {
+                            const source = document.getElementById('source').value;
+                            const urlInput = document.getElementById('url');
+                            const helpText = document.getElementById('help-text');
+
+                            if (source === 'openlibrary') {
+                                urlInput.placeholder = 'https://openlibrary.org/books/OL9064566M/...';
+                                helpText.textContent = 'Paste an OpenLibrary edition URL to auto-update this book\'s information and cover';
+                            } else if (source === 'googlebooks') {
+                                urlInput.placeholder = 'https://books.google.com/books?id=VOLUME_ID or just VOLUME_ID';
+                                helpText.textContent = 'Paste a Google Books URL or Volume ID (e.g., nggnmAEACAAJ)';
+                            } else if (source === 'amazon') {
+                                urlInput.placeholder = 'https://www.amazon.com/dp/ASIN or just ASIN/ISBN';
+                                helpText.textContent = 'Paste an Amazon URL or ASIN/ISBN';
+                            }
+                        }
+                    </script>
+                </div>
 
                 <!-- Tags Section -->
                 <div class="mt-6">
@@ -254,6 +422,33 @@ function addTag() {
         document.body.appendChild(form);
         form.submit();
     }
+}
+
+// Cover gallery navigation
+let currentCover = 0;
+function showCover(index) {
+    const slides = document.querySelectorAll('.cover-slide');
+    const dots = document.querySelectorAll('.cover-dot');
+
+    slides.forEach((slide, i) => {
+        if (i === index) {
+            slide.classList.remove('hidden');
+        } else {
+            slide.classList.add('hidden');
+        }
+    });
+
+    dots.forEach((dot, i) => {
+        if (i === index) {
+            dot.classList.remove('bg-white/50');
+            dot.classList.add('bg-white');
+        } else {
+            dot.classList.remove('bg-white');
+            dot.classList.add('bg-white/50');
+        }
+    });
+
+    currentCover = index;
 }
 </script>
 @endpush

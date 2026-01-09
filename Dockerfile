@@ -50,6 +50,11 @@ RUN echo '<Directory /var/www/html/public>\n\
     Require all granted\n\
 </Directory>' >> /etc/apache2/sites-available/000-default.conf
 
+# Configure PHP upload limits (25MB)
+RUN echo "upload_max_filesize = 25M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size = 30M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini
+
 # Copy entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

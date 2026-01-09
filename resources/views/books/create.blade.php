@@ -26,9 +26,11 @@
                            autofocus>
                     <select name="provider"
                             class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="both" {{ request('provider', 'both') === 'both' ? 'selected' : '' }}>All Sources</option>
+                        <option value="openlibrary" {{ request('provider', 'openlibrary') === 'openlibrary' ? 'selected' : '' }}>Open Library</option>
+                        @if(auth()->user()->google_books_api_key || config('services.google_books.api_key'))
                         <option value="google" {{ request('provider') === 'google' ? 'selected' : '' }}>Google Books</option>
-                        <option value="openlibrary" {{ request('provider') === 'openlibrary' ? 'selected' : '' }}>Open Library</option>
+                        <option value="both" {{ request('provider') === 'both' ? 'selected' : '' }}>All Sources</option>
+                        @endif
                     </select>
                     <select name="lang"
                             class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -44,7 +46,8 @@
                     </button>
                 </div>
                 <p class="mt-2 text-sm text-gray-500">
-                    💡 Tip: The search automatically detects ISBNs, author names, and book titles
+                    💡 Tip: The search automatically detects ISBNs, author names, and book titles<br>
+                    You can also search by identifier: <code class="bg-gray-100 px-1 rounded">isbn:9783...</code>, <code class="bg-gray-100 px-1 rounded">ol:OL123M</code>, <code class="bg-gray-100 px-1 rounded">goodreads:456</code>, <code class="bg-gray-100 px-1 rounded">librarything:789</code>
                 </p>
             </div>
         </form>
