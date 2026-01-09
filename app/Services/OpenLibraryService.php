@@ -185,8 +185,6 @@ class OpenLibraryService
         $query = trim($query);
 
         // Remove 'isbn:', 'author:', 'title:' prefixes if user added them manually
-}
-        // Remove 'isbn:', 'author:', 'title:' prefixes if user added them manually
         if (preg_match('/^(isbn|author|title):/i', $query)) {
             return $query; // Already formatted, return as-is
         }
