@@ -38,9 +38,16 @@ cd ~/leafmark
 git clone https://github.com/roberteinsle/leafmark.git app-source
 cd app-source
 
-# Create .env file
-cp .env.example .env
-nano .env  # Edit: Set APP_KEY, APP_URL, APP_ENV=production, APP_DEBUG=false
+# Create .env file for Docker Compose (environment variables)
+cat > .env << 'EOF'
+APP_NAME=Leafmark
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL=https://www.leafmark.app
+DB_CONNECTION=sqlite
+GOOGLE_BOOKS_API_KEY=
+EOF
 
 # Build and start containers
 docker compose up -d
@@ -48,14 +55,22 @@ docker compose up -d
 # Wait for containers to be ready
 sleep 10
 
-# Generate application key (if not set in .env)
-docker compose exec app php artisan key:generate
+# Generate application key and update .env file
+NEW_KEY=$(docker compose exec -T app php artisan key:generate --show)
+sed -i "s|APP_KEY=|APP_KEY=$NEW_KEY|" .env
+
+# Restart containers to load the new key
+docker compose restart
+
+# Wait for restart
+sleep 5
 
 # Run migrations
 docker compose exec app php artisan migrate --force
 
 # Check status
 docker compose ps
+curl -I http://localhost:8080
 ```
 
 ### Test Deployment
