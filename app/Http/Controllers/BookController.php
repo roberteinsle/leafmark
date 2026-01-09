@@ -377,4 +377,22 @@ class BookController extends Controller
         return redirect()->route('books.index')
             ->with('success', "{$deletedCount} book(s) deleted successfully!");
     }
+
+    /**
+     * Search for books using Google Books API
+     */
+    public function search(Request $request, GoogleBooksService $googleBooks): View
+    {
+        $query = $request->input('q');
+        $results = [];
+
+        if ($query) {
+            $results = $googleBooks->search($query);
+        }
+
+        return view('books.search', [
+            'query' => $query,
+            'results' => $results,
+        ]);
+    }
 }

@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Log;
 
 class GoogleBooksService
 {
-    private string $baseUrl = 'https://www.googleapis.com/books/v1';
-    private ?string $apiKey;
+    protected string $apiKey;
+    protected string $baseUrl = 'https://www.googleapis.com/books/v1';
 
     public function __construct()
     {
@@ -16,104 +16,50 @@ class GoogleBooksService
     }
 
     /**
-     * Search for books by query
+     * Search for books - automatically detects ISBN, title, or author
      */
-    public function search(string $query, int $maxResults = 10, ?string $language = null): array
+    public function search(string $query): array
     {
+        // Detect query type and build appropriate search query
+        $searchQuery = $this->buildSearchQuery($query);
+
         try {
-            // Parse special search prefixes
-            $searchQuery = $this->parseSearchQuery($query);
-
-            $params = [
+            $response = Http::get("{$this->baseUrl}/volumes", [
                 'q' => $searchQuery,
-                'maxResults' => $maxResults,
-            ];
-
-            // Add language restriction if provided
-            if ($language) {
-                $params['langRestrict'] = $language;
-            }
-
-            if ($this->apiKey) {
-                $params['key'] = $this->apiKey;
-            }
-
-            $userEmail = auth()->user()->email ?? 'leafmark@example.com';
-
-            $response = Http::withHeaders([
-                'User-Agent' => "Leafmark/1.0 ({$userEmail})",
-            ])->get("{$this->baseUrl}/volumes", $params);
+                'key' => $this->apiKey,
+                'maxResults' => 20,
+                'orderBy' => 'relevance',
+            ]);
 
             if ($response->successful()) {
-                $data = $response->json();
-                return $this->formatResults($data['items'] ?? [], $language);
+                return $this->formatResults($response->json());
             }
 
             Log::error('Google Books API error', [
                 'status' => $response->status(),
-                'body' => $response->body()
+                'body' => $response->body(),
             ]);
 
             return [];
         } catch (\Exception $e) {
             Log::error('Google Books API exception', [
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'query' => $searchQuery,
             ]);
+
             return [];
         }
     }
 
     /**
-     * Parse search query for special prefixes
+     * Get a single book by ID
      */
-    private function parseSearchQuery(string $query): string
-    {
-        // Check for ISBN prefix
-        if (str_starts_with(strtolower($query), 'isbn:')) {
-            $isbn = substr($query, 5);
-            return 'isbn:' . preg_replace('/[^0-9X]/', '', strtoupper(trim($isbn)));
-        }
-
-        // Check for author prefix
-        if (str_starts_with(strtolower($query), 'author:')) {
-            $author = substr($query, 7);
-            return 'inauthor:' . trim($author);
-        }
-
-        // Check for series prefix
-        if (str_starts_with(strtolower($query), 'series:')) {
-            $series = substr($query, 7);
-            return 'intitle:' . trim($series);
-        }
-
-        return $query;
-    }
-
-    /**
-     * Search by ISBN
-     */
-    public function searchByIsbn(string $isbn, ?string $language = null): array
-    {
-        $cleanIsbn = preg_replace('/[^0-9X]/', '', strtoupper($isbn));
-        return $this->search("isbn:{$cleanIsbn}", 1, $language);
-    }
-
-    /**
-     * Get book details by Google Books ID
-     */
-    public function getBook(string $id): ?array
+    public function getBook(string $googleBooksId): ?array
     {
         try {
-            $params = [];
-            if ($this->apiKey) {
-                $params['key'] = $this->apiKey;
-            }
-
-            $userEmail = auth()->user()->email ?? 'leafmark@example.com';
-
-            $response = Http::withHeaders([
-                'User-Agent' => "Leafmark/1.0 ({$userEmail})",
-            ])->get("{$this->baseUrl}/volumes/{$id}", $params);
+            $response = Http::get("{$this->baseUrl}/volumes/{$googleBooksId}", [
+                'key' => $this->apiKey,
+            ]);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -123,87 +69,85 @@ class GoogleBooksService
             return null;
         } catch (\Exception $e) {
             Log::error('Google Books API exception', [
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'id' => $googleBooksId,
             ]);
+
             return null;
         }
     }
 
     /**
-     * Format search results
+     * Detect query type and build appropriate search string
      */
-    private function formatResults(array $items, ?string $filterLanguage = null): array
+    protected function buildSearchQuery(string $query): string
     {
-        $formatted = array_map(fn($item) => $this->formatBook($item), $items);
+        $query = trim($query);
 
-        // If language filter is specified, post-filter results
-        if ($filterLanguage) {
-            $formatted = array_filter($formatted, function($book) use ($filterLanguage) {
-                $bookLang = $book['language'] ?? null;
-                // Accept if no language specified or if it matches
-                return !$bookLang || $bookLang === $filterLanguage;
-            });
-
-            // Re-index array after filtering
-            $formatted = array_values($formatted);
+        // ISBN-10 or ISBN-13 (with or without hyphens)
+        if (preg_match('/^(\d{10}|\d{13}|\d{1,5}-\d{1,7}-\d{1,7}-[\dX])$/i', str_replace('-', '', $query))) {
+            return 'isbn:' . str_replace('-', '', $query);
         }
 
-        return $formatted;
+        // Check if query looks like an author name (2+ words with capitalization)
+        if (preg_match('/^[A-Z][a-z]+\s+[A-Z][a-z]+/', $query)) {
+            return 'inauthor:' . $query;
+        }
+
+        // Default to title search
+        return 'intitle:' . $query;
     }
 
     /**
-     * Format a single book from API response
+     * Format API response to consistent structure
      */
-    private function formatBook(array $item): array
+    protected function formatResults(array $data): array
+    {
+        if (!isset($data['items'])) {
+            return [];
+        }
+
+        return array_map(function ($item) {
+            return $this->formatBook($item);
+        }, $data['items']);
+    }
+
+    /**
+     * Format a single book item
+     */
+    protected function formatBook(array $item): array
     {
         $volumeInfo = $item['volumeInfo'] ?? [];
         $industryIdentifiers = $volumeInfo['industryIdentifiers'] ?? [];
 
+        // Extract ISBNs
         $isbn = null;
         $isbn13 = null;
-
         foreach ($industryIdentifiers as $identifier) {
-            if ($identifier['type'] === 'ISBN_13') {
-                $isbn13 = $identifier['identifier'];
-            } elseif ($identifier['type'] === 'ISBN_10') {
+            if ($identifier['type'] === 'ISBN_10') {
                 $isbn = $identifier['identifier'];
+            } elseif ($identifier['type'] === 'ISBN_13') {
+                $isbn13 = $identifier['identifier'];
             }
         }
 
         return [
             'google_books_id' => $item['id'] ?? null,
             'title' => $volumeInfo['title'] ?? 'Unknown Title',
-            'author' => isset($volumeInfo['authors']) ? implode(', ', $volumeInfo['authors']) : null,
+            'subtitle' => $volumeInfo['subtitle'] ?? null,
+            'authors' => $volumeInfo['authors'] ?? [],
+            'publisher' => $volumeInfo['publisher'] ?? null,
+            'published_date' => $volumeInfo['publishedDate'] ?? null,
+            'description' => $volumeInfo['description'] ?? null,
             'isbn' => $isbn,
             'isbn13' => $isbn13,
-            'publisher' => $volumeInfo['publisher'] ?? null,
-            'published_date' => $this->formatDate($volumeInfo['publishedDate'] ?? null),
-            'description' => $volumeInfo['description'] ?? null,
             'page_count' => $volumeInfo['pageCount'] ?? null,
-            'language' => $volumeInfo['language'] ?? null,
-            'cover_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
-            'thumbnail' => $volumeInfo['imageLinks']['smallThumbnail'] ?? null,
+            'categories' => $volumeInfo['categories'] ?? [],
+            'language' => $volumeInfo['language'] ?? 'en',
+            'thumbnail_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
+            'cover_url' => $volumeInfo['imageLinks']['medium'] ?? $volumeInfo['imageLinks']['large'] ?? null,
+            'preview_link' => $volumeInfo['previewLink'] ?? null,
+            'info_link' => $volumeInfo['infoLink'] ?? null,
         ];
-    }
-
-    /**
-     * Format date from various formats to Y-m-d
-     */
-    private function formatDate(?string $date): ?string
-    {
-        if (!$date) {
-            return null;
-        }
-
-        // Handle different date formats from Google Books
-        if (preg_match('/^\d{4}$/', $date)) {
-            return $date . '-01-01';
-        }
-
-        if (preg_match('/^\d{4}-\d{2}$/', $date)) {
-            return $date . '-01';
-        }
-
-        return $date;
     }
 }
