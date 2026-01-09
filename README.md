@@ -20,60 +20,13 @@ A Laravel-based web application for tracking your personal book collection and r
 - **Frontend:** Blade Templates + Tailwind CSS
 - **Deployment:** GitHub Actions + Docker + Cloudflare Tunnel
 
-## Quick Start (GitHub Codespaces)
-
-The easiest way to get started is with GitHub Codespaces:
-
-1. **Create a Codespace** from this repository
-2. **Wait for setup** - The devcontainer will automatically:
-   - Install dependencies
-   - Set up SQLite database
-   - Run migrations
-3. **Open the app** - Port 8000 will be forwarded automatically
-4. **Register** your account and start tracking books!
-
 ### Optional: Add Google Books API Key
 
 After registering, you can optionally add a Google Books API key:
 - Go to Settings in the app
 - Add your API key there (recommended)
-- Or add it globally in `.env` file
 
 This enables better search results, but Open Library works without a key.
-
-## Local Development
-
-### Prerequisites
-
-- PHP 8.2+
-- Composer
-- Node.js 20+ (optional, for asset building)
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/roberteinsle/leafmark.git
-cd leafmark
-
-# Install dependencies
-composer install
-
-# Copy and configure environment
-cp .env.example .env
-php artisan key:generate
-
-# Create SQLite database
-touch database/database.sqlite
-
-# Run migrations
-php artisan migrate
-
-# Start development server
-php artisan serve
-```
-
-Access the app at `http://localhost:8000`
 
 ## Production Deployment
 
@@ -124,12 +77,6 @@ docker compose exec app php artisan migrate --force
 docker compose exec app php artisan config:cache
 ```
 
-### Key Components
-
-- **Docker Compose** with SQLite
-- **GitHub Actions** for CI/CD (optional)
-- **Cloudflare Tunnel** for HTTPS (optional)
-- **Hetzner Cloud** for hosting (or any VPS)
 
 ## Database
 
