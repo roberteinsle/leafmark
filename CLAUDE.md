@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Leafmark is a personal book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, organize books into shelves, and import book data from external APIs (Google Books, Open Library, ISBNdb).
+Leafmark is a personal book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, organize books with tags, and import book data from external APIs (Google Books, Open Library).
 
 ## Development Commands
 
 ### Docker Development
 ```bash
-# Start all services (app + MariaDB)
+# Start app service
 docker-compose up -d
 
 # Execute commands in app container
@@ -75,20 +75,20 @@ docker-compose exec app composer require vendor/package
 
 ### Data Model & Relationships
 
-The application has three core models with the following relationships:
+The application has core models with the following relationships:
 
 **User → Books (1:many)**
 - Each user owns multiple books
 - Books are scoped to individual users (user-specific collections)
 
-**User → Shelves (1:many)**
-- Each user creates their own shelves
-- Shelves can be default (e.g., "Want to Read", "Currently Reading", "Read") or custom
+**User → Tags (1:many)**
+- Each user creates their own tags
+- Tags are used to organize and categorize books
 
-**Books ↔ Shelves (many:many)**
-- Books can belong to multiple shelves
-- Pivot table: `shelf_books` with `added_at` timestamp
-- Managed through `Shelf` model methods: `addBook()`, `removeBook()`
+**Books ↔ Tags (many:many)**
+- Books can have multiple tags
+- Tags can be applied to multiple books
+- Managed through tag relationships
 
 ### Book Status Tracking
 
@@ -110,22 +110,21 @@ Reading progress is tracked via:
 ### External API Integration
 
 Books can be imported from external sources:
-- `api_source` field stores: 'google', 'openlibrary', or 'isbndb'
+- `api_source` field stores: 'google' or 'openlibrary'
 - `external_id` stores the API's identifier for the book
 - API keys configured via environment variables:
-  - `GOOGLE_BOOKS_API_KEY`
-  - `ISBNDB_API_KEY`
+  - `GOOGLE_BOOKS_API_KEY` (optional, can also be set per user)
 
-**Note:** Controller implementation for API integration is not yet present in the codebase. When implementing:
-- Create service classes in `app/Services/` (e.g., `GoogleBooksService.php`)
-- Use the `api_source` and `external_id` fields to prevent duplicate imports
-- Store thumbnails/covers in `storage/app/public` or use external URLs
+**Service classes:**
+- `GoogleBooksService` - Google Books API integration with auto-detection
+- `OpenLibraryService` - Open Library API integration (no key required)
+- Both services support smart query detection (ISBN, author, title)
 
 ### Authentication & Authorization
 
 - Uses Laravel's built-in authentication (`Illuminate\Foundation\Auth\User`)
 - Custom controllers: `LoginController`, `RegisterController`
-- All book/shelf routes protected with `auth` middleware
+- All book/tag routes protected with `auth` middleware
 - No role-based permissions (single-user scoping via relationships)
 
 ### Routing Structure
@@ -143,8 +142,8 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `/books` - Resource routes (index, create, store, show, edit, update, destroy)
 - `/books/{book}/progress` - PATCH to update reading progress
 - `/books/{book}/status` - PATCH to update reading status
-- `/shelves` - Resource routes for shelf management
-- `/shelves/{shelf}/books/{book}` - POST/DELETE to add/remove books from shelves
+- `/tags` - Resource routes for tag management
+- `/tags/{tag}/books/{book}` - POST/DELETE to add/remove books from tags
 
 ### Database Schema Key Points
 
@@ -152,14 +151,12 @@ Routes are defined in [routes/web.php](routes/web.php):
 - Indexed on `[user_id, status]` and `[user_id, added_at]` for efficient filtering
 - ISBN fields (`isbn`, `isbn13`) are indexed for lookups
 - Status enum enforced at database level
+- Supports multiple covers per book
 
-**shelves table:**
-- `is_default` flag distinguishes system shelves from custom ones
-- `sort_order` controls display ordering
-
-**shelf_books pivot:**
-- Unique constraint on `[shelf_id, book_id]` prevents duplicates
-- `added_at` timestamp tracks when book was added to shelf
+**tags table:**
+- User-created tags for organizing books
+- Color customization support
+- Each tag belongs to a user
 
 ### Controller Patterns
 
@@ -167,11 +164,13 @@ Routes are defined in [routes/web.php](routes/web.php):
 - CRUD operations for books
 - `updateProgress()` - Update current page
 - `updateStatus()` - Change reading status (triggers timestamp updates)
+- API-based book imports from Google Books and Open Library
+- Cover management (upload, delete, set primary)
 
-**ShelfController** (referenced in routes but file not found):
-- CRUD operations for shelves
-- `addBook()` - Add book to shelf
-- `removeBook()` - Remove book from shelf
+**TagController** handles:
+- CRUD operations for tags
+- `addBook()` - Add book to tag
+- `removeBook()` - Remove book from tag
 
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`
@@ -195,20 +194,18 @@ This project runs in GitHub Codespaces using Docker Compose.
 
 The Docker entrypoint ([docker-entrypoint.sh](docker-entrypoint.sh)) automatically:
 1. Creates `.env` from environment variables
-2. Waits for database to be ready
-3. Runs migrations with `--force`
-4. Caches configuration
-5. Starts Apache
+2. Runs migrations with `--force`
+3. Caches configuration
+4. Starts Apache
 
 **Required environment variables:**
 - `APP_KEY` - Laravel encryption key (generate with `php artisan key:generate`)
-- `MYSQL_ROOT_PASSWORD` - Database password
 - `APP_ENV` - Use `local` for development
+- `GOOGLE_BOOKS_API_KEY` - (Optional) Google Books API key
 
 **Docker Services:**
-- `app` - Laravel 11 + PHP 8.2 + Apache (exposed on port 80)
-- `db` - MariaDB 11 (internal)
-- Database persisted to `db_data` volume
+- `app` - Laravel 11 + PHP 8.2 + Apache (exposed on port 8080)
+- Database: SQLite file at `database/database.sqlite` (persisted to `sqlite_data` volume)
 
 **Container Details:**
 - Base image: `php:8.2-apache`
@@ -218,31 +215,6 @@ The Docker entrypoint ([docker-entrypoint.sh](docker-entrypoint.sh)) automatical
 
 ## Important Notes for Development
 
-### Missing ShelfController
-The routes reference `ShelfController` but the file doesn't exist yet. When implementing:
-```php
-// app/Http/Controllers/ShelfController.php
-namespace App\Http\Controllers;
-
-use App\Models\Shelf;
-use App\Models\Book;
-
-class ShelfController extends Controller
-{
-    public function addBook(Shelf $shelf, Book $book)
-    {
-        $shelf->addBook($book); // Uses model method
-        return redirect()->back();
-    }
-
-    public function removeBook(Shelf $shelf, Book $book)
-    {
-        $shelf->removeBook($book); // Uses model method
-        return redirect()->back();
-    }
-}
-```
-
 ### Model Scopes Usage
 All models define query scopes - use them for cleaner queries:
 ```php
@@ -250,10 +222,10 @@ All models define query scopes - use them for cleaner queries:
 $user->books()->currentlyReading()->get();
 $user->books()->wantToRead()->get();
 
-// Shelves
-$user->shelves()->default()->get();
-$user->shelves()->custom()->ordered()->get();
+// Tags
+$user->tags()->get();
+$tag->books()->get(); // Get all books with a specific tag
 ```
 
 ### Database Migrations
-Migration files are dated `2026_01_08_*` - new migrations will run in order based on timestamp prefix. The three core tables must maintain their cascade delete relationships.
+Migration files are dated `2026_01_08_*` - new migrations will run in order based on timestamp prefix. Core tables must maintain their cascade delete relationships.

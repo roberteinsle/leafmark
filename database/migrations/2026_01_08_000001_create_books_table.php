@@ -37,7 +37,7 @@ return new class extends Migration
             $table->timestamp('finished_at')->nullable();
 
             // API tracking
-            $table->string('api_source')->nullable(); // 'google', 'openlibrary', 'isbndb'
+            $table->string('api_source')->nullable(); // 'google', 'openlibrary'
             $table->string('external_id')->nullable();
 
             $table->timestamps();

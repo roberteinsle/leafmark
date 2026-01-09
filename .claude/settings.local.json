@@ -53,7 +53,8 @@
       "Bash(sudo tee:*)",
       "Bash(sudo service apache2 restart:*)",
       "Bash(sudo apachectl restart:*)",
-      "Bash(sudo killall:*)"
+      "Bash(sudo killall:*)",
+      "Bash(find:*)"
     ]
   }
 }

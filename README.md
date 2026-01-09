@@ -16,7 +16,7 @@ A Laravel-based web application for tracking your personal book collection and r
 ## Tech Stack
 
 - **Backend:** Laravel 11 + PHP 8.2
-- **Database:** SQLite (default) / MariaDB 11 (production)
+- **Database:** SQLite
 - **Frontend:** Blade Templates + Tailwind CSS
 - **Deployment:** GitHub Actions + Docker + Cloudflare Tunnel
 
@@ -32,15 +32,14 @@ The easiest way to get started is with GitHub Codespaces:
 3. **Open the app** - Port 8000 will be forwarded automatically
 4. **Register** your account and start tracking books!
 
-### First-time Setup
+### Optional: Add Google Books API Key
 
-```bash
-# The database is already created, but you need to add your Google Books API key
-# Edit .env and add your API key:
-GOOGLE_BOOKS_API_KEY=your_key_here
+After registering, you can optionally add a Google Books API key:
+- Go to Settings in the app
+- Add your API key there (recommended)
+- Or add it globally in `.env` file
 
-# Restart the server (it auto-restarts in Codespaces)
-```
+This enables better search results, but Open Library works without a key.
 
 ## Local Development
 
@@ -81,16 +80,14 @@ Access the app at `http://localhost:8000`
 For production deployment with Docker, see the deployment guide in `CLAUDE.md`.
 
 **Key components:**
-- Docker Compose with MariaDB
+- Docker Compose with SQLite
 - GitHub Actions for CI/CD
 - Cloudflare Tunnel for HTTPS
 - Hetzner Cloud for hosting
 
 ## Database
 
-### SQLite (Development)
-
-Default configuration for local development and Codespaces:
+The application uses SQLite for both development and production:
 
 ```env
 DB_CONNECTION=sqlite
@@ -98,33 +95,27 @@ DB_CONNECTION=sqlite
 
 The database file is created at `database/database.sqlite`.
 
-### MariaDB (Production)
-
-For production deployment with Docker:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=leafmark
-DB_USERNAME=root
-DB_PASSWORD=your_secure_password
-```
-
 ## API Keys
 
-### Google Books API (Recommended)
+### Google Books API (Optional)
 
-Get your free API key from [Google Cloud Console](https://console.cloud.google.com/):
+The Google Books API key is optional. You can:
+- Use it globally by setting it in `.env`
+- Set it per-user in Settings (recommended for multi-user setups)
+- Skip it and use only Open Library API
+
+To get a free API key from [Google Cloud Console](https://console.cloud.google.com/):
 
 1. Enable the Books API
 2. Create credentials (API Key)
 3. Add restrictions (HTTP referrers, API quotas)
-4. Add to `.env`:
+4. Add to `.env` (optional):
 
 ```env
 GOOGLE_BOOKS_API_KEY=your_api_key_here
 ```
+
+Or add it in the app's Settings page after login.
 
 ### Open Library (No key required)
 
@@ -140,8 +131,6 @@ APP_DEBUG=true
 APP_URL=http://localhost
 
 DB_CONNECTION=sqlite
-
-GOOGLE_BOOKS_API_KEY=your_key_here
 ```
 
 See `.env.example` for all available options.

@@ -80,7 +80,7 @@
                                     <div class="text-4xl mb-4">🔍</div>
                                     <h3 class="text-lg font-medium text-gray-900">Import from APIs</h3>
                                     <p class="mt-2 text-sm text-gray-500">
-                                        Search and import book details from Google Books, Open Library, and ISBNdb.
+                                        Search and import book details from Google Books and Open Library.
                                     </p>
                                 </div>
                             </div>
