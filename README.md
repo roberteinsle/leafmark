@@ -77,6 +77,12 @@ docker compose exec app php artisan migrate --force
 docker compose exec app php artisan config:cache
 ```
 
+**Important:** Your data is safe during updates! The application uses Docker volumes to persist:
+- **Database:** `sqlite_data` volume stores your SQLite database
+- **Uploads:** `storage_data` volume stores book covers and other files
+
+These volumes remain intact even when containers are rebuilt or updated.
+
 
 ## Database
 
@@ -86,7 +92,7 @@ The application uses SQLite for both development and production:
 DB_CONNECTION=sqlite
 ```
 
-The database file is created at `database/database.sqlite`.
+The database file is created at `database/database.sqlite` and is **NOT tracked in Git** - ensuring your personal data stays private. Data persistence in production is managed through Docker volumes (`sqlite_data`).
 
 ## Environment Variables
 
