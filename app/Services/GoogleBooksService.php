@@ -23,18 +23,20 @@ class GoogleBooksService
         // Detect query type and build appropriate search query
         $searchQuery = $this->buildSearchQuery($query);
 
+        $params = [
+            'q' => $searchQuery,
+            'key' => $this->apiKey,
+            'maxResults' => $maxResults,
+            'orderBy' => 'relevance',
+        ];
+
         // Add language filter if specified
         if ($language) {
-            $searchQuery .= '&langRestrict=' . $language;
+            $params['langRestrict'] = $language;
         }
 
         try {
-            $response = Http::get("{$this->baseUrl}/volumes", [
-                'q' => $searchQuery,
-                'key' => $this->apiKey,
-                'maxResults' => $maxResults,
-                'orderBy' => 'relevance',
-            ]);
+            $response = Http::get("{$this->baseUrl}/volumes", $params);
 
             if ($response->successful()) {
                 return $this->formatResults($response->json());
@@ -89,13 +91,21 @@ class GoogleBooksService
     {
         $query = trim($query);
 
-        // ISBN-10 or ISBN-13 (with or without hyphens)
-        if (preg_match('/^(\d{10}|\d{13}|\d{1,5}-\d{1,7}-\d{1,7}-[\dX])$/i', str_replace('-', '', $query))) {
-            return 'isbn:' . str_replace('-', '', $query);
+        // Remove any existing prefix if user added it manually
+        if (preg_match('/^(isbn|intitle|inauthor):/i', $query)) {
+            return $query; // Already formatted, return as-is
         }
 
-        // Check if query looks like an author name (2+ words with capitalization)
-        if (preg_match('/^[A-Z][a-z]+\s+[A-Z][a-z]+/', $query)) {
+        // Clean query for ISBN check (remove hyphens and spaces)
+        $cleanQuery = str_replace(['-', ' '], '', $query);
+
+        // ISBN-10 (10 digits) or ISBN-13 (13 digits)
+        if (preg_match('/^\d{10}$|^\d{13}$/', $cleanQuery)) {
+            return 'isbn:' . $cleanQuery;
+        }
+
+        // Check if query looks like an author name (2+ words, first letters capitalized)
+        if (preg_match('/^[A-Z][a-z]+\s+[A-Z]/', $query)) {
             return 'inauthor:' . $query;
         }
 

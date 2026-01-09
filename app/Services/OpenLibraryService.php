@@ -185,18 +185,22 @@ class OpenLibraryService
         $query = trim($query);
 
         // Remove 'isbn:', 'author:', 'title:' prefixes if user added them manually
-        if (preg_match('/^(isbn|author|title):\s*(.+)$/i', $query, $matches)) {
+}
+        // Remove 'isbn:', 'author:', 'title:' prefixes if user added them manually
+        if (preg_match('/^(isbn|author|title):/i', $query)) {
             return $query; // Already formatted, return as-is
         }
 
-        // ISBN-10 or ISBN-13 (with or without hyphens)
-        $cleanQuery = str_replace('-', '', $query);
+        // Clean query for ISBN check (remove hyphens and spaces)
+        $cleanQuery = str_replace(['-', ' '], '', $query);
+
+        // ISBN-10 (10 digits) or ISBN-13 (13 digits)
         if (preg_match('/^\d{10}$|^\d{13}$/', $cleanQuery)) {
             return 'isbn:' . $cleanQuery;
         }
 
-        // Check if query looks like an author name (2+ words with capitalization)
-        if (preg_match('/^[A-Z][a-z]+\s+[A-Z][a-z]+/', $query)) {
+        // Check if query looks like an author name (2+ words, first letters capitalized)
+        if (preg_match('/^[A-Z][a-z]+\s+[A-Z]/', $query)) {
             return 'author:' . $query;
         }
 
