@@ -54,7 +54,10 @@
       "Bash(sudo service apache2 restart:*)",
       "Bash(sudo apachectl restart:*)",
       "Bash(sudo killall:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(gh pr list:*)",
+      "Bash(php test-amazon.php:*)"
     ]
   }
 }

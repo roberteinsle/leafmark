@@ -26,6 +26,20 @@ class GoogleBooksService
         // Detect query type and build appropriate search query
         $searchQuery = $this->buildSearchQuery($query);
 
+        // Try with language restriction first if specified
+        if ($language) {
+            $results = $this->searchWithLanguage($searchQuery, $maxResults, $language);
+
+            // If we got good results, return them
+            if (count($results) >= 5) {
+                return $results;
+            }
+
+            // If few results, try without language restriction and filter/sort instead
+            Log::info("Few results with langRestrict={$language}, trying without restriction");
+        }
+
+        // Search without language restriction
         $params = [
             'q' => $searchQuery,
             'maxResults' => $maxResults,
@@ -37,16 +51,18 @@ class GoogleBooksService
             $params['key'] = $this->apiKey;
         }
 
-        // Add language filter if specified
-        if ($language) {
-            $params['langRestrict'] = $language;
-        }
-
         try {
             $response = Http::get("{$this->baseUrl}/volumes", $params);
 
             if ($response->successful()) {
-                return $this->formatResults($response->json());
+                $results = $this->formatResults($response->json());
+
+                // Sort results by language preference if specified
+                if ($language && !empty($results)) {
+                    $results = $this->sortByLanguagePreference($results, $language);
+                }
+
+                return $results;
             }
 
             Log::error('Google Books API error', [
@@ -61,6 +77,40 @@ class GoogleBooksService
                 'query' => $searchQuery,
             ]);
 
+            return [];
+        }
+    }
+
+    /**
+     * Search with language restriction
+     */
+    protected function searchWithLanguage(string $query, int $maxResults, string $language): array
+    {
+        $params = [
+            'q' => $query,
+            'maxResults' => $maxResults,
+            'orderBy' => 'relevance',
+            'langRestrict' => $language,
+        ];
+
+        // Add API key if available
+        if ($this->apiKey) {
+            $params['key'] = $this->apiKey;
+        }
+
+        try {
+            $response = Http::get("{$this->baseUrl}/volumes", $params);
+
+            if ($response->successful()) {
+                return $this->formatResults($response->json());
+            }
+
+            return [];
+        } catch (\Exception $e) {
+            Log::error('Google Books search with language failed', [
+                'message' => $e->getMessage(),
+                'language' => $language,
+            ]);
             return [];
         }
     }
@@ -123,6 +173,29 @@ class GoogleBooksService
 
         // Default to title search
         return 'intitle:' . $query;
+    }
+
+    /**
+     * Sort results by language preference - preferred language books come first
+     */
+    protected function sortByLanguagePreference(array $results, string $preferredLanguage): array
+    {
+        usort($results, function($a, $b) use ($preferredLanguage) {
+            $aLang = $a['language'] ?? '';
+            $bLang = $b['language'] ?? '';
+
+            // Books in preferred language come first
+            if ($aLang === $preferredLanguage && $bLang !== $preferredLanguage) {
+                return -1;
+            }
+            if ($bLang === $preferredLanguage && $aLang !== $preferredLanguage) {
+                return 1;
+            }
+
+            return 0; // Keep original order for same language priority
+        });
+
+        return $results;
     }
 
     /**

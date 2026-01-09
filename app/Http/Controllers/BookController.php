@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Services\AmazonProductService;
 use App\Services\CoverImageService;
 use App\Services\GoogleBooksService;
 use App\Services\OpenLibraryService;
@@ -140,7 +141,7 @@ class BookController extends Controller
         return view('books.index', compact('books', 'counts'));
     }
 
-    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary): View
+    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, AmazonProductService $amazon): View
     {
         $searchQuery = $request->get('q');
         $language = $request->get('lang', auth()->user()->preferred_language ?? 'en');
@@ -151,6 +152,7 @@ class BookController extends Controller
         if ($searchQuery) {
             $googleResults = [];
             $openLibraryResults = [];
+            $amazonResults = [];
 
             // Search based on selected provider
             if ($provider === 'both' || $provider === 'google') {
@@ -161,8 +163,12 @@ class BookController extends Controller
                 $openLibraryResults = $openLibrary->search($searchQuery, 10, $language);
             }
 
+            if ($provider === 'both' || $provider === 'amazon') {
+                $amazonResults = $amazon->search($searchQuery, 10, $language);
+            }
+
             // Merge and deduplicate results based on ISBN
-            $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults);
+            $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults, $amazonResults);
             $noResults = empty($searchResults);
         }
 
@@ -172,7 +178,7 @@ class BookController extends Controller
     /**
      * Merge and deduplicate search results from multiple sources
      */
-    private function mergeSearchResults(array $googleResults, array $openLibraryResults): array
+    private function mergeSearchResults(array $googleResults, array $openLibraryResults, array $amazonResults = []): array
     {
         $merged = [];
         $seenIsbns = [];
@@ -187,6 +193,20 @@ class BookController extends Controller
             } elseif (!$isbn) {
                 // Add books without ISBN too
                 $result['source'] = 'google';
+                $merged[] = $result;
+            }
+        }
+
+        // Add Amazon results next (good data quality)
+        foreach ($amazonResults as $result) {
+            $isbn = $result['isbn13'] ?? $result['isbn'] ?? null;
+            if ($isbn && !in_array($isbn, $seenIsbns)) {
+                $seenIsbns[] = $isbn;
+                $result['source'] = 'amazon';
+                $merged[] = $result;
+            } elseif (!$isbn) {
+                // Add books without ISBN too
+                $result['source'] = 'amazon';
                 $merged[] = $result;
             }
         }
@@ -208,12 +228,13 @@ class BookController extends Controller
         return $merged;
     }
 
-    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, CoverImageService $coverService): RedirectResponse
+    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, AmazonProductService $amazon, CoverImageService $coverService): RedirectResponse
     {
         $validated = $request->validate([
             'google_books_id' => 'nullable|string',
             'open_library_id' => 'nullable|string',
-            'source' => 'required|in:google,openlibrary',
+            'amazon_asin' => 'nullable|string',
+            'source' => 'required|in:google,openlibrary,amazon',
             'status' => 'required|in:want_to_read,currently_reading,read',
         ]);
 
@@ -221,6 +242,9 @@ class BookController extends Controller
         if ($validated['source'] === 'google') {
             $bookData = $googleBooks->getBook($validated['google_books_id']);
             $externalId = $validated['google_books_id'];
+        } elseif ($validated['source'] === 'amazon') {
+            $bookData = $amazon->getBook($validated['amazon_asin']);
+            $externalId = $validated['amazon_asin'];
         } else {
             $bookData = $openLibrary->getBook($validated['open_library_id']);
             $externalId = $validated['open_library_id'];

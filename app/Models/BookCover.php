@@ -31,10 +31,10 @@ class BookCover extends Model
         return asset('storage/' . $this->path);
     }
 
-    // Scope for ordered covers
+    // Scope for ordered covers - primary cover first, then by sort_order
     public function scopeOrdered($query)
     {
-        return $query->orderBy('sort_order')->orderBy('id');
+        return $query->orderBy('is_primary', 'desc')->orderBy('sort_order')->orderBy('id');
     }
 
     // Scope for primary cover

@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Add New Book')
+@section('title', __('app.books.add_new_book'))
 
 @section('content')
 <div class="max-w-4xl mx-auto px-4 py-8">
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Add New Book</h1>
-        <p class="mt-2 text-gray-600">Search for a book or add it manually</p>
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('app.books.add_new_book') }}</h1>
+        <p class="mt-2 text-gray-600">{{ __('app.books.search_for_book') }}</p>
     </div>
 
     <!-- Search Form -->
@@ -14,22 +14,27 @@
         <form action="{{ route('books.create') }}" method="GET" class="space-y-4">
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
-                    Search for books
+                    {{ __('app.books.search_for_books') }}
                 </label>
                 <div class="flex gap-2">
                     <input type="text"
                            name="q"
                            id="search"
                            value="{{ $searchQuery ?? '' }}"
-                           placeholder="Enter ISBN, title, or author..."
+                           placeholder="{{ __('app.books.search_placeholder') }}"
                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            autofocus>
                     <select name="provider"
                             class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="openlibrary" {{ request('provider', 'openlibrary') === 'openlibrary' ? 'selected' : '' }}>Open Library</option>
+                        <option value="openlibrary" {{ request('provider', 'openlibrary') === 'openlibrary' ? 'selected' : '' }}>{{ __('app.books.openlibrary') }}</option>
                         @if(auth()->user()->google_books_api_key || config('services.google_books.api_key'))
-                        <option value="google" {{ request('provider') === 'google' ? 'selected' : '' }}>Google Books</option>
-                        <option value="both" {{ request('provider') === 'both' ? 'selected' : '' }}>All Sources</option>
+                        <option value="google" {{ request('provider') === 'google' ? 'selected' : '' }}>{{ __('app.books.google_books') }}</option>
+                        @endif
+                        @if(auth()->user()->amazon_access_key || config('services.amazon.access_key'))
+                        <option value="amazon" {{ request('provider') === 'amazon' ? 'selected' : '' }}>Amazon</option>
+                        @endif
+                        @if((auth()->user()->google_books_api_key || config('services.google_books.api_key')) || (auth()->user()->amazon_access_key || config('services.amazon.access_key')))
+                        <option value="both" {{ request('provider') === 'both' ? 'selected' : '' }}>{{ __('app.books.all_sources') }}</option>
                         @endif
                     </select>
                     <select name="lang"
@@ -42,12 +47,12 @@
                     </select>
                     <button type="submit"
                             class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                        Search
+                        {{ __('app.books.search') }}
                     </button>
                 </div>
                 <p class="mt-2 text-sm text-gray-500">
-                    💡 Tip: The search automatically detects ISBNs, author names, and book titles<br>
-                    You can also search by identifier: <code class="bg-gray-100 px-1 rounded">isbn:9783...</code>, <code class="bg-gray-100 px-1 rounded">ol:OL123M</code>, <code class="bg-gray-100 px-1 rounded">goodreads:456</code>, <code class="bg-gray-100 px-1 rounded">librarything:789</code>
+                    💡 {{ __('app.books.search_tip') }}<br>
+                    {{ __('app.books.search_by_identifier') }} <code class="bg-gray-100 px-1 rounded">isbn:9783...</code>, <code class="bg-gray-100 px-1 rounded">ol:OL123M</code>, <code class="bg-gray-100 px-1 rounded">goodreads:456</code>, <code class="bg-gray-100 px-1 rounded">librarything:789</code>
                 </p>
             </div>
         </form>
@@ -57,7 +62,7 @@
         @if(!empty($searchResults))
             <!-- Search Results -->
             <div class="space-y-4">
-                <h2 class="text-xl font-semibold text-gray-900">Search Results</h2>
+                <h2 class="text-xl font-semibold text-gray-900">{{ __('app.books.search_results') }}</h2>
 
                 @foreach($searchResults as $result)
                     <div class="bg-white rounded-lg shadow-sm p-6 flex gap-6">
@@ -74,7 +79,7 @@
                         <div class="flex-1">
                             <h3 class="text-lg font-semibold text-gray-900">{{ $result['title'] }}</h3>
                             @if($result['author'])
-                                <p class="text-gray-600">by
+                                <p class="text-gray-600">{{ __('app.books.by_author') }}
                                     <a href="{{ route('books.create', ['q' => 'author:' . $result['author'], 'lang' => request('lang', auth()->user()->preferred_language ?? 'en')]) }}"
                                        class="text-blue-600 hover:text-blue-800 hover:underline">
                                         {{ $result['author'] }}
@@ -84,16 +89,16 @@
 
                             <div class="mt-2 space-y-1 text-sm text-gray-500">
                                 @if($result['publisher'])
-                                    <p>Publisher: {{ $result['publisher'] }}</p>
+                                    <p>{{ __('app.books.publisher') }}: {{ $result['publisher'] }}</p>
                                 @endif
                                 @if($result['published_date'])
-                                    <p>Published: {{ $result['published_date'] }}</p>
+                                    <p>{{ __('app.books.published_date') }}: {{ $result['published_date'] }}</p>
                                 @endif
                                 @if($result['page_count'])
-                                    <p>Pages: {{ $result['page_count'] }}</p>
+                                    <p>{{ __('app.books.pages') }}: {{ $result['page_count'] }}</p>
                                 @endif
                                 @if($result['isbn13'] || $result['isbn'])
-                                    <p>ISBN: {{ $result['isbn13'] ?? $result['isbn'] }}</p>
+                                    <p>{{ __('app.books.isbn') }}: {{ $result['isbn13'] ?? $result['isbn'] }}</p>
                                 @endif
                             </div>
 
@@ -108,23 +113,31 @@
                                 <input type="hidden" name="source" value="{{ $result['source'] }}">
                                 @if($result['source'] === 'google')
                                     <input type="hidden" name="google_books_id" value="{{ $result['google_books_id'] }}">
+                                @elseif($result['source'] === 'amazon')
+                                    <input type="hidden" name="amazon_asin" value="{{ $result['asin'] }}">
                                 @else
                                     <input type="hidden" name="open_library_id" value="{{ $result['open_library_id'] }}">
                                 @endif
 
                                 <div class="flex gap-3 items-center">
                                     <select name="status" required class="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="want_to_read">Want to Read</option>
-                                        <option value="currently_reading">Currently Reading</option>
-                                        <option value="read">Read</option>
+                                        <option value="want_to_read">{{ __('app.books.want_to_read') }}</option>
+                                        <option value="currently_reading">{{ __('app.books.currently_reading') }}</option>
+                                        <option value="read">{{ __('app.books.read') }}</option>
                                     </select>
 
                                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
-                                        Add to Library
+                                        {{ __('app.books.add_to_library') }}
                                     </button>
 
                                     <span class="text-xs text-gray-400">
-                                        {{ $result['source'] === 'google' ? 'Google Books' : 'Open Library' }}
+                                        @if($result['source'] === 'google')
+                                            {{ __('app.books.google_books') }}
+                                        @elseif($result['source'] === 'amazon')
+                                            Amazon
+                                        @else
+                                            {{ __('app.books.openlibrary') }}
+                                        @endif
                                     </span>
                                 </div>
                             </form>
@@ -135,20 +148,20 @@
         @elseif($noResults)
             <!-- No Results - Show Manual Form -->
             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
-                <h3 class="text-lg font-semibold text-yellow-900 mb-2">No results found</h3>
-                <p class="text-yellow-700">We couldn't find any books matching your search. You can add the book manually below.</p>
+                <h3 class="text-lg font-semibold text-yellow-900 mb-2">{{ __('app.books.no_results_found') }}</h3>
+                <p class="text-yellow-700">{{ __('app.books.no_results_message') }}</p>
             </div>
 
             <!-- Manual Book Entry Form -->
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-6">Add Book Manually</h2>
+                <h2 class="text-xl font-semibold text-gray-900 mb-6">{{ __('app.books.add_book_manually') }}</h2>
 
                 <form action="{{ route('books.store') }}" method="POST" class="space-y-6">
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="md:col-span-2">
-                            <label for="title" class="block text-sm font-medium text-gray-700">Title *</label>
+                            <label for="title" class="block text-sm font-medium text-gray-700">{{ __('app.books.title_label') }} *</label>
                             <input type="text" name="title" id="title" required value="{{ old('title', $searchQuery) }}"
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('title') border-red-500 @enderror">
                             @error('title')
@@ -157,59 +170,59 @@
                         </div>
 
                         <div>
-                            <label for="author" class="block text-sm font-medium text-gray-700">Author</label>
+                            <label for="author" class="block text-sm font-medium text-gray-700">{{ __('app.books.author') }}</label>
                             <input type="text" name="author" id="author" value="{{ old('author') }}"
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
 
                         <div>
-                            <label for="status" class="block text-sm font-medium text-gray-700">Status *</label>
+                            <label for="status" class="block text-sm font-medium text-gray-700">{{ __('app.books.status') }} *</label>
                             <select name="status" id="status" required
                                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                <option value="want_to_read">Want to Read</option>
-                                <option value="currently_reading">Currently Reading</option>
-                                <option value="read">Read</option>
+                                <option value="want_to_read">{{ __('app.books.want_to_read') }}</option>
+                                <option value="currently_reading">{{ __('app.books.currently_reading') }}</option>
+                                <option value="read">{{ __('app.books.read') }}</option>
                             </select>
                         </div>
 
                         <div>
-                            <label for="isbn" class="block text-sm font-medium text-gray-700">ISBN</label>
+                            <label for="isbn" class="block text-sm font-medium text-gray-700">{{ __('app.books.isbn') }}</label>
                             <input type="text" name="isbn" id="isbn" value="{{ old('isbn') }}"
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
 
                         <div>
-                            <label for="isbn13" class="block text-sm font-medium text-gray-700">ISBN-13</label>
+                            <label for="isbn13" class="block text-sm font-medium text-gray-700">{{ __('app.books.isbn13') }}</label>
                             <input type="text" name="isbn13" id="isbn13" value="{{ old('isbn13') }}"
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
 
                         <div>
-                            <label for="publisher" class="block text-sm font-medium text-gray-700">Publisher</label>
+                            <label for="publisher" class="block text-sm font-medium text-gray-700">{{ __('app.books.publisher') }}</label>
                             <input type="text" name="publisher" id="publisher" value="{{ old('publisher') }}"
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
 
                         <div>
-                            <label for="published_date" class="block text-sm font-medium text-gray-700">Published Date</label>
+                            <label for="published_date" class="block text-sm font-medium text-gray-700">{{ __('app.books.published_date') }}</label>
                             <input type="date" name="published_date" id="published_date" value="{{ old('published_date') }}"
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
 
                         <div>
-                            <label for="page_count" class="block text-sm font-medium text-gray-700">Page Count</label>
+                            <label for="page_count" class="block text-sm font-medium text-gray-700">{{ __('app.books.page_count') }}</label>
                             <input type="number" name="page_count" id="page_count" value="{{ old('page_count') }}" min="0"
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
 
                         <div>
-                            <label for="language" class="block text-sm font-medium text-gray-700">Language</label>
+                            <label for="language" class="block text-sm font-medium text-gray-700">{{ __('app.books.language') }}</label>
                             <input type="text" name="language" id="language" value="{{ old('language', 'en') }}" maxlength="10"
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
 
                         <div class="md:col-span-2">
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <label for="description" class="block text-sm font-medium text-gray-700">{{ __('app.books.description') }}</label>
                             <textarea name="description" id="description" rows="4"
                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">{{ old('description') }}</textarea>
                         </div>
@@ -229,10 +242,10 @@
 
                     <div class="flex justify-end gap-3">
                         <a href="{{ route('books.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                            Cancel
+                            {{ __('app.settings.cancel') }}
                         </a>
                         <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
-                            Add Book
+                            {{ __('app.books.add_new_book') }}
                         </button>
                     </div>
                 </form>

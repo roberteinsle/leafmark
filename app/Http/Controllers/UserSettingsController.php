@@ -30,6 +30,9 @@ class UserSettingsController extends Controller
             'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
             'preferred_language' => 'required|in:' . implode(',', $availableLanguages),
             'google_books_api_key' => 'nullable|string|max:255',
+            'amazon_access_key' => 'nullable|string|max:255',
+            'amazon_secret_key' => 'nullable|string|max:255',
+            'amazon_associate_tag' => 'nullable|string|max:255',
         ]);
 
         auth()->user()->update($validated);

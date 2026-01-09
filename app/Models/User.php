@@ -17,12 +17,17 @@ class User extends Authenticatable
         'password',
         'preferred_language',
         'google_books_api_key',
+        'amazon_access_key',
+        'amazon_secret_key',
+        'amazon_associate_tag',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
         'google_books_api_key',
+        'amazon_access_key',
+        'amazon_secret_key',
     ];
 
     protected function casts(): array

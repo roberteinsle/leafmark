@@ -68,6 +68,48 @@
                 @enderror
             </div>
 
+            <!-- Amazon Product Advertising API -->
+            <div class="border-t pt-6 mt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Amazon Product Advertising API</h3>
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="amazon_access_key" class="block text-sm font-medium text-gray-700">Amazon Access Key</label>
+                        <input type="text" name="amazon_access_key" id="amazon_access_key" value="{{ old('amazon_access_key', $user->amazon_access_key) }}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('amazon_access_key') border-red-500 @enderror"
+                               placeholder="Enter your Amazon Access Key">
+                        @error('amazon_access_key')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="amazon_secret_key" class="block text-sm font-medium text-gray-700">Amazon Secret Key</label>
+                        <input type="password" name="amazon_secret_key" id="amazon_secret_key" value="{{ old('amazon_secret_key', $user->amazon_secret_key) }}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('amazon_secret_key') border-red-500 @enderror"
+                               placeholder="Enter your Amazon Secret Key">
+                        @error('amazon_secret_key')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="amazon_associate_tag" class="block text-sm font-medium text-gray-700">Amazon Associate Tag</label>
+                        <input type="text" name="amazon_associate_tag" id="amazon_associate_tag" value="{{ old('amazon_associate_tag', $user->amazon_associate_tag) }}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('amazon_associate_tag') border-red-500 @enderror"
+                               placeholder="Enter your Amazon Associate Tag">
+                        @error('amazon_associate_tag')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <p class="text-sm text-gray-500">
+                        Optional: Provide your Amazon Product Advertising API credentials for book searches.
+                        <a href="https://affiliate-program.amazon.com/assoc_credentials/home" target="_blank" class="text-blue-600 hover:underline">Get API credentials</a>
+                    </p>
+                </div>
+            </div>
+
             <div class="flex justify-end gap-3 pt-4">
                 <a href="{{ route('books.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                     {{ __('app.settings.cancel') }}

@@ -39,4 +39,10 @@ return [
         'api_key' => env('GOOGLE_BOOKS_API_KEY'),
     ],
 
+    'amazon' => [
+        'access_key' => env('AMAZON_ACCESS_KEY'),
+        'secret_key' => env('AMAZON_SECRET_KEY'),
+        'associate_tag' => env('AMAZON_ASSOCIATE_TAG'),
+    ],
+
 ];
