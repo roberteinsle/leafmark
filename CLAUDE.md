@@ -213,6 +213,98 @@ The Docker entrypoint ([docker-entrypoint.sh](docker-entrypoint.sh)) automatical
 - Apache mod_rewrite enabled
 - PHP extensions: pdo_mysql, mbstring, exif, pcntl, bcmath, gd, zip
 
+## Production Deployment
+
+### Initial Server Setup
+
+```bash
+# Create directory and clone repository
+cd ~/leafmark
+git clone https://github.com/roberteinsle/leafmark.git app-source
+cd app-source
+
+# Create and configure .env
+cp .env.example .env
+nano .env
+```
+
+**Required .env settings for production:**
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.com
+APP_KEY=  # Will be generated in next step
+DB_CONNECTION=sqlite
+GOOGLE_BOOKS_API_KEY=  # Optional
+```
+
+**Start the application:**
+```bash
+# Build and start containers
+docker compose up -d
+
+# Wait for containers to be ready
+sleep 10
+
+# Generate application key
+docker compose exec app php artisan key:generate
+
+# Run migrations
+docker compose exec app php artisan migrate --force
+
+# Verify everything is running
+docker compose ps
+curl http://localhost:8080
+```
+
+### Update Workflow
+
+When deploying updates:
+
+```bash
+cd ~/leafmark/app-source
+git pull
+docker compose up -d --build
+docker compose exec app php artisan migrate --force
+docker compose exec app php artisan config:cache
+```
+
+### Data Persistence
+
+All data is persisted in Docker volumes:
+
+- **`sqlite_data`** - SQLite database at `/var/www/html/database/database.sqlite`
+- **`storage_data`** - Uploaded files (covers) at `/var/www/html/storage/app`
+- **`vendor`** - Composer dependencies
+
+These volumes persist across container restarts and rebuilds.
+
+### Backup & Restore
+
+**Backup SQLite database:**
+```bash
+docker run --rm -v leafmark_sqlite_data:/data -v $(pwd):/backup alpine \
+  tar czf /backup/db-backup-$(date +%Y%m%d).tar.gz -C /data .
+```
+
+**Backup uploaded files:**
+```bash
+docker run --rm -v leafmark_storage_data:/data -v $(pwd):/backup alpine \
+  tar czf /backup/storage-backup-$(date +%Y%m%d).tar.gz -C /data .
+```
+
+**Restore database:**
+```bash
+docker run --rm -v leafmark_sqlite_data:/data -v $(pwd):/backup alpine \
+  tar xzf /backup/db-backup-20260109.tar.gz -C /data
+```
+
+**Restore files:**
+```bash
+docker run --rm -v leafmark_storage_data:/data -v $(pwd):/backup alpine \
+  tar xzf /backup/storage-backup-20260109.tar.gz -C /data
+```
+
 ## Important Notes for Development
 
 ### Model Scopes Usage

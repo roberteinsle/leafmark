@@ -77,13 +77,59 @@ Access the app at `http://localhost:8000`
 
 ## Production Deployment
 
-For production deployment with Docker, see the deployment guide in `CLAUDE.md`.
+### Initial Setup
 
-**Key components:**
-- Docker Compose with SQLite
-- GitHub Actions for CI/CD
-- Cloudflare Tunnel for HTTPS
-- Hetzner Cloud for hosting
+```bash
+# Create directory and clone repository
+cd ~/leafmark
+git clone https://github.com/roberteinsle/leafmark.git app-source
+cd app-source
+
+# Create .env file
+cp .env.example .env
+nano .env  # Edit: Set APP_KEY, APP_URL, APP_ENV=production, APP_DEBUG=false
+
+# Build and start containers
+docker compose up -d
+
+# Wait for containers to be ready
+sleep 10
+
+# Generate application key (if not set in .env)
+docker compose exec app php artisan key:generate
+
+# Run migrations
+docker compose exec app php artisan migrate --force
+
+# Check status
+docker compose ps
+```
+
+### Test Deployment
+
+```bash
+# Test locally
+curl http://localhost:8080
+```
+
+### Update Workflow
+
+When deploying updates from GitHub:
+
+```bash
+cd ~/leafmark/app-source
+git pull
+docker compose up -d --build
+docker compose exec app php artisan migrate --force
+docker compose exec app php artisan config:cache
+```
+
+### Key Components
+
+- **Docker Compose** with SQLite
+- **GitHub Actions** for CI/CD (optional)
+- **Cloudflare Tunnel** for HTTPS (optional)
+- **Hetzner Cloud** for hosting (or any VPS)
 
 ## Database
 
@@ -94,32 +140,6 @@ DB_CONNECTION=sqlite
 ```
 
 The database file is created at `database/database.sqlite`.
-
-## API Keys
-
-### Google Books API (Optional)
-
-The Google Books API key is optional. You can:
-- Use it globally by setting it in `.env`
-- Set it per-user in Settings (recommended for multi-user setups)
-- Skip it and use only Open Library API
-
-To get a free API key from [Google Cloud Console](https://console.cloud.google.com/):
-
-1. Enable the Books API
-2. Create credentials (API Key)
-3. Add restrictions (HTTP referrers, API quotas)
-4. Add to `.env` (optional):
-
-```env
-GOOGLE_BOOKS_API_KEY=your_api_key_here
-```
-
-Or add it in the app's Settings page after login.
-
-### Open Library (No key required)
-
-Open Library API works without authentication but has lower rate limits.
 
 ## Environment Variables
 
