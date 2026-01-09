@@ -71,13 +71,22 @@ class BookController extends Controller
     {
         $searchQuery = $request->get('q');
         $language = $request->get('lang', auth()->user()->preferred_language ?? 'en');
+        $provider = $request->get('provider', 'both');
         $searchResults = [];
         $noResults = false;
 
         if ($searchQuery) {
-            // Search both Google Books and Open Library
-            $googleResults = $googleBooks->search($searchQuery, 10, $language);
-            $openLibraryResults = $openLibrary->search($searchQuery, 10, $language);
+            $googleResults = [];
+            $openLibraryResults = [];
+
+            // Search based on selected provider
+            if ($provider === 'both' || $provider === 'google') {
+                $googleResults = $googleBooks->search($searchQuery, 10, $language);
+            }
+
+            if ($provider === 'both' || $provider === 'openlibrary') {
+                $openLibraryResults = $openLibrary->search($searchQuery, 10, $language);
+            }
 
             // Merge and deduplicate results based on ISBN
             $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults);
@@ -378,21 +387,4 @@ class BookController extends Controller
             ->with('success', "{$deletedCount} book(s) deleted successfully!");
     }
 
-    /**
-     * Search for books using Google Books API
-     */
-    public function search(Request $request, GoogleBooksService $googleBooks): View
-    {
-        $query = $request->input('q');
-        $results = [];
-
-        if ($query) {
-            $results = $googleBooks->search($query);
-        }
-
-        return view('books.search', [
-            'query' => $query,
-            'results' => $results,
-        ]);
-    }
 }

@@ -18,16 +18,21 @@ class GoogleBooksService
     /**
      * Search for books - automatically detects ISBN, title, or author
      */
-    public function search(string $query): array
+    public function search(string $query, int $maxResults = 20, string $language = null): array
     {
         // Detect query type and build appropriate search query
         $searchQuery = $this->buildSearchQuery($query);
+
+        // Add language filter if specified
+        if ($language) {
+            $searchQuery .= '&langRestrict=' . $language;
+        }
 
         try {
             $response = Http::get("{$this->baseUrl}/volumes", [
                 'q' => $searchQuery,
                 'key' => $this->apiKey,
-                'maxResults' => 20,
+                'maxResults' => $maxResults,
                 'orderBy' => 'relevance',
             ]);
 
@@ -131,11 +136,13 @@ class GoogleBooksService
             }
         }
 
+        $authors = $volumeInfo['authors'] ?? [];
+
         return [
             'google_books_id' => $item['id'] ?? null,
             'title' => $volumeInfo['title'] ?? 'Unknown Title',
             'subtitle' => $volumeInfo['subtitle'] ?? null,
-            'authors' => $volumeInfo['authors'] ?? [],
+            'author' => !empty($authors) ? implode(', ', $authors) : null, // String for compatibility
             'publisher' => $volumeInfo['publisher'] ?? null,
             'published_date' => $volumeInfo['publishedDate'] ?? null,
             'description' => $volumeInfo['description'] ?? null,
@@ -144,7 +151,7 @@ class GoogleBooksService
             'page_count' => $volumeInfo['pageCount'] ?? null,
             'categories' => $volumeInfo['categories'] ?? [],
             'language' => $volumeInfo['language'] ?? 'en',
-            'thumbnail_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
+            'thumbnail' => $volumeInfo['imageLinks']['thumbnail'] ?? null, // Renamed for compatibility
             'cover_url' => $volumeInfo['imageLinks']['medium'] ?? $volumeInfo['imageLinks']['large'] ?? null,
             'preview_link' => $volumeInfo['previewLink'] ?? null,
             'info_link' => $volumeInfo['infoLink'] ?? null,

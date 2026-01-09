@@ -10,13 +10,16 @@ class OpenLibraryService
     private string $baseUrl = 'https://openlibrary.org';
 
     /**
-     * Search for books by query
+     * Search for books by query - automatically detects ISBN, title, or author
      */
     public function search(string $query, int $limit = 10, ?string $language = null): array
     {
+        // Detect query type and build appropriate search query
+        $searchQuery = $this->buildSearchQuery($query);
+
         try {
             $params = [
-                'q' => $query,
+                'q' => $searchQuery,
                 'limit' => $limit,
                 'fields' => 'key,title,author_name,isbn,publisher,publish_date,number_of_pages,language,cover_i,first_sentence',
             ];
@@ -172,5 +175,32 @@ class OpenLibraryService
         }
 
         return $date;
+    }
+
+    /**
+     * Detect query type and build appropriate search string
+     */
+    protected function buildSearchQuery(string $query): string
+    {
+        $query = trim($query);
+
+        // Remove 'isbn:', 'author:', 'title:' prefixes if user added them manually
+        if (preg_match('/^(isbn|author|title):\s*(.+)$/i', $query, $matches)) {
+            return $query; // Already formatted, return as-is
+        }
+
+        // ISBN-10 or ISBN-13 (with or without hyphens)
+        $cleanQuery = str_replace('-', '', $query);
+        if (preg_match('/^\d{10}$|^\d{13}$/', $cleanQuery)) {
+            return 'isbn:' . $cleanQuery;
+        }
+
+        // Check if query looks like an author name (2+ words with capitalization)
+        if (preg_match('/^[A-Z][a-z]+\s+[A-Z][a-z]+/', $query)) {
+            return 'author:' . $query;
+        }
+
+        // Default to title search
+        return 'title:' . $query;
     }
 }

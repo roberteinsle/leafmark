@@ -21,9 +21,15 @@
                            name="q"
                            id="search"
                            value="{{ $searchQuery ?? '' }}"
-                           placeholder="Enter book title, author, or isbn:9780316769174"
+                           placeholder="Enter ISBN, title, or author..."
                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            autofocus>
+                    <select name="provider"
+                            class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="both" {{ request('provider', 'both') === 'both' ? 'selected' : '' }}>All Sources</option>
+                        <option value="google" {{ request('provider') === 'google' ? 'selected' : '' }}>Google Books</option>
+                        <option value="openlibrary" {{ request('provider') === 'openlibrary' ? 'selected' : '' }}>Open Library</option>
+                    </select>
                     <select name="lang"
                             class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="{{ auth()->user()->preferred_language ?? 'en' }}" {{ !request('lang') ? 'selected' : '' }}>
@@ -38,7 +44,7 @@
                     </button>
                 </div>
                 <p class="mt-2 text-sm text-gray-500">
-                    💡 Tip: Use <span class="font-mono bg-gray-100 px-1 rounded">isbn:</span>, <span class="font-mono bg-gray-100 px-1 rounded">author:</span>, or <span class="font-mono bg-gray-100 px-1 rounded">series:</span> for specific searches
+                    💡 Tip: The search automatically detects ISBNs, author names, and book titles
                 </p>
             </div>
         </form>

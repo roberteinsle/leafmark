@@ -35,7 +35,6 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
     // Books routes
-    Route::get('/books/search', [BookController::class, 'search'])->name('books.search');
     Route::resource('books', BookController::class);
     Route::post('/books/store-from-api', [BookController::class, 'storeFromApi'])->name('books.store-from-api');
     Route::post('/books/bulk-delete', [BookController::class, 'bulkDelete'])->name('books.bulk-delete');
