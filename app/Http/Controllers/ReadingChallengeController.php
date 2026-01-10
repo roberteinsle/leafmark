@@ -69,4 +69,15 @@ class ReadingChallengeController extends Controller
 
         return back()->with('success', 'Challenge goal updated!');
     }
+
+    public function destroy(ReadingChallenge $challenge): RedirectResponse
+    {
+        if ($challenge->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $challenge->delete();
+
+        return back()->with('success', 'Challenge deleted successfully!');
+    }
 }

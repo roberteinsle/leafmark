@@ -182,6 +182,9 @@ return [
         'books_remaining' => 'Bücher verbleibend',
         'books_per_month' => 'Bücher/Monat',
         'view_details' => 'Details anzeigen',
+        'edit_goal' => 'Ziel ändern',
+        'delete_challenge' => 'Challenge löschen',
+        'delete_confirm' => 'Möchten Sie diese Challenge wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
     ],
 
     // Settings

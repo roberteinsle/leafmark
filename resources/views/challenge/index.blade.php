@@ -20,19 +20,28 @@
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-gray-900">{{ __('app.challenge.your_goal') }} {{ $currentYear }}</h2>
-                    <form method="POST" action="{{ route('challenge.update', $challenge) }}" class="flex items-center gap-3" x-data="{ editing: false }">
-                        @csrf
-                        @method('PATCH')
-                        <div x-show="editing" class="flex items-center gap-2">
-                            <input type="number" name="goal" value="{{ $challenge->goal }}" min="1" max="1000" class="w-20 px-3 py-2 border border-gray-300 rounded-md">
-                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm">
-                                {{ __('app.challenge.update_goal') }}
+                    <div class="flex items-center gap-3" x-data="{ editing: false }">
+                        <form method="POST" action="{{ route('challenge.update', $challenge) }}" class="flex items-center gap-2">
+                            @csrf
+                            @method('PATCH')
+                            <div x-show="editing" class="flex items-center gap-2">
+                                <input type="number" name="goal" value="{{ $challenge->goal }}" min="1" max="1000" class="w-20 px-3 py-2 border border-gray-300 rounded-md">
+                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm">
+                                    {{ __('app.challenge.update_goal') }}
+                                </button>
+                            </div>
+                            <button type="button" @click="editing = !editing" x-show="!editing" class="text-indigo-600 hover:text-indigo-700 text-sm">
+                                {{ __('app.challenge.edit_goal') }}
                             </button>
-                        </div>
-                        <button type="button" @click="editing = !editing" x-show="!editing" class="text-indigo-600 hover:text-indigo-700 text-sm">
-                            Ziel ändern
-                        </button>
-                    </form>
+                        </form>
+                        <form method="POST" action="{{ route('challenge.destroy', $challenge) }}" onsubmit="return confirm('{{ __('app.challenge.delete_confirm') }}')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-600 hover:text-red-700 text-sm">
+                                {{ __('app.challenge.delete_challenge') }}
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Progress Bar -->

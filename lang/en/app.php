@@ -182,6 +182,9 @@ return [
         'books_remaining' => 'books remaining',
         'books_per_month' => 'books/month',
         'view_details' => 'View Details',
+        'edit_goal' => 'Edit Goal',
+        'delete_challenge' => 'Delete Challenge',
+        'delete_confirm' => 'Are you sure you want to delete this challenge? This action cannot be undone.',
     ],
 
     // Settings
