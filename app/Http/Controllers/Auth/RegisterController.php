@@ -102,11 +102,15 @@ class RegisterController extends Controller
             }
         }
 
+        // Check if this is the first user (will become admin)
+        $isFirstUser = User::count() === 0;
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'email_verified_at' => null, // Set to null, requires email verification
+            'is_admin' => $isFirstUser, // First user becomes admin automatically
         ]);
 
         // Mark invitation as used if applicable

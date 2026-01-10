@@ -80,9 +80,6 @@ docker compose up -d
 sleep 30
 
 # Migrations run automatically via docker-entrypoint.sh
-# Create admin user
-docker compose exec app php artisan db:seed --class=AdminUserSeeder
-
 # Check status
 docker compose ps
 curl http://localhost:8000
@@ -90,19 +87,18 @@ curl http://localhost:8000
 
 ### Admin Setup
 
-After deployment, log in with the admin account:
+**The first user to register will automatically become an admin.**
 
-```
-Email: robert@einsle.com
-Password: password
-```
-
-**⚠️ CRITICAL: Change the admin password immediately after first login!**
-
-Then configure registration settings:
-1. Go to Admin → System Settings
-2. Choose registration mode (recommended: domain-restricted)
-3. Configure allowed domains or create invitations
+After registration, configure system settings:
+1. Log in with your newly created account
+2. Go to Admin → System Settings
+3. Configure SMTP settings to enable email notifications
+4. Choose registration mode:
+   - Open (anyone can register)
+   - Domain-restricted (e.g., @yourcompany.com only)
+   - Invitation-only (admins send invitations)
+   - Code-required (personal registration code)
+5. Configure allowed domains or create invitations as needed
 
 ### Update Workflow
 
