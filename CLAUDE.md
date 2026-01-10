@@ -252,6 +252,9 @@ docker compose exec app php artisan key:generate
 # Run migrations
 docker compose exec app php artisan migrate --force
 
+# Create storage symlink for uploaded files (covers)
+docker compose exec app php artisan storage:link
+
 # Verify everything is running
 docker compose ps
 curl http://localhost:8080
@@ -266,6 +269,7 @@ cd ~/leafmark/app-source
 git pull
 docker compose up -d --build
 docker compose exec app php artisan migrate --force
+docker compose exec app php artisan storage:link  # Ensure storage symlink exists
 docker compose exec app php artisan config:cache
 ```
 

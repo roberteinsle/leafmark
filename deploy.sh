@@ -58,6 +58,12 @@ docker compose exec -T app php artisan migrate --force || { echo -e "${RED}✗ M
 echo -e "${GREEN}✓ Migrations completed${NC}"
 echo ""
 
+# Create storage symlink
+echo -e "${YELLOW}→ Creating storage symlink for uploaded files...${NC}"
+docker compose exec -T app php artisan storage:link || { echo -e "${RED}✗ Storage link failed${NC}"; exit 1; }
+echo -e "${GREEN}✓ Storage symlink created${NC}"
+echo ""
+
 # Clear and cache configuration
 echo -e "${YELLOW}→ Caching configuration...${NC}"
 docker compose exec -T app php artisan config:cache || { echo -e "${RED}✗ Config cache failed${NC}"; exit 1; }
