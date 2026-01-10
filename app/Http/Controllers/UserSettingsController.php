@@ -33,7 +33,30 @@ class UserSettingsController extends Controller
             'amazon_access_key' => 'nullable|string|max:255',
             'amazon_secret_key' => 'nullable|string|max:255',
             'amazon_associate_tag' => 'nullable|string|max:255',
+            'current_password' => 'nullable|string',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
+
+        // Handle password change
+        if ($request->filled('password')) {
+            // Verify current password
+            if (!$request->filled('current_password')) {
+                return back()->withErrors(['current_password' => 'Current password is required to set a new password.']);
+            }
+
+            if (!\Hash::check($request->current_password, auth()->user()->password)) {
+                return back()->withErrors(['current_password' => 'The current password is incorrect.']);
+            }
+
+            // Update password
+            $validated['password'] = \Hash::make($request->password);
+        } else {
+            // Remove password fields if not changing password
+            unset($validated['password'], $validated['current_password']);
+        }
+
+        // Remove current_password from validated data (we don't want to save it)
+        unset($validated['current_password']);
 
         auth()->user()->update($validated);
 

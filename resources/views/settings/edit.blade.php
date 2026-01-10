@@ -68,6 +68,44 @@
                 @enderror
             </div>
 
+            <!-- Password Change -->
+            <div class="border-t pt-6 mt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('app.settings.change_password') }}</h3>
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="current_password" class="block text-sm font-medium text-gray-700">{{ __('app.settings.current_password') }}</label>
+                        <input type="password" name="current_password" id="current_password" value="{{ old('current_password') }}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('current_password') border-red-500 @enderror"
+                               placeholder="{{ __('app.settings.leave_blank_to_keep') }}">
+                        @error('current_password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">{{ __('app.settings.new_password') }}</label>
+                        <input type="password" name="password" id="password" value="{{ old('password') }}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('password') border-red-500 @enderror"
+                               placeholder="{{ __('app.settings.leave_blank_to_keep') }}">
+                        @error('password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700">{{ __('app.settings.confirm_password') }}</label>
+                        <input type="password" name="password_confirmation" id="password_confirmation" value="{{ old('password_confirmation') }}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="{{ __('app.settings.leave_blank_to_keep') }}">
+                    </div>
+
+                    <p class="text-sm text-gray-500">
+                        {{ __('app.settings.password_help') }}
+                    </p>
+                </div>
+            </div>
+
             <!-- Amazon Product Advertising API -->
             <div class="border-t pt-6 mt-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Amazon Product Advertising API</h3>
