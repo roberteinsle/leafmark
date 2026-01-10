@@ -57,7 +57,10 @@
       "Bash(find:*)",
       "Bash(git ls-tree:*)",
       "Bash(gh pr list:*)",
-      "Bash(php test-amazon.php:*)"
+      "Bash(php test-amazon.php:*)",
+      "Bash(ssh-keygen:*)",
+      "Bash(ssh:*)",
+      "Bash(chmod:*)"
     ]
   }
 }
