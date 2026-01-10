@@ -18,12 +18,30 @@ class LoginController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
+        $rules = [
             'email' => ['required', 'email'],
             'password' => ['required'],
-        ]);
+        ];
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Add Turnstile validation if enabled
+        if (\App\Models\SystemSetting::isTurnstileEnabled()) {
+            $rules['cf-turnstile-response'] = ['required', new \App\Rules\TurnstileValid()];
+        }
+
+        $credentials = $request->validate($rules);
+
+        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $request->boolean('remember'))) {
+            // Check if email is verified
+            $user = Auth::user();
+
+            if (!$user->email_verified_at) {
+                Auth::logout();
+
+                return back()->withErrors([
+                    'email' => __('app.email_verification.not_verified'),
+                ])->with('email', $credentials['email'])->with('show_resend', true);
+            }
+
             $request->session()->regenerate();
 
             return redirect()->intended(route('books.index'));

@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Leafmark is a personal book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, organize books with tags, import book data from external APIs (Google Books, Open Library, Amazon, BookBrainz), and set yearly reading goals.
+Leafmark is a **multi-user** book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, organize books with tags, import book data from external APIs (Google Books, Open Library, Amazon, BookBrainz), and set yearly reading goals.
+
+The application supports multiple users with individual book collections, admin-controlled registration, and flexible user management. Perfect for organizations, book clubs, families, or communities.
 
 ## Development Commands
 
@@ -86,14 +88,21 @@ The application has core models with the following relationships:
 **User → Books (1:many)**
 - Each user owns multiple books
 - Books are scoped to individual users (user-specific collections)
+- Each user has their own independent book collection
 
 **User → Tags (1:many)**
 - Each user creates their own tags
 - Tags are used to organize and categorize books
+- Tags are user-specific
 
 **User → ReadingChallenges (1:many)**
 - Each user can set yearly reading goals
 - Challenges track books finished within the year
+- Multiple challenges per user (one per year)
+
+**User → Invitations (1:many as inviter)**
+- Admins can create invitations for new users
+- Tracks who invited whom
 
 **Books ↔ Tags (many:many)**
 - Books can have multiple tags
@@ -108,6 +117,23 @@ The application has core models with the following relationships:
 **Book → ReadingProgressHistory (1:many)**
 - Tracks historical page progress over time
 - Allows users to see their reading progress graph
+
+### Multi-User Architecture
+
+**User Model Extensions:**
+- `is_admin` field - Boolean flag for admin privileges
+- Admin users can access `/admin` routes
+- Regular users can only access their own data
+
+**System Settings:**
+- `SystemSetting` model stores application-wide configuration
+- Settings stored as key-value pairs in `system_settings` table
+- Used for registration control and system configuration
+
+**Invitation System:**
+- `Invitation` model for managing user invitations
+- Each invitation has a unique token and expiration date
+- Tracks usage status and who created the invitation
 
 ### Book Status Tracking
 
@@ -152,11 +178,22 @@ Books can be imported from external sources via Service classes:
 
 ### Authentication & Authorization
 
+**Basic Authentication:**
 - Uses Laravel's built-in authentication (`Illuminate\Foundation\Auth\User`)
 - Custom controllers: `LoginController`, `RegisterController`
 - All book/tag routes protected with `auth` middleware
-- No role-based permissions (single-user scoping via relationships)
 - Authorization through relationship checks: books/tags must belong to authenticated user
+
+**Admin System:**
+- `IsAdmin` middleware protects admin routes
+- Admin routes require both `auth` and `admin` middleware
+- Admin users have `is_admin = true` in database
+- Admin middleware registered as `'admin' => \App\Http\Middleware\IsAdmin::class`
+
+**Registration Control:**
+- `RegisterController` checks `SystemSetting` for registration rules
+- Four registration modes: open, domain, invitation, code
+- Registration can be completely disabled via admin settings
 
 ### Internationalization
 
@@ -193,6 +230,16 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `/tags/{tag}/books/{book}` - POST/DELETE to add/remove books from tags
 - `/settings` - GET/PATCH for user settings
 - `/challenge` - Reading challenge routes (index, store, update, destroy)
+
+**Admin routes (requires auth + admin):**
+- `/admin` - Admin dashboard with user statistics
+- `/admin/users` - User management (list, toggle admin, delete)
+- `/admin/users/{user}/toggle-admin` - PATCH to grant/revoke admin privileges
+- `/admin/users/{user}` - DELETE to remove user
+- `/admin/settings` - System settings and registration control
+- `/admin/settings` - PATCH to update system settings
+- `/admin/invitations` - POST to create invitation
+- `/admin/invitations/{invitation}` - DELETE to remove invitation
 
 **Important Routing Details:**
 - Book routes use **Unix timestamp** from `added_at` as route key (not numeric ID)
@@ -233,6 +280,26 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `year` and `goal` (number of books to read)
 - Progress calculated from books with `status='read'` and matching `finished_at` year
 
+**users table (admin fields):**
+- `is_admin` - Boolean flag for admin privileges (default: false)
+- Admins can access `/admin` routes and manage users
+- At least one admin required (robert@einsle.com)
+
+**system_settings table:**
+- Key-value storage for application configuration
+- Stores registration settings, allowed domains, registration code
+- Keys: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
+- No caching in model (direct database queries)
+
+**invitations table:**
+- User invitations for controlled registration
+- `email` - Email address to invite
+- `token` - Unique invitation token (32 chars)
+- `invited_by` - Foreign key to users table
+- `used_at` - Timestamp when invitation was used (null if unused)
+- `expires_at` - Expiration timestamp (default: 7 days from creation)
+- Validated during registration if mode is 'invitation'
+
 ### Controller Patterns
 
 **BookController** handles:
@@ -260,6 +327,16 @@ Routes are defined in [routes/web.php](routes/web.php):
 - Language preference
 - API keys (Google Books, Amazon credentials)
 
+**AdminController** handles:
+- `index()` - Admin dashboard with statistics (total users, admins, books)
+- `users()` - List all users with pagination
+- `toggleAdmin()` - Grant/revoke admin privileges for a user
+- `deleteUser()` - Delete a user (prevents self-deletion)
+- `settings()` - Display system settings and invitations
+- `updateSettings()` - Update registration mode and settings
+- `createInvitation()` - Create new user invitation
+- `deleteInvitation()` - Remove an invitation
+
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`
 - Use custom route binding for books (timestamp-based, see `Book::resolveRouteBinding()`)
@@ -271,9 +348,16 @@ When implementing controllers:
 
 - Blade templates in `resources/views/`
 - Layout: [resources/views/layouts/app.blade.php](resources/views/layouts/app.blade.php)
-- Uses Tailwind CSS (no build process configured yet)
-- No JavaScript framework - server-rendered Blade templates
-- Views are organized by feature: `books/`, `tags/`, `auth/`, `settings/`, `challenge/`
+- Uses Tailwind CSS (CDN, no build process)
+- Alpine.js for interactive components
+- Server-rendered Blade templates (no SPA framework)
+- Views organized by feature: `books/`, `tags/`, `auth/`, `settings/`, `challenge/`, `admin/`
+
+**Admin views:**
+- `admin/index.blade.php` - Dashboard with stats and quick links
+- `admin/users.blade.php` - User list with admin toggle and delete actions
+- `admin/settings.blade.php` - System settings form and invitation management
+- Admin link in navigation dropdown (only visible to admins)
 
 ## Development Environment
 
@@ -295,14 +379,21 @@ The Docker entrypoint ([docker-entrypoint.sh](docker-entrypoint.sh)) automatical
 - `GOOGLE_BOOKS_API_KEY` - (Optional) Google Books API key
 
 **Docker Services:**
-- `app` - Laravel 11 + PHP 8.2 + Apache (exposed on port 8080)
-- Database: SQLite file at `database/database.sqlite` (persisted to `sqlite_data` volume)
+- `app` - Laravel 11 + PHP 8.2 + Apache (exposed on port 8000)
+- `db` - MariaDB 11 (exposed on port 3306)
 
 **Container Details:**
-- Base image: `php:8.2-apache`
+- Base image (app): `php:8.2-apache`
+- Base image (db): `mariadb:11`
 - Document root: `/var/www/html/public`
 - Apache mod_rewrite enabled
 - PHP extensions: pdo_mysql, mbstring, exif, pcntl, bcmath, gd, zip
+- Database health checks ensure app starts only after DB is ready
+
+**Docker Volumes:**
+- `mariadb_data` - MariaDB database persistence
+- `storage_data` - Uploaded book covers
+- `vendor` - Composer dependencies
 
 ## Production Deployment
 
@@ -319,13 +410,19 @@ cp .env.example .env
 nano .env
 ```
 
-**Required .env settings for production:**
+**Environment variables are set via docker-compose.yaml:**
 ```env
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://your-domain.com
-APP_KEY=  # Will be generated in next step
-DB_CONNECTION=sqlite
+APP_KEY=  # Will be generated
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=leafmark
+DB_USERNAME=leafmark
+DB_PASSWORD=  # Use secure password
+MYSQL_ROOT_PASSWORD=  # Use secure password
 GOOGLE_BOOKS_API_KEY=  # Optional
 ```
 
@@ -346,51 +443,51 @@ docker compose exec app php artisan migrate --force
 # Create storage symlink for uploaded files (covers)
 docker compose exec app php artisan storage:link
 
+# Create admin user (REQUIRED for multi-user system)
+docker compose exec app php artisan db:seed --class=AdminUserSeeder
+
 # Verify everything is running
 docker compose ps
 curl http://localhost:8080
 ```
 
-### Update Workflow
+### Admin Setup
 
-**⚠️ IMPORTANT:** The deploy script automatically creates backups before each deployment!
+After deployment, log in with the admin account:
 
-**Recommended: Use the deploy script** (automatically creates backup):
-```bash
-cd ~/leafmark/app-source
-./deploy.sh
+```
+Email: robert@einsle.com
+Password: password
 ```
 
-The deploy script will:
-1. **Automatically backup database and files** before any changes
-2. Pull latest code from GitHub
-3. Stop and rebuild containers (data persists in Docker volumes)
-4. Run database migrations
-5. Create storage symlink
-6. Clear and rebuild caches
-7. Keep last 10 backups automatically
+**⚠️ CRITICAL: Change the admin password immediately after first login!**
 
-**Manual update** (if you need more control):
+Then configure registration settings:
+1. Go to Admin → System Settings
+2. Choose registration mode (recommended: domain-restricted)
+3. Configure allowed domains or create invitations
+
+### Update Workflow
+
+To update the application:
+
 ```bash
 cd ~/leafmark/app-source
 
-# 1. ALWAYS create backup first!
-./backup.sh
-
-# 2. Pull latest code
+# Pull latest code from GitHub
 git pull origin main
 
-# 3. Rebuild and restart (volumes are preserved - data is NOT deleted!)
+# Rebuild and restart containers (volumes are preserved - data is NOT deleted!)
 docker compose down
 docker compose up -d --build
 
-# 4. Run migrations
+# Run database migrations
 docker compose exec app php artisan migrate --force
 
-# 5. Ensure storage symlink exists
+# Ensure storage symlink exists
 docker compose exec app php artisan storage:link
 
-# 6. Clear caches
+# Clear and rebuild caches
 docker compose exec app php artisan config:cache
 docker compose exec app php artisan route:cache
 ```
@@ -398,14 +495,13 @@ docker compose exec app php artisan route:cache
 **⚠️ CRITICAL:**
 - **NEVER use `docker compose down -v`** - the `-v` flag deletes volumes and ALL DATA!
 - **NEVER delete Docker volumes manually** - they contain all user data and uploaded files
-- **ALWAYS use `./deploy.sh` or create backup with `./backup.sh` before updates**
 - Data persists in Docker volumes across container rebuilds
 
 ### Data Persistence
 
 All data is persisted in Docker volumes:
 
-- **`sqlite_data`** - SQLite database at `/var/www/html/database/database.sqlite`
+- **`mariadb_data`** - MariaDB database at `/var/lib/mysql`
 - **`storage_data`** - Uploaded files (covers) at `/var/www/html/storage/app`
 - **`vendor`** - Composer dependencies
 
@@ -413,54 +509,60 @@ These volumes persist across container restarts and rebuilds.
 
 ### Backup & Restore
 
-**⚠️ Automated Backups:**
-- The `deploy.sh` script **automatically creates backups** before each deployment
-- Backups are stored in `~/leafmark/backups/`
-- Last 10 backups are kept automatically
+**Creating a Backup:**
 
-**Manual Backup:**
 ```bash
-cd ~/leafmark/app-source
-./backup.sh
-```
-
-This creates:
-- `db-backup-YYYYMMDD_HHMMSS.tar.gz` - Database backup
-- `storage-backup-YYYYMMDD_HHMMSS.tar.gz` - Uploaded files backup
-
-**List Available Backups:**
-```bash
-cd ~/leafmark/app-source
-./restore.sh
-```
-
-**Restore from Backup:**
-```bash
-cd ~/leafmark/app-source
-./restore.sh YYYYMMDD_HHMMSS
-```
-
-Example:
-```bash
-./restore.sh 20260110_120000
-```
-
-**⚠️ WARNING:** Restore will replace current data with backup data!
-
-**Manual Backup (advanced):**
-```bash
+# Create backup directory
 BACKUP_DIR=~/leafmark/backups
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 mkdir -p $BACKUP_DIR
 
-# Backup database
-docker run --rm -v app-source_sqlite_data:/data -v $BACKUP_DIR:/backup alpine \
-  tar czf /backup/db-backup-${TIMESTAMP}.tar.gz -C /data .
+# Backup MariaDB database
+docker run --rm \
+  -v leafmark_mariadb_data:/data \
+  -v $BACKUP_DIR:/backup \
+  alpine tar czf /backup/db-backup-${TIMESTAMP}.tar.gz -C /data .
 
-# Backup uploaded files
-docker run --rm -v app-source_storage_data:/data -v $BACKUP_DIR:/backup alpine \
-  tar czf /backup/storage-backup-${TIMESTAMP}.tar.gz -C /data .
+# Backup uploaded files (covers)
+docker run --rm \
+  -v leafmark_storage_data:/data \
+  -v $BACKUP_DIR:/backup \
+  alpine tar czf /backup/storage-backup-${TIMESTAMP}.tar.gz -C /data .
+
+echo "Backup created: $TIMESTAMP"
 ```
+
+This creates:
+- `db-backup-YYYYMMDD_HHMMSS.tar.gz` - MariaDB database backup
+- `storage-backup-YYYYMMDD_HHMMSS.tar.gz` - Uploaded files backup
+
+**Restoring from a Backup:**
+
+```bash
+# Stop application
+cd ~/leafmark/app-source
+docker compose down
+
+# Set the backup timestamp to restore
+TIMESTAMP=20260110_120000
+
+# Restore database
+docker run --rm \
+  -v leafmark_mariadb_data:/data \
+  -v ~/leafmark/backups:/backup \
+  alpine sh -c "rm -rf /data/* && tar xzf /backup/db-backup-${TIMESTAMP}.tar.gz -C /data"
+
+# Restore uploaded files
+docker run --rm \
+  -v leafmark_storage_data:/data \
+  -v ~/leafmark/backups:/backup \
+  alpine sh -c "rm -rf /data/* && tar xzf /backup/storage-backup-${TIMESTAMP}.tar.gz -C /data"
+
+# Restart application
+docker compose up -d
+```
+
+**⚠️ WARNING:** Restore will permanently replace current data with backup data!
 
 ## Important Notes for Development
 
@@ -529,3 +631,53 @@ When adding new book import sources:
 4. Handle API errors gracefully with logging
 5. Update `BookController::create()` to include new service
 6. Add language support if applicable
+
+### Admin System & User Management
+
+The application now supports multi-user environments with admin controls:
+
+**Admin Access Control:**
+- Protected by `IsAdmin` middleware on all `/admin` routes
+- Middleware checks `auth()->user()->is_admin` flag
+- Non-admin users get 403 Forbidden error
+- Admin link only visible in navigation if user is admin
+
+**User Management Features:**
+- View all users with statistics (book count, join date)
+- Toggle admin privileges for any user (except yourself)
+- Delete users (except yourself)
+- Pagination for large user lists
+
+**Registration Control Modes:**
+
+1. **Open (`registration_mode = 'open'`)**: Anyone can register
+2. **Domain-restricted (`registration_mode = 'domain'`)**: Only specific email domains allowed
+   - Configured via `allowed_email_domains` (comma-separated)
+   - Example: `example.com,company.org`
+3. **Invitation-only (`registration_mode = 'invitation'`)**: Admins must create invitations
+   - Invitations tied to specific email addresses
+   - Token-based with 7-day expiration
+   - Marked as used after registration
+4. **Code-required (`registration_mode = 'code'`)**: Users need registration code
+   - Single shared code configured in settings
+   - Example use: family sharing
+
+**SystemSetting Model:**
+- Key-value configuration storage
+- **NO CACHING** - direct database queries to avoid cache table dependency
+- Common settings: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
+- Helper methods: `isRegistrationEnabled()`, `getRegistrationMode()`, `isEmailDomainAllowed()`
+
+**Invitation System:**
+- `Invitation` model with email, token, invited_by, used_at, expires_at
+- Tokens generated with `Str::random(32)`
+- Default expiration: 7 days from creation
+- Validated during registration if mode is 'invitation'
+- Admins can create and delete invitations via settings page
+
+**Important Security Notes:**
+- Admins cannot change their own admin status (prevents lockout)
+- Admins cannot delete themselves (prevents lockout)
+- At least one admin must exist (robert@einsle.com seeded by default)
+- Registration checks occur in `RegisterController` before user creation
+- Invalid invitations return validation errors, not exceptions

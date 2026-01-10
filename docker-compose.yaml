@@ -4,21 +4,45 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "8000:80"
     volumes:
       - .:/var/www/html
       - vendor:/var/www/html/vendor
       - storage_data:/var/www/html/storage/app
-      - sqlite_data:/var/www/html/database
     environment:
       - APP_NAME=${APP_NAME:-Leafmark}
       - APP_ENV=${APP_ENV:-local}
       - APP_KEY=${APP_KEY}
       - APP_DEBUG=${APP_DEBUG:-true}
-      - APP_URL=${APP_URL:-http://localhost}
-      - DB_CONNECTION=sqlite
+      - APP_URL=${APP_URL:-https://www.leafmark.app}
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-leafmark}
+      - DB_USERNAME=${DB_USERNAME:-leafmark}
+      - DB_PASSWORD=${DB_PASSWORD:-leafmark_password}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:11
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_password}
+      - MYSQL_DATABASE=${DB_DATABASE:-leafmark}
+      - MYSQL_USER=${DB_USERNAME:-leafmark}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-leafmark_password}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  sqlite_data:
+  mariadb_data:
   vendor:
   storage_data:

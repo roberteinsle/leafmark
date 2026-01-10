@@ -13,7 +13,12 @@ APP_URL="${APP_URL:-http://localhost}"
 LOG_CHANNEL=stack
 LOG_LEVEL=info
 
-DB_CONNECTION=sqlite
+DB_CONNECTION=${DB_CONNECTION:-sqlite}
+DB_HOST=${DB_HOST:-127.0.0.1}
+DB_PORT=${DB_PORT:-3306}
+DB_DATABASE=${DB_DATABASE:-leafmark}
+DB_USERNAME=${DB_USERNAME:-root}
+DB_PASSWORD=${DB_PASSWORD:-}
 
 BROADCAST_DRIVER=log
 CACHE_DRIVER=file
@@ -35,10 +40,12 @@ fi
 # Create database directory if it doesn't exist
 mkdir -p /var/www/html/database
 
-# Create SQLite database file if it doesn't exist
-if [ ! -f /var/www/html/database/database.sqlite ]; then
-    echo "Creating SQLite database file..."
-    touch /var/www/html/database/database.sqlite
+# Create SQLite database file if using SQLite
+if [ "${DB_CONNECTION}" = "sqlite" ]; then
+    if [ ! -f /var/www/html/database/database.sqlite ]; then
+        echo "Creating SQLite database file..."
+        touch /var/www/html/database/database.sqlite
+    fi
 fi
 
 # Fix permissions

@@ -13,9 +13,17 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
+            \App\Http\Middleware\DetectBrowserLocale::class,
             \App\Http\Middleware\SetUserLocale::class,
+        ]);
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->withProviders([
+        \App\Providers\DynamicMailConfigServiceProvider::class,
+    ])
+    ->create();

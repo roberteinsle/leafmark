@@ -2,9 +2,13 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserSettingsController;
+use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -22,11 +26,31 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
+
+    // Password reset routes
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+    // Email verification notice page
+    Route::get('/verify-email', function () {
+        return view('auth.verify-email');
+    })->name('verify.notice');
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
+
+// Email verification routes
+Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
+    ->middleware(['signed'])
+    ->name('verification.verify');
+
+Route::post('/email/resend', [VerificationController::class, 'resend'])
+    ->middleware(['guest'])
+    ->name('verification.resend');
 
 // Protected routes
 Route::middleware('auth')->group(function () {
@@ -76,4 +100,21 @@ Route::middleware('auth')->group(function () {
     Route::post('/challenge', [App\Http\Controllers\ReadingChallengeController::class, 'store'])->name('challenge.store');
     Route::patch('/challenge/{challenge}', [App\Http\Controllers\ReadingChallengeController::class, 'update'])->name('challenge.update');
     Route::delete('/challenge/{challenge}', [App\Http\Controllers\ReadingChallengeController::class, 'destroy'])->name('challenge.destroy');
+});
+
+// Admin routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('index');
+    Route::get('/users', [AdminController::class, 'users'])->name('users');
+    Route::patch('/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
+    Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.delete');
+
+    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+    Route::patch('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
+    Route::post('/settings/test-email', [AdminController::class, 'sendTestEmail'])->name('settings.test-email');
+
+    Route::get('/email-logs', [AdminController::class, 'emailLogs'])->name('email-logs');
+
+    Route::post('/invitations', [AdminController::class, 'createInvitation'])->name('invitations.create');
+    Route::delete('/invitations/{invitation}', [AdminController::class, 'deleteInvitation'])->name('invitations.delete');
 });

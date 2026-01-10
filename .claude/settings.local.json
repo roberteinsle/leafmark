@@ -60,7 +60,12 @@
       "Bash(php test-amazon.php:*)",
       "Bash(ssh-keygen:*)",
       "Bash(ssh:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(cat:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(docker volume rm:*)",
+      "Bash(docker volume:*)",
+      "Bash(test:*)"
     ]
   }
 }

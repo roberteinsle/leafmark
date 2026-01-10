@@ -4,8 +4,22 @@
 
 @section('content')
 <div class="max-w-6xl mx-auto px-4 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">{{ __('app.challenge.title') }} {{ $currentYear }}</h1>
+    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('app.challenge.title') }} {{ $selectedYear }}</h1>
+
+        <!-- Year Selector -->
+        <form method="GET" action="{{ route('challenge.index') }}" class="flex items-center gap-2">
+            <label for="year-select" class="text-sm font-medium text-gray-700">Jahr:</label>
+            <select name="year" id="year-select" onchange="this.form.submit()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                @foreach($availableYears as $year)
+                    <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>
+                        {{ $year }}
+                        @if($year == $currentYear) ({{ __('app.challenge.current_year') }}) @endif
+                    </option>
+                @endforeach
+            </select>
+        </form>
     </div>
 
     @if(session('success'))
@@ -19,7 +33,7 @@
         @if($challenge)
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-gray-900">{{ __('app.challenge.your_goal') }} {{ $currentYear }}</h2>
+                    <h2 class="text-xl font-semibold text-gray-900">{{ __('app.challenge.your_goal') }} {{ $selectedYear }}</h2>
                     <div class="flex items-center gap-3" x-data="{ editing: false }">
                         <form method="POST" action="{{ route('challenge.update', $challenge) }}" class="flex items-center gap-2">
                             @csrf
@@ -67,9 +81,10 @@
             </div>
         @else
             <div class="text-center py-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">{{ __('app.challenge.your_goal') }} {{ $currentYear }}</h2>
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">{{ __('app.challenge.your_goal') }} {{ $selectedYear }}</h2>
                 <form method="POST" action="{{ route('challenge.store') }}" class="inline-flex items-center gap-3">
                     @csrf
+                    <input type="hidden" name="year" value="{{ $selectedYear }}">
                     <input type="number" name="goal" placeholder="z.B. 24" min="1" max="1000" required
                            class="w-32 px-4 py-2 border border-gray-300 rounded-md text-center">
                     <span class="text-gray-600">{{ __('app.challenge.books_goal') }}</span>

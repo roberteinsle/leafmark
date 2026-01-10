@@ -7,6 +7,7 @@
     <title>{{ config('app.name', 'Leafmark') }} - @yield('title')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @yield('head')
 </head>
 <body class="bg-gray-50">
     <nav class="bg-white shadow-sm">
@@ -60,6 +61,12 @@
                                  x-transition:leave-end="transform opacity-0 scale-95"
                                  class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50"
                                  style="display: none;">
+                                @if(Auth::user()->is_admin)
+                                <a href="{{ route('admin.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-semibold">
+                                    ⚙️ {{ __('app.admin.title') }}
+                                </a>
+                                <hr class="my-1">
+                                @endif
                                 <a href="{{ route('settings.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     {{ __('app.nav.settings') }}
                                 </a>
