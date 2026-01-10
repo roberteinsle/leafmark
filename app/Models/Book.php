@@ -23,6 +23,8 @@ class Book extends Model
         'publisher',
         'published_date',
         'description',
+        'rating',
+        'review',
         'page_count',
         'language',
         'cover_url',
@@ -55,6 +57,7 @@ class Book extends Model
         'current_page' => 'integer',
         'series_position' => 'integer',
         'purchase_price' => 'decimal:2',
+        'rating' => 'decimal:2',
     ];
 
     protected $appends = [

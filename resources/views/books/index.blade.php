@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Books')
+@section('title', __('app.books.title'))
 
 @section('content')
 <div class="px-4">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">My Books</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('app.books.title') }}</h1>
         <a href="{{ route('books.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
-            Add Book
+            {{ __('app.books.add_book') }}
         </a>
     </div>
 
@@ -17,7 +17,7 @@
             <input type="text"
                    name="search"
                    value="{{ request('search') }}"
-                   placeholder="Search by title, author, or ISBN..."
+                   placeholder="{{ __('app.books.search_placeholder') }}"
                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
 
             @if(request('status'))
@@ -29,12 +29,12 @@
             @endif
 
             <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700">
-                Search
+                {{ __('app.books.search') }}
             </button>
 
             @if(request('search'))
                 <a href="{{ route('books.index', request()->only(['status', 'sort'])) }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
-                    Clear
+                    {{ __('app.books.clear') }}
                 </a>
             @endif
         </form>
@@ -44,13 +44,13 @@
         <div class="mt-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <input type="checkbox" id="select-all" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                <label for="select-all" class="text-sm text-gray-700">Select All</label>
+                <label for="select-all" class="text-sm text-gray-700">{{ __('app.books.select_all') }}</label>
             </div>
             <button type="button"
                     id="bulk-delete-btn"
                     class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled>
-                Delete Selected
+                {{ __('app.books.delete_selected') }}
             </button>
         </div>
         @endif
@@ -61,16 +61,16 @@
         <div class="flex justify-between items-center">
             <div class="flex space-x-4">
                 <a href="{{ route('books.index', request()->only(['search', 'sort'])) }}" class="px-4 py-2 rounded-lg {{ !request('status') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
-                    All Books <span class="ml-2 text-sm opacity-75">({{ $counts['all'] }})</span>
+                    {{ __('app.books.all_books') }} <span class="ml-2 text-sm opacity-75">({{ $counts['all'] }})</span>
                 </a>
                 <a href="{{ route('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'want_to_read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'want_to_read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
-                    Want to Read <span class="ml-2 text-sm opacity-75">({{ $counts['want_to_read'] }})</span>
+                    {{ __('app.books.want_to_read') }} <span class="ml-2 text-sm opacity-75">({{ $counts['want_to_read'] }})</span>
                 </a>
                 <a href="{{ route('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'currently_reading'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'currently_reading' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
-                    Currently Reading <span class="ml-2 text-sm opacity-75">({{ $counts['currently_reading'] }})</span>
+                    {{ __('app.books.currently_reading') }} <span class="ml-2 text-sm opacity-75">({{ $counts['currently_reading'] }})</span>
                 </a>
                 <a href="{{ route('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
-                    Read <span class="ml-2 text-sm opacity-75">({{ $counts['read'] }})</span>
+                    {{ __('app.books.read') }} <span class="ml-2 text-sm opacity-75">({{ $counts['read'] }})</span>
                 </a>
             </div>
 
@@ -85,14 +85,14 @@
                 <select name="sort"
                         onchange="this.form.submit()"
                         class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                    <option value="added_at_desc" {{ request('sort', 'added_at_desc') === 'added_at_desc' ? 'selected' : '' }}>Sort: Added (Newest)</option>
-                    <option value="added_at_asc" {{ request('sort') === 'added_at_asc' ? 'selected' : '' }}>Sort: Added (Oldest)</option>
-                    <option value="title_asc" {{ request('sort') === 'title_asc' ? 'selected' : '' }}>Sort: Title (A-Z)</option>
-                    <option value="title_desc" {{ request('sort') === 'title_desc' ? 'selected' : '' }}>Sort: Title (Z-A)</option>
-                    <option value="author_asc" {{ request('sort') === 'author_asc' ? 'selected' : '' }}>Sort: Author (A-Z)</option>
-                    <option value="author_desc" {{ request('sort') === 'author_desc' ? 'selected' : '' }}>Sort: Author (Z-A)</option>
-                    <option value="published_date_desc" {{ request('sort') === 'published_date_desc' ? 'selected' : '' }}>Sort: Release Date (Newest)</option>
-                    <option value="published_date_asc" {{ request('sort') === 'published_date_asc' ? 'selected' : '' }}>Sort: Release Date (Oldest)</option>
+                    <option value="added_at_desc" {{ request('sort', 'added_at_desc') === 'added_at_desc' ? 'selected' : '' }}>{{ __('app.books.sort_added_newest') }}</option>
+                    <option value="added_at_asc" {{ request('sort') === 'added_at_asc' ? 'selected' : '' }}>{{ __('app.books.sort_added_oldest') }}</option>
+                    <option value="title_asc" {{ request('sort') === 'title_asc' ? 'selected' : '' }}>{{ __('app.books.sort_title_az') }}</option>
+                    <option value="title_desc" {{ request('sort') === 'title_desc' ? 'selected' : '' }}>{{ __('app.books.sort_title_za') }}</option>
+                    <option value="author_asc" {{ request('sort') === 'author_asc' ? 'selected' : '' }}>{{ __('app.books.sort_author_az') }}</option>
+                    <option value="author_desc" {{ request('sort') === 'author_desc' ? 'selected' : '' }}>{{ __('app.books.sort_author_za') }}</option>
+                    <option value="published_date_desc" {{ request('sort') === 'published_date_desc' ? 'selected' : '' }}>{{ __('app.books.sort_date_newest') }}</option>
+                    <option value="published_date_asc" {{ request('sort') === 'published_date_asc' ? 'selected' : '' }}>{{ __('app.books.sort_date_oldest') }}</option>
                 </select>
             </form>
         </div>
@@ -100,9 +100,9 @@
 
     @if($books->isEmpty())
     <div class="bg-white rounded-lg shadow p-8 text-center">
-        <p class="text-gray-500 mb-4">No books found. Start building your library!</p>
+        <p class="text-gray-500 mb-4">{{ __('app.books.no_books_found') }}</p>
         <a href="{{ route('books.create') }}" class="text-indigo-600 hover:text-indigo-700 font-medium">
-            Add your first book
+            {{ __('app.books.add_first_book') }}
         </a>
     </div>
     @else
@@ -118,7 +118,7 @@
             <div class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                 <a href="{{ route('books.show', $book) }}"
                    class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg"
-                   title="View">
+                   title="{{ __('app.books.view') }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -126,7 +126,7 @@
                 </a>
                 <a href="{{ route('books.edit', $book) }}"
                    class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded-full shadow-lg"
-                   title="Edit">
+                   title="{{ __('app.books.edit') }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
@@ -135,9 +135,9 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit"
-                            onclick="return confirm('Are you sure you want to delete this book?')"
+                            onclick="return confirm('{{ __('app.books.delete_confirm') }}')"
                             class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg"
-                            title="Delete">
+                            title="{{ __('app.books.delete') }}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -180,9 +180,9 @@
                                    {{ $book->status === 'want_to_read' ? 'bg-yellow-50 text-yellow-800 border-yellow-300' : '' }}
                                    {{ $book->status === 'currently_reading' ? 'bg-blue-50 text-blue-800 border-blue-300' : '' }}
                                    {{ $book->status === 'read' ? 'bg-green-50 text-green-800 border-green-300' : '' }}">
-                        <option value="want_to_read" {{ $book->status === 'want_to_read' ? 'selected' : '' }}>Want to Read</option>
-                        <option value="currently_reading" {{ $book->status === 'currently_reading' ? 'selected' : '' }}>Currently Reading</option>
-                        <option value="read" {{ $book->status === 'read' ? 'selected' : '' }}>Read</option>
+                        <option value="want_to_read" {{ $book->status === 'want_to_read' ? 'selected' : '' }}>{{ __('app.books.want_to_read') }}</option>
+                        <option value="currently_reading" {{ $book->status === 'currently_reading' ? 'selected' : '' }}>{{ __('app.books.currently_reading') }}</option>
+                        <option value="read" {{ $book->status === 'read' ? 'selected' : '' }}>{{ __('app.books.read') }}</option>
                     </select>
                 </form>
 
@@ -217,7 +217,7 @@
                 @if($book->status === 'currently_reading' && $book->page_count)
                 <div class="mt-2">
                     <div class="flex justify-between text-xs text-gray-600 mb-1">
-                        <span>Progress</span>
+                        <span>{{ __('app.books.progress') }}</span>
                         <span>{{ $book->reading_progress }}%</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-1.5">
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (!confirm(`Are you sure you want to delete ${bookIds.length} book(s)?`)) {
+            if (!confirm('{{ __('app.books.bulk_delete_confirm', ['count' => '']) }}'.replace(':count', bookIds.length))) {
                 return;
             }
 

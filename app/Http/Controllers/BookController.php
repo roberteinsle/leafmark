@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Services\AmazonProductService;
+use App\Services\BookBrainzService;
 use App\Services\CoverImageService;
 use App\Services\GoogleBooksService;
 use App\Services\OpenLibraryService;
@@ -141,7 +142,7 @@ class BookController extends Controller
         return view('books.index', compact('books', 'counts'));
     }
 
-    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, AmazonProductService $amazon): View
+    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, AmazonProductService $amazon, BookBrainzService $bookBrainz): View
     {
         $searchQuery = $request->get('q');
         $language = $request->get('lang', auth()->user()->preferred_language ?? 'en');
@@ -153,6 +154,7 @@ class BookController extends Controller
             $googleResults = [];
             $openLibraryResults = [];
             $amazonResults = [];
+            $bookBrainzResults = [];
 
             // Search based on selected provider
             if ($provider === 'both' || $provider === 'google') {
@@ -167,8 +169,12 @@ class BookController extends Controller
                 $amazonResults = $amazon->search($searchQuery, 10, $language);
             }
 
+            if ($provider === 'both' || $provider === 'bookbrainz') {
+                $bookBrainzResults = $bookBrainz->search($searchQuery, 10, $language);
+            }
+
             // Merge and deduplicate results based on ISBN
-            $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults, $amazonResults);
+            $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults, $amazonResults, $bookBrainzResults);
             $noResults = empty($searchResults);
         }
 
@@ -178,7 +184,7 @@ class BookController extends Controller
     /**
      * Merge and deduplicate search results from multiple sources
      */
-    private function mergeSearchResults(array $googleResults, array $openLibraryResults, array $amazonResults = []): array
+    private function mergeSearchResults(array $googleResults, array $openLibraryResults, array $amazonResults = [], array $bookBrainzResults = []): array
     {
         $merged = [];
         $seenIsbns = [];
@@ -211,6 +217,20 @@ class BookController extends Controller
             }
         }
 
+        // Add BookBrainz results
+        foreach ($bookBrainzResults as $result) {
+            $isbn = $result['isbn13'] ?? $result['isbn'] ?? null;
+            if ($isbn && !in_array($isbn, $seenIsbns)) {
+                $seenIsbns[] = $isbn;
+                $result['source'] = 'bookbrainz';
+                $merged[] = $result;
+            } elseif (!$isbn) {
+                // Add books without ISBN too
+                $result['source'] = 'bookbrainz';
+                $merged[] = $result;
+            }
+        }
+
         // Add Open Library results that aren't duplicates
         foreach ($openLibraryResults as $result) {
             $isbn = $result['isbn13'] ?? $result['isbn'] ?? null;
@@ -228,13 +248,14 @@ class BookController extends Controller
         return $merged;
     }
 
-    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, AmazonProductService $amazon, CoverImageService $coverService): RedirectResponse
+    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, AmazonProductService $amazon, BookBrainzService $bookBrainz, CoverImageService $coverService): RedirectResponse
     {
         $validated = $request->validate([
             'google_books_id' => 'nullable|string',
             'open_library_id' => 'nullable|string',
             'amazon_asin' => 'nullable|string',
-            'source' => 'required|in:google,openlibrary,amazon',
+            'bookbrainz_id' => 'nullable|string',
+            'source' => 'required|in:google,openlibrary,amazon,bookbrainz',
             'status' => 'required|in:want_to_read,currently_reading,read',
         ]);
 
@@ -245,6 +266,9 @@ class BookController extends Controller
         } elseif ($validated['source'] === 'amazon') {
             $bookData = $amazon->getBook($validated['amazon_asin']);
             $externalId = $validated['amazon_asin'];
+        } elseif ($validated['source'] === 'bookbrainz') {
+            $bookData = $bookBrainz->getBook($validated['bookbrainz_id']);
+            $externalId = $validated['bookbrainz_id'];
         } else {
             $bookData = $openLibrary->getBook($validated['open_library_id']);
             $externalId = $validated['open_library_id'];
@@ -504,6 +528,22 @@ class BookController extends Controller
         }
 
         return back()->with('success', 'Status updated!');
+    }
+
+    public function updateRating(Request $request, Book $book): RedirectResponse
+    {
+        if ($book->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'review' => 'nullable|string|max:5000',
+        ]);
+
+        $book->update($validated);
+
+        return back()->with('success', 'Rating saved!');
     }
 
     public function bulkDelete(Request $request): RedirectResponse

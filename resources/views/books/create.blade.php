@@ -26,15 +26,24 @@
                            autofocus>
                     <select name="provider"
                             class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="openlibrary" {{ request('provider', 'openlibrary') === 'openlibrary' ? 'selected' : '' }}>{{ __('app.books.openlibrary') }}</option>
-                        @if(auth()->user()->google_books_api_key || config('services.google_books.api_key'))
-                        <option value="google" {{ request('provider') === 'google' ? 'selected' : '' }}>{{ __('app.books.google_books') }}</option>
+                        @php
+                            $defaultProvider = 'both';
+                            $hasGoogle = auth()->user()->google_books_api_key || config('services.google_books.api_key');
+                            $hasAmazon = auth()->user()->amazon_access_key || config('services.amazon.access_key');
+                            if (!$hasGoogle && !$hasAmazon) {
+                                $defaultProvider = 'openlibrary';
+                            }
+                        @endphp
+                        <option value="openlibrary" {{ request('provider', $defaultProvider) === 'openlibrary' ? 'selected' : '' }}>{{ __('app.books.openlibrary') }}</option>
+                        <option value="bookbrainz" {{ request('provider', $defaultProvider) === 'bookbrainz' ? 'selected' : '' }}>BookBrainz</option>
+                        @if($hasGoogle)
+                        <option value="google" {{ request('provider', $defaultProvider) === 'google' ? 'selected' : '' }}>{{ __('app.books.google_books') }}</option>
                         @endif
-                        @if(auth()->user()->amazon_access_key || config('services.amazon.access_key'))
-                        <option value="amazon" {{ request('provider') === 'amazon' ? 'selected' : '' }}>Amazon</option>
+                        @if($hasAmazon)
+                        <option value="amazon" {{ request('provider', $defaultProvider) === 'amazon' ? 'selected' : '' }}>Amazon</option>
                         @endif
-                        @if((auth()->user()->google_books_api_key || config('services.google_books.api_key')) || (auth()->user()->amazon_access_key || config('services.amazon.access_key')))
-                        <option value="both" {{ request('provider') === 'both' ? 'selected' : '' }}>{{ __('app.books.all_sources') }}</option>
+                        @if($hasGoogle || $hasAmazon)
+                        <option value="both" {{ request('provider', $defaultProvider) === 'both' ? 'selected' : '' }}>{{ __('app.books.all_sources') }}</option>
                         @endif
                     </select>
                     <select name="lang"
@@ -115,6 +124,8 @@
                                     <input type="hidden" name="google_books_id" value="{{ $result['google_books_id'] }}">
                                 @elseif($result['source'] === 'amazon')
                                     <input type="hidden" name="amazon_asin" value="{{ $result['asin'] }}">
+                                @elseif($result['source'] === 'bookbrainz')
+                                    <input type="hidden" name="bookbrainz_id" value="{{ $result['bookbrainz_id'] }}">
                                 @else
                                     <input type="hidden" name="open_library_id" value="{{ $result['open_library_id'] }}">
                                 @endif
@@ -135,6 +146,8 @@
                                             {{ __('app.books.google_books') }}
                                         @elseif($result['source'] === 'amazon')
                                             Amazon
+                                        @elseif($result['source'] === 'bookbrainz')
+                                            BookBrainz
                                         @else
                                             {{ __('app.books.openlibrary') }}
                                         @endif

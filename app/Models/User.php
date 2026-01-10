@@ -48,6 +48,11 @@ class User extends Authenticatable
         return $this->hasMany(Tag::class)->ordered();
     }
 
+    public function readingChallenges(): HasMany
+    {
+        return $this->hasMany(ReadingChallenge::class);
+    }
+
     // Helper methods
     public function getDefaultTags(): \Illuminate\Database\Eloquent\Collection
     {
@@ -57,5 +62,10 @@ class User extends Authenticatable
     public function getCustomTags(): \Illuminate\Database\Eloquent\Collection
     {
         return $this->tags()->custom()->get();
+    }
+
+    public function getCurrentYearChallenge(): ?ReadingChallenge
+    {
+        return $this->readingChallenges()->where('year', now()->year)->first();
     }
 }

@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     // Book-specific routes with numeric ID constraint
     Route::patch('/books/{book}/progress', [BookController::class, 'updateProgress'])->name('books.progress')->where('book', '[0-9]+');
     Route::patch('/books/{book}/status', [BookController::class, 'updateStatus'])->name('books.status')->where('book', '[0-9]+');
+    Route::patch('/books/{book}/rating', [BookController::class, 'updateRating'])->name('books.update-rating')->where('book', '[0-9]+');
     Route::delete('/books/{book}/progress/{entry}', [BookController::class, 'deleteProgressEntry'])->name('books.progress.delete')->where(['book' => '[0-9]+', 'entry' => '[0-9]+']);
     Route::patch('/books/{book}/update-from-url', [BookController::class, 'updateFromUrl'])->name('books.update-from-url')->where('book', '[0-9]+');
 
@@ -69,4 +70,9 @@ Route::middleware('auth')->group(function () {
     // User settings routes
     Route::get('/settings', [UserSettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings', [UserSettingsController::class, 'update'])->name('settings.update');
+
+    // Reading Challenge routes
+    Route::get('/challenge', [App\Http\Controllers\ReadingChallengeController::class, 'index'])->name('challenge.index');
+    Route::post('/challenge', [App\Http\Controllers\ReadingChallengeController::class, 'store'])->name('challenge.store');
+    Route::patch('/challenge/{challenge}', [App\Http\Controllers\ReadingChallengeController::class, 'update'])->name('challenge.update');
 });
