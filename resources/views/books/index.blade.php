@@ -11,6 +11,59 @@
         </a>
     </div>
 
+    <!-- Reading Challenge Widget -->
+    @if($challenge)
+    <div class="mb-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-3">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                    <div>
+                        <h3 class="text-lg font-semibold">{{ __('app.challenge.title') }} {{ now()->year }}</h3>
+                        <p class="text-sm opacity-90">{{ __('app.challenge.your_goal') }}: {{ $challenge->goal }} {{ __('app.challenge.books_goal') }}</p>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="mb-2">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span>{{ $challenge->progress }} {{ __('app.challenge.of') }} {{ $challenge->goal }}</span>
+                        <span class="font-bold">{{ $challenge->progress_percentage }}%</span>
+                    </div>
+                    <div class="w-full bg-white bg-opacity-30 rounded-full h-3">
+                        <div class="bg-white h-3 rounded-full transition-all duration-300 shadow-sm"
+                             style="width: {{ $challenge->progress_percentage }}%"></div>
+                    </div>
+                </div>
+
+                @if($challenge->is_completed)
+                    <p class="text-sm font-semibold mt-2">🎉 {{ __('app.challenge.goal_completed') }}</p>
+                @elseif($challenge->progress > 0)
+                    @php
+                        $remaining = $challenge->goal - $challenge->progress;
+                        $daysLeft = now()->diffInDays(now()->endOfYear());
+                        $booksPerMonth = $daysLeft > 0 ? round(($remaining / $daysLeft) * 30, 1) : 0;
+                    @endphp
+                    <p class="text-sm opacity-90 mt-2">
+                        {{ $remaining }} {{ __('app.challenge.books_remaining') }}
+                        @if($booksPerMonth > 0)
+                            • ~{{ $booksPerMonth }} {{ __('app.challenge.books_per_month') }}
+                        @endif
+                    </p>
+                @endif
+            </div>
+
+            <div class="ml-6">
+                <a href="{{ route('challenge.index') }}" class="inline-block bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-medium py-2 px-4 rounded-lg transition">
+                    {{ __('app.challenge.view_details') }}
+                </a>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Search and Bulk Actions -->
     <div class="mb-6 bg-white rounded-lg shadow p-4">
         <form action="{{ route('books.index') }}" method="GET" class="flex gap-4">

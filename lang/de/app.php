@@ -178,6 +178,10 @@ return [
         'october' => 'Oktober',
         'november' => 'November',
         'december' => 'Dezember',
+        'goal_completed' => 'Glückwunsch! Ziel erreicht!',
+        'books_remaining' => 'Bücher verbleibend',
+        'books_per_month' => 'Bücher/Monat',
+        'view_details' => 'Details anzeigen',
     ],
 
     // Settings

@@ -139,7 +139,11 @@ class BookController extends Controller
             'read' => (clone $baseQuery)->where('status', 'read')->count(),
         ];
 
-        return view('books.index', compact('books', 'counts'));
+        // Get current year's reading challenge
+        $currentYear = now()->year;
+        $challenge = auth()->user()->readingChallenges()->where('year', $currentYear)->first();
+
+        return view('books.index', compact('books', 'counts', 'challenge'));
     }
 
     public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, AmazonProductService $amazon, BookBrainzService $bookBrainz): View
