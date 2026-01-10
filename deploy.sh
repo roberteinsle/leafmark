@@ -21,6 +21,25 @@ echo -e "${GREEN}Leafmark Deployment Script${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 
+# Create automatic backup before deployment
+echo -e "${YELLOW}→ Creating backup before deployment...${NC}"
+BACKUP_DIR=~/leafmark/backups
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+mkdir -p $BACKUP_DIR
+
+# Backup database
+docker run --rm -v app-source_sqlite_data:/data -v $BACKUP_DIR:/backup alpine tar czf /backup/db-backup-${TIMESTAMP}.tar.gz -C /data . 2>/dev/null || echo -e "${YELLOW}⚠ Database backup skipped (volume may not exist yet)${NC}"
+
+# Backup storage
+docker run --rm -v app-source_storage_data:/data -v $BACKUP_DIR:/backup alpine tar czf /backup/storage-backup-${TIMESTAMP}.tar.gz -C /data . 2>/dev/null || echo -e "${YELLOW}⚠ Storage backup skipped (volume may not exist yet)${NC}"
+
+# Keep only last 10 backups
+cd $BACKUP_DIR 2>/dev/null && ls -t db-backup-*.tar.gz 2>/dev/null | tail -n +11 | xargs -r rm 2>/dev/null || true
+cd $BACKUP_DIR 2>/dev/null && ls -t storage-backup-*.tar.gz 2>/dev/null | tail -n +11 | xargs -r rm 2>/dev/null || true
+
+echo -e "${GREEN}✓ Backup created${NC}"
+echo ""
+
 # Change to application directory
 APP_DIR=~/leafmark/app-source
 echo -e "${YELLOW}→ Changing to application directory...${NC}"

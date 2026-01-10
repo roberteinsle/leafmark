@@ -262,16 +262,53 @@ curl http://localhost:8080
 
 ### Update Workflow
 
-When deploying updates:
+**⚠️ IMPORTANT:** The deploy script automatically creates backups before each deployment!
 
+**Recommended: Use the deploy script** (automatically creates backup):
 ```bash
 cd ~/leafmark/app-source
-git pull
-docker compose up -d --build
-docker compose exec app php artisan migrate --force
-docker compose exec app php artisan storage:link  # Ensure storage symlink exists
-docker compose exec app php artisan config:cache
+./deploy.sh
 ```
+
+The deploy script will:
+1. **Automatically backup database and files** before any changes
+2. Pull latest code from GitHub
+3. Stop and rebuild containers (data persists in Docker volumes)
+4. Run database migrations
+5. Create storage symlink
+6. Clear and rebuild caches
+7. Keep last 10 backups automatically
+
+**Manual update** (if you need more control):
+```bash
+cd ~/leafmark/app-source
+
+# 1. ALWAYS create backup first!
+./backup.sh
+
+# 2. Pull latest code
+git pull origin main
+
+# 3. Rebuild and restart (volumes are preserved - data is NOT deleted!)
+docker compose down
+docker compose up -d --build
+
+# 4. Run migrations
+docker compose exec app php artisan migrate --force
+
+# 5. Ensure storage symlink exists
+docker compose exec app php artisan storage:link
+
+# 6. Clear caches
+docker compose exec app php artisan config:cache
+docker compose exec app php artisan route:cache
+```
+
+**⚠️ CRITICAL:**
+- **NEVER use `docker compose down -v`** - the `-v` flag deletes volumes and ALL DATA!
+- **NEVER delete Docker volumes manually** - they contain all user data and uploaded files
+- **ALWAYS use `./deploy.sh` or create backup with `./backup.sh` before updates**
+- Data persists in Docker volumes across container rebuilds
 
 ### Data Persistence
 
@@ -285,28 +322,53 @@ These volumes persist across container restarts and rebuilds.
 
 ### Backup & Restore
 
-**Backup SQLite database:**
+**⚠️ Automated Backups:**
+- The `deploy.sh` script **automatically creates backups** before each deployment
+- Backups are stored in `~/leafmark/backups/`
+- Last 10 backups are kept automatically
+
+**Manual Backup:**
 ```bash
-docker run --rm -v leafmark_sqlite_data:/data -v $(pwd):/backup alpine \
-  tar czf /backup/db-backup-$(date +%Y%m%d).tar.gz -C /data .
+cd ~/leafmark/app-source
+./backup.sh
 ```
 
-**Backup uploaded files:**
+This creates:
+- `db-backup-YYYYMMDD_HHMMSS.tar.gz` - Database backup
+- `storage-backup-YYYYMMDD_HHMMSS.tar.gz` - Uploaded files backup
+
+**List Available Backups:**
 ```bash
-docker run --rm -v leafmark_storage_data:/data -v $(pwd):/backup alpine \
-  tar czf /backup/storage-backup-$(date +%Y%m%d).tar.gz -C /data .
+cd ~/leafmark/app-source
+./restore.sh
 ```
 
-**Restore database:**
+**Restore from Backup:**
 ```bash
-docker run --rm -v leafmark_sqlite_data:/data -v $(pwd):/backup alpine \
-  tar xzf /backup/db-backup-20260109.tar.gz -C /data
+cd ~/leafmark/app-source
+./restore.sh YYYYMMDD_HHMMSS
 ```
 
-**Restore files:**
+Example:
 ```bash
-docker run --rm -v leafmark_storage_data:/data -v $(pwd):/backup alpine \
-  tar xzf /backup/storage-backup-20260109.tar.gz -C /data
+./restore.sh 20260110_120000
+```
+
+**⚠️ WARNING:** Restore will replace current data with backup data!
+
+**Manual Backup (advanced):**
+```bash
+BACKUP_DIR=~/leafmark/backups
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+mkdir -p $BACKUP_DIR
+
+# Backup database
+docker run --rm -v app-source_sqlite_data:/data -v $BACKUP_DIR:/backup alpine \
+  tar czf /backup/db-backup-${TIMESTAMP}.tar.gz -C /data .
+
+# Backup uploaded files
+docker run --rm -v app-source_storage_data:/data -v $BACKUP_DIR:/backup alpine \
+  tar czf /backup/storage-backup-${TIMESTAMP}.tar.gz -C /data .
 ```
 
 ## Important Notes for Development
