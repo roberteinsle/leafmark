@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Leafmark is a personal book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, organize books with tags, and import book data from external APIs (Google Books, Open Library).
+Leafmark is a personal book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, organize books with tags, import book data from external APIs (Google Books, Open Library, Amazon, BookBrainz), and set yearly reading goals.
 
 ## Development Commands
 
@@ -38,6 +38,12 @@ php artisan migrate:rollback     # Rollback last migration batch
 # Clear/cache configuration
 php artisan config:clear
 php artisan config:cache
+php artisan route:cache
+php artisan route:clear
+php artisan view:clear
+
+# Create storage symlink (for uploaded book covers)
+php artisan storage:link
 
 # Database seeding (if seeders exist)
 php artisan db:seed
@@ -85,10 +91,23 @@ The application has core models with the following relationships:
 - Each user creates their own tags
 - Tags are used to organize and categorize books
 
+**User → ReadingChallenges (1:many)**
+- Each user can set yearly reading goals
+- Challenges track books finished within the year
+
 **Books ↔ Tags (many:many)**
 - Books can have multiple tags
 - Tags can be applied to multiple books
-- Managed through tag relationships
+- Managed through `book_tag` pivot table
+
+**Book → BookCovers (1:many)**
+- Books can have multiple uploaded covers
+- One cover can be marked as primary
+- Covers are ordered by `is_primary`, `sort_order`, and `id`
+
+**Book → ReadingProgressHistory (1:many)**
+- Tracks historical page progress over time
+- Allows users to see their reading progress graph
 
 ### Book Status Tracking
 
@@ -106,19 +125,30 @@ Reading progress is tracked via:
 - `current_page` - Current page number
 - `page_count` - Total pages in book
 - Computed `reading_progress` attribute (percentage)
+- `ReadingProgressHistory` model tracks historical progress
 
 ### External API Integration
 
-Books can be imported from external sources:
-- `api_source` field stores: 'google' or 'openlibrary'
-- `external_id` stores the API's identifier for the book
-- API keys configured via environment variables:
-  - `GOOGLE_BOOKS_API_KEY` (optional, can also be set per user)
+Books can be imported from external sources via Service classes:
 
 **Service classes:**
-- `GoogleBooksService` - Google Books API integration with auto-detection
+- `GoogleBooksService` - Google Books API integration with auto-detection of ISBN/author/title
 - `OpenLibraryService` - Open Library API integration (no key required)
-- Both services support smart query detection (ISBN, author, title)
+- `AmazonProductService` - Amazon Product Advertising API (requires access key, secret key, associate tag)
+- `BookBrainzService` - BookBrainz API for additional metadata
+- `CoverImageService` - Handles cover image uploads and management
+- `LanguageService` - Language code conversions and display names
+
+**API Configuration:**
+- `api_source` field stores: 'google', 'openlibrary', 'amazon', or 'bookbrainz'
+- `external_id` stores the API's identifier for the book
+- Edition identifiers: `openlibrary_edition_id`, `goodreads_id`, `librarything_id`
+- API keys configured per user in settings (google_books_api_key, amazon credentials)
+
+**Search Features:**
+- Smart query detection automatically identifies ISBN, author names, or titles
+- Multi-source search merges results from multiple APIs
+- Language-aware search with fallback to language-neutral results
 
 ### Authentication & Authorization
 
@@ -126,6 +156,16 @@ Books can be imported from external sources:
 - Custom controllers: `LoginController`, `RegisterController`
 - All book/tag routes protected with `auth` middleware
 - No role-based permissions (single-user scoping via relationships)
+- Authorization through relationship checks: books/tags must belong to authenticated user
+
+### Internationalization
+
+The application supports multiple languages:
+- Supported languages: English (en), German (de), French (fr), Italian (it), Spanish (es), Polish (pl)
+- Language files in `lang/{locale}/app.php`
+- Users can set `preferred_language` in their profile
+- `SetUserLocale` middleware automatically sets locale based on user preference
+- `LanguageService` provides language name display and code conversion
 
 ### Routing Structure
 
@@ -140,10 +180,25 @@ Routes are defined in [routes/web.php](routes/web.php):
 **Protected routes (requires auth):**
 - `/dashboard` - Redirects to `/books`
 - `/books` - Resource routes (index, create, store, show, edit, update, destroy)
+- `/books/store-from-api` - Store book imported from external API
+- `/books/bulk-delete` - Delete multiple books at once
 - `/books/{book}/progress` - PATCH to update reading progress
 - `/books/{book}/status` - PATCH to update reading status
+- `/books/{book}/rating` - PATCH to update book rating
+- `/books/{book}/covers` - POST to upload new cover
+- `/books/{book}/covers/{cover}` - DELETE to remove cover
+- `/books/{book}/covers/{cover}/primary` - PATCH to set primary cover
+- `/series/{series}` - View all books in a series
 - `/tags` - Resource routes for tag management
 - `/tags/{tag}/books/{book}` - POST/DELETE to add/remove books from tags
+- `/settings` - GET/PATCH for user settings
+- `/challenge` - Reading challenge routes (index, store, update, destroy)
+
+**Important Routing Details:**
+- Book routes use **Unix timestamp** from `added_at` as route key (not numeric ID)
+- Numeric constraints (`where(['book' => '[0-9]+']`) ensure proper route matching
+- Cover routes MUST come before destroy route to avoid conflicts
+- Resource routes must come AFTER specific routes
 
 ### Database Schema Key Points
 
@@ -151,31 +206,66 @@ Routes are defined in [routes/web.php](routes/web.php):
 - Indexed on `[user_id, status]` and `[user_id, added_at]` for efficient filtering
 - ISBN fields (`isbn`, `isbn13`) are indexed for lookups
 - Status enum enforced at database level
-- Supports multiple covers per book
+- Supports series tracking (`series`, `series_position`)
+- Rating and review fields for user feedback
+- Purchase tracking (`purchase_date`, `purchase_price`, `purchase_currency`, `format`)
+- External API identifiers for book matching
 
 **tags table:**
 - User-created tags for organizing books
-- Color customization support
+- Color customization support (`color` field)
 - Each tag belongs to a user
+- `is_default` and `sort_order` for organization
+
+**book_covers table:**
+- Multiple covers per book
+- `is_primary` flag to mark default cover
+- `sort_order` for custom ordering
+- Stored in `storage/app` directory
+
+**reading_progress_history table:**
+- Historical snapshot of reading progress
+- Tracks `current_page` at different `recorded_at` timestamps
+- Enables progress graphs and tracking
+
+**reading_challenges table:**
+- Yearly reading goals per user
+- `year` and `goal` (number of books to read)
+- Progress calculated from books with `status='read'` and matching `finished_at` year
 
 ### Controller Patterns
 
 **BookController** handles:
 - CRUD operations for books
-- `updateProgress()` - Update current page
+- `updateProgress()` - Update current page, creates history entry
 - `updateStatus()` - Change reading status (triggers timestamp updates)
-- API-based book imports from Google Books and Open Library
-- Cover management (upload, delete, set primary)
+- `updateRating()` - Update book rating and review
+- `storeFromApi()` - Import book from external API search
+- `bulkDelete()` - Delete multiple books
+- `showSeries()` - Display all books in a series
+- Cover management: `uploadCover()`, `deleteCover()`, `deleteSingleCover()`, `setPrimaryCover()`
+- Multi-source API search integration
 
 **TagController** handles:
 - CRUD operations for tags
 - `addBook()` - Add book to tag
 - `removeBook()` - Remove book from tag
 
+**ReadingChallengeController** handles:
+- CRUD operations for yearly reading challenges
+- Automatic progress calculation based on finished books
+
+**UserSettingsController** handles:
+- User profile updates (name, email, password)
+- Language preference
+- API keys (Google Books, Amazon credentials)
+
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`
+- Use custom route binding for books (timestamp-based, see `Book::resolveRouteBinding()`)
 - Authorize access: `$this->authorize('view', $book)` or manual user checks
 - Scope queries to authenticated user: `auth()->user()->books()`
+- Return validation errors with appropriate messages
 
 ### Views & Frontend
 
@@ -183,6 +273,7 @@ When implementing controllers:
 - Layout: [resources/views/layouts/app.blade.php](resources/views/layouts/app.blade.php)
 - Uses Tailwind CSS (no build process configured yet)
 - No JavaScript framework - server-rendered Blade templates
+- Views are organized by feature: `books/`, `tags/`, `auth/`, `settings/`, `challenge/`
 
 ## Development Environment
 
@@ -379,11 +470,62 @@ All models define query scopes - use them for cleaner queries:
 // Books
 $user->books()->currentlyReading()->get();
 $user->books()->wantToRead()->get();
+$user->books()->read()->get();
 
 // Tags
-$user->tags()->get();
+$user->tags()->ordered()->get();
+$user->tags()->default()->get();
+$user->tags()->custom()->get();
 $tag->books()->get(); // Get all books with a specific tag
+
+// Book covers
+$book->covers()->primary()->first();
+$book->covers()->ordered()->get();
 ```
 
+### Book Route Key Binding
+
+Books use a **custom route key binding** based on Unix timestamps:
+
+```php
+// In Book model
+public function getRouteKey() {
+    return $this->added_at ? $this->added_at->timestamp : $this->id;
+}
+
+public function resolveRouteBinding($value, $field = null) {
+    // Resolves by timestamp OR falls back to ID for backwards compatibility
+    // Always scoped to current user for security
+}
+```
+
+This means book URLs use timestamps instead of sequential IDs, making them harder to enumerate.
+
 ### Database Migrations
-Migration files are dated `2026_01_08_*` - new migrations will run in order based on timestamp prefix. Core tables must maintain their cascade delete relationships.
+
+Migration files are dated `2026_01_08_*` onwards - new migrations will run in order based on timestamp prefix. Core tables must maintain their cascade delete relationships:
+
+- Deleting a user cascades to books, tags, reading challenges
+- Deleting a book cascades to book covers, reading progress history
+- Book-tag relationships cascade on both sides
+
+### Cover Image Management
+
+Cover images are managed through the `CoverImageService`:
+
+- Uploaded covers stored in `storage/app/book-covers/{user_id}/{book_id}/`
+- Multiple covers supported per book
+- Primary cover designated with `is_primary` flag
+- Automatic fallback: primary cover → first cover → legacy local_cover_path → external URL
+- Cover deletion removes file from storage
+
+### API Service Integration
+
+When adding new book import sources:
+
+1. Create service class in `app/Services/`
+2. Implement search methods with consistent return format
+3. Support smart query detection (ISBN, author, title)
+4. Handle API errors gracefully with logging
+5. Update `BookController::create()` to include new service
+6. Add language support if applicable
