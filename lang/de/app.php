@@ -6,6 +6,7 @@ return [
         'books' => 'Bücher',
         'tags' => 'Tags',
         'challenge' => 'Challenge',
+        'family' => 'Familie',
         'add_book' => 'Buch hinzufügen',
         'settings' => 'Einstellungen',
         'logout' => 'Abmelden',
@@ -330,6 +331,15 @@ return [
         'email_logs' => 'E-Mail-Protokoll',
         'email_logs_description' => 'Alle E-Mail-Versandversuche und Fehlerprotokolle anzeigen',
         'email_logs_link_description' => 'E-Mail-Versandverlauf und Fehler anzeigen',
+
+        // Invitations Page
+        'invitation_management_description' => 'Erstelle und verwalte Einladungen für neue Benutzer',
+        'no_invitations' => 'Noch keine Einladungen',
+        'no_invitations_description' => 'Erstelle eine neue Einladung, um Benutzer zur Registrierung einzuladen.',
+        'actions' => 'Aktionen',
+        'delete_invitation_confirm' => 'Möchtest du diese Einladung wirklich löschen?',
+        'invitation_link_copied' => 'Einladungslink in die Zwischenablage kopiert!',
+        'copy_failed' => 'Fehler beim Kopieren. Bitte kopiere den Link manuell.',
         'no_email_logs' => 'Noch keine E-Mail-Protokolle',
         'email_log_time' => 'Zeit',
         'email_log_status' => 'Status',
@@ -392,5 +402,66 @@ return [
         'email_notice' => 'Wenn Sie Probleme beim Klicken auf den Button haben, kopieren Sie die folgende URL in Ihren Webbrowser:',
         'email_ignore' => 'Wenn Sie sich nicht für ein Konto angemeldet haben, können Sie diese E-Mail sicher ignorieren.',
         'email_footer' => 'Ihre persönliche Buch-Tracking-Anwendung',
+    ],
+
+    // Family
+    'family' => [
+        'title' => 'Familie',
+        'description' => 'Schließe dich mit Familie oder Freunden zusammen und teilt eure Leseabenteuer',
+        'no_family_title' => 'Du bist noch in keiner Familie',
+        'no_family_description' => 'Erstelle eine neue Familie oder tritt einer bestehenden Familie bei, um deine Leseabenteuer mit anderen zu teilen.',
+        'create_family' => 'Familie erstellen',
+        'join_existing' => 'Bestehender Familie beitreten',
+        'back_to_family' => 'Zurück zur Familie',
+
+        // Create Family
+        'create_description' => 'Erstelle eine neue Familie und lade Freunde oder Familienmitglieder ein',
+        'family_name' => 'Familienname',
+        'family_name_placeholder' => 'z.B. Familie Müller, Buchclub Hamburg',
+        'family_name_help' => 'Wähle einen Namen, der deine Gruppe beschreibt',
+        'what_happens' => 'Was passiert?',
+        'create_info_1' => 'Du wirst automatisch Owner der Familie',
+        'create_info_2' => 'Du erhältst einen eindeutigen Beitrittscode',
+        'create_info_3' => 'Jedes Mitglied behält seine eigene Buchsammlung',
+
+        // Join Family
+        'join_description' => 'Gib den Beitrittscode ein, um einer bestehenden Familie beizutreten',
+        'enter_join_code' => 'Beitrittscode',
+        'join_code_help' => 'Der Code besteht aus 8 Buchstaben',
+        'join_note' => 'Hinweis',
+        'join_note_text' => 'Du kannst nur Mitglied in einer Familie sein. Deine Buchsammlung bleibt privat.',
+
+        // Family Info
+        'owner' => 'Owner',
+        'member_count' => '{1} 1 Mitglied|[2,*] :count Mitglieder',
+        'books_count' => '{1} 1 Buch|[2,*] :count Bücher',
+        'members' => 'Mitglieder',
+        'join_code' => 'Beitrittscode',
+        'copy_code' => 'Code kopieren',
+        'copied' => 'Kopiert!',
+        'share_code_info' => 'Teile diesen Code mit Personen, die deiner Familie beitreten möchten.',
+        'regenerate_code' => 'Neuen Code generieren',
+        'regenerate_confirm' => 'Möchtest du wirklich einen neuen Beitrittscode generieren? Der alte Code wird ungültig.',
+
+        // Actions
+        'leave_family_button' => 'Familie verlassen',
+        'join_family_button' => 'Familie beitreten',
+        'delete_family' => 'Familie löschen',
+        'leave_confirm' => 'Möchtest du wirklich die Familie verlassen?',
+        'delete_confirm' => 'Möchtest du wirklich die Familie löschen? Alle Mitglieder verlieren ihre Familienzugehörigkeit.',
+
+        // Messages
+        'family_created' => 'Familie erfolgreich erstellt!',
+        'joined_family' => 'Du bist der Familie ":name" beigetreten!',
+        'left_family' => 'Du hast die Familie verlassen',
+        'family_deleted' => 'Familie erfolgreich gelöscht',
+        'code_regenerated' => 'Neuer Beitrittscode wurde generiert',
+        'already_in_family' => 'Du bist bereits Mitglied einer Familie',
+        'already_owns_family' => 'Du bist bereits Owner einer Familie',
+        'not_in_family' => 'Du bist nicht in einer Familie',
+        'invalid_code' => 'Ungültiger Beitrittscode',
+        'owner_cannot_leave' => 'Als Owner kannst du die Familie nicht verlassen, solange noch andere Mitglieder vorhanden sind. Lösche zuerst die Familie oder übertrage die Ownership.',
+        'only_owner_can_delete' => 'Nur der Owner kann die Familie löschen',
+        'only_owner_can_regenerate' => 'Nur der Owner kann den Beitrittscode regenerieren',
     ],
 ];

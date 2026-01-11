@@ -70,7 +70,7 @@
             <p class="text-gray-600">{{ __('app.admin.email_logs_link_description') }}</p>
         </a>
 
-        <a href="{{ route('admin.settings') }}#invitations" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+        <a href="{{ route('admin.invitations') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('app.admin.invitations') }}</h3>
             <p class="text-gray-600">{{ __('app.admin.invitation_management') }}</p>
         </a>

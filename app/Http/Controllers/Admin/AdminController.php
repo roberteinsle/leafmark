@@ -172,6 +172,16 @@ class AdminController extends Controller
     }
 
     /**
+     * Show invitations management page
+     */
+    public function invitations(): View
+    {
+        $invitations = Invitation::with('invitedBy')->latest()->paginate(20);
+
+        return view('admin.invitations', compact('invitations'));
+    }
+
+    /**
      * Create an invitation
      */
     public function createInvitation(Request $request): RedirectResponse

@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserSettingsController;
+use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,19 @@ Route::get('/', function () {
     }
     return view('welcome');
 });
+
+// Service pages
+Route::get('/impressum', function () {
+    return view('impressum');
+})->name('impressum');
+
+Route::get('/datenschutz', function () {
+    return view('datenschutz');
+})->name('datenschutz');
+
+Route::get('/kontakt', function () {
+    return view('kontakt');
+})->name('kontakt');
 
 // Authentication routes
 Route::middleware('guest')->group(function () {
@@ -100,6 +114,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/challenge', [App\Http\Controllers\ReadingChallengeController::class, 'store'])->name('challenge.store');
     Route::patch('/challenge/{challenge}', [App\Http\Controllers\ReadingChallengeController::class, 'update'])->name('challenge.update');
     Route::delete('/challenge/{challenge}', [App\Http\Controllers\ReadingChallengeController::class, 'destroy'])->name('challenge.destroy');
+
+    // Family routes
+    Route::get('/family', [FamilyController::class, 'index'])->name('family.index');
+    Route::get('/family/create', [FamilyController::class, 'create'])->name('family.create');
+    Route::post('/family', [FamilyController::class, 'store'])->name('family.store');
+    Route::get('/family/join', [FamilyController::class, 'showJoinForm'])->name('family.join');
+    Route::post('/family/join', [FamilyController::class, 'join'])->name('family.join.submit');
+    Route::post('/family/leave', [FamilyController::class, 'leave'])->name('family.leave');
+    Route::delete('/family', [FamilyController::class, 'destroy'])->name('family.destroy');
+    Route::post('/family/regenerate-code', [FamilyController::class, 'regenerateCode'])->name('family.regenerate-code');
 });
 
 // Admin routes
@@ -115,6 +139,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::get('/email-logs', [AdminController::class, 'emailLogs'])->name('email-logs');
 
+    Route::get('/invitations', [AdminController::class, 'invitations'])->name('invitations');
     Route::post('/invitations', [AdminController::class, 'createInvitation'])->name('invitations.create');
     Route::delete('/invitations/{invitation}', [AdminController::class, 'deleteInvitation'])->name('invitations.delete');
 });

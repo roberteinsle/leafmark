@@ -9,7 +9,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @yield('head')
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 flex flex-col min-h-screen">
     <nav class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -29,6 +29,9 @@
                         </a>
                         <a href="{{ route('challenge.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             {{ __('app.nav.challenge') }}
+                        </a>
+                        <a href="{{ route('family.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            {{ __('app.nav.family') }}
                         </a>
                     </div>
                     @endauth
@@ -90,7 +93,7 @@
         </div>
     </nav>
 
-    <main class="py-10">
+    <main class="py-10 flex-grow">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if (session('success'))
                 <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
@@ -107,6 +110,23 @@
             @yield('content')
         </div>
     </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="flex space-x-6 text-sm">
+                    <a href="{{ route('impressum') }}" class="text-gray-600 hover:text-gray-900">Impressum</a>
+                    <span class="text-gray-400">·</span>
+                    <a href="{{ route('datenschutz') }}" class="text-gray-600 hover:text-gray-900">Datenschutz</a>
+                    <span class="text-gray-400">·</span>
+                    <a href="{{ route('kontakt') }}" class="text-gray-600 hover:text-gray-900">Kontakt</a>
+                </div>
+                <p class="text-center text-gray-500 text-sm">
+                    &copy; {{ date('Y') }} Leafmark. Made with ❤️ in Hamburg
+                </p>
+            </div>
+        </div>
+    </footer>
 
     @stack('scripts')
 </body>

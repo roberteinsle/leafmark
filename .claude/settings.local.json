@@ -65,7 +65,8 @@
       "Bash(git remote set-url:*)",
       "Bash(docker volume rm:*)",
       "Bash(docker volume:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(php -l:*)"
     ]
   }
 }
