@@ -54,7 +54,7 @@
     </div>
 
     <!-- Quick Links -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <a href="{{ route('admin.users') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('app.admin.users') }}</h3>
             <p class="text-gray-600">{{ __('app.admin.user_management') }}</p>
@@ -68,11 +68,6 @@
         <a href="{{ route('admin.email-logs') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('app.admin.email_logs') }}</h3>
             <p class="text-gray-600">{{ __('app.admin.email_logs_link_description') }}</p>
-        </a>
-
-        <a href="{{ route('admin.invitations') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('app.admin.invitations') }}</h3>
-            <p class="text-gray-600">{{ __('app.admin.invitation_management') }}</p>
         </a>
     </div>
 
