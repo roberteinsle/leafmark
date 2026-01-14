@@ -38,6 +38,66 @@ class AdminController extends Controller
     }
 
     /**
+     * Show edit user page
+     */
+    public function editUser(User $user): View
+    {
+        $user->loadCount([
+            'books',
+            'books as currently_reading_count' => function ($query) {
+                $query->where('status', 'currently_reading');
+            },
+            'books as read_count' => function ($query) {
+                $query->where('status', 'read');
+            },
+            'books as want_to_read_count' => function ($query) {
+                $query->where('status', 'want_to_read');
+            }
+        ]);
+
+        return view('admin.edit-user', compact('user'));
+    }
+
+    /**
+     * Update user information
+     */
+    public function updateUser(Request $request, User $user): RedirectResponse
+    {
+        // Validate input
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email,' . $user->id . ',id'
+            ],
+            'password' => 'nullable|string|min:8|confirmed',
+        ];
+
+        $validated = $request->validate($rules);
+
+        // Prepare data for update
+        $data = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ];
+
+        // Update password if provided
+        if (!empty($validated['password'])) {
+            $data['password'] = Hash::make($validated['password']);
+        }
+
+        // Only allow changing admin status if not changing own account
+        if ($user->id !== auth()->id()) {
+            $data['is_admin'] = $request->has('is_admin') ? true : false;
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.users.edit', $user)->with('success', 'User updated successfully.');
+    }
+
+    /**
      * Toggle admin status for a user
      */
     public function toggleAdmin(User $user): RedirectResponse
@@ -88,6 +148,8 @@ class AdminController extends Controller
         $turnstileSiteKey = SystemSetting::get('turnstile_site_key', '');
         $turnstileSecretKey = SystemSetting::get('turnstile_secret_key', '');
 
+        $googleBooksApiKey = SystemSetting::get('google_books_api_key', '');
+
         $invitations = Invitation::with('invitedBy')->latest()->paginate(20);
 
         return view('admin.settings', compact(
@@ -106,6 +168,7 @@ class AdminController extends Controller
             'turnstileEnabled',
             'turnstileSiteKey',
             'turnstileSecretKey',
+            'googleBooksApiKey',
             'invitations'
         ));
     }
@@ -155,6 +218,16 @@ class AdminController extends Controller
             return back()->with('success', 'Turnstile settings updated successfully.');
         }
 
+        if ($section === 'api') {
+            $validated = $request->validate([
+                'google_books_api_key' => 'nullable|string|max:255',
+            ]);
+
+            SystemSetting::set('google_books_api_key', $validated['google_books_api_key'] ?? '');
+
+            return back()->with('success', 'API settings updated successfully.');
+        }
+
         // Default: registration settings
         $validated = $request->validate([
             'registration_enabled' => 'required|boolean',
@@ -186,16 +259,26 @@ class AdminController extends Controller
      */
     public function createInvitation(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'email' => 'required|email|unique:users,email',
-        ]);
+        try {
+            $validated = $request->validate([
+                'email' => 'required|email|unique:users,email|unique:invitations,email',
+            ]);
 
-        Invitation::create([
-            'email' => $validated['email'],
-            'invited_by' => auth()->id(),
-        ]);
+            Invitation::create([
+                'email' => $validated['email'],
+                'invited_by' => auth()->id(),
+            ]);
 
-        return back()->with('success', 'Invitation created successfully.');
+            return back()->with('success', 'Invitation created successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Failed to create invitation', [
+                'email' => $request->input('email'),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->withErrors(['error' => 'Failed to create invitation: ' . $e->getMessage()]);
+        }
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
-use App\Services\AmazonProductService;
 use App\Services\BookBrainzService;
 use App\Services\CoverImageService;
 use App\Services\GoogleBooksService;
@@ -146,7 +145,7 @@ class BookController extends Controller
         return view('books.index', compact('books', 'counts', 'challenge'));
     }
 
-    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, AmazonProductService $amazon, BookBrainzService $bookBrainz): View
+    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz): View
     {
         $searchQuery = $request->get('q');
         $language = $request->get('lang', auth()->user()->preferred_language ?? 'en');
@@ -157,7 +156,6 @@ class BookController extends Controller
         if ($searchQuery) {
             $googleResults = [];
             $openLibraryResults = [];
-            $amazonResults = [];
             $bookBrainzResults = [];
 
             // Search based on selected provider
@@ -169,16 +167,12 @@ class BookController extends Controller
                 $openLibraryResults = $openLibrary->search($searchQuery, 10, $language);
             }
 
-            if ($provider === 'both' || $provider === 'amazon') {
-                $amazonResults = $amazon->search($searchQuery, 10, $language);
-            }
-
             if ($provider === 'both' || $provider === 'bookbrainz') {
                 $bookBrainzResults = $bookBrainz->search($searchQuery, 10, $language);
             }
 
             // Merge and deduplicate results based on ISBN
-            $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults, $amazonResults, $bookBrainzResults);
+            $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults, $bookBrainzResults);
             $noResults = empty($searchResults);
         }
 
@@ -188,7 +182,7 @@ class BookController extends Controller
     /**
      * Merge and deduplicate search results from multiple sources
      */
-    private function mergeSearchResults(array $googleResults, array $openLibraryResults, array $amazonResults = [], array $bookBrainzResults = []): array
+    private function mergeSearchResults(array $googleResults, array $openLibraryResults, array $bookBrainzResults = []): array
     {
         $merged = [];
         $seenIsbns = [];
@@ -203,20 +197,6 @@ class BookController extends Controller
             } elseif (!$isbn) {
                 // Add books without ISBN too
                 $result['source'] = 'google';
-                $merged[] = $result;
-            }
-        }
-
-        // Add Amazon results next (good data quality)
-        foreach ($amazonResults as $result) {
-            $isbn = $result['isbn13'] ?? $result['isbn'] ?? null;
-            if ($isbn && !in_array($isbn, $seenIsbns)) {
-                $seenIsbns[] = $isbn;
-                $result['source'] = 'amazon';
-                $merged[] = $result;
-            } elseif (!$isbn) {
-                // Add books without ISBN too
-                $result['source'] = 'amazon';
                 $merged[] = $result;
             }
         }
@@ -252,14 +232,13 @@ class BookController extends Controller
         return $merged;
     }
 
-    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, AmazonProductService $amazon, BookBrainzService $bookBrainz, CoverImageService $coverService): RedirectResponse
+    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, CoverImageService $coverService): RedirectResponse
     {
         $validated = $request->validate([
             'google_books_id' => 'nullable|string',
             'open_library_id' => 'nullable|string',
-            'amazon_asin' => 'nullable|string',
             'bookbrainz_id' => 'nullable|string',
-            'source' => 'required|in:google,openlibrary,amazon,bookbrainz',
+            'source' => 'required|in:google,openlibrary,bookbrainz',
             'status' => 'required|in:want_to_read,currently_reading,read',
         ]);
 
@@ -267,9 +246,6 @@ class BookController extends Controller
         if ($validated['source'] === 'google') {
             $bookData = $googleBooks->getBook($validated['google_books_id']);
             $externalId = $validated['google_books_id'];
-        } elseif ($validated['source'] === 'amazon') {
-            $bookData = $amazon->getBook($validated['amazon_asin']);
-            $externalId = $validated['amazon_asin'];
         } elseif ($validated['source'] === 'bookbrainz') {
             $bookData = $bookBrainz->getBook($validated['bookbrainz_id']);
             $externalId = $validated['bookbrainz_id'];
@@ -573,7 +549,7 @@ class BookController extends Controller
         }
 
         $validated = $request->validate([
-            'source' => 'required|string|in:openlibrary,googlebooks,amazon',
+            'source' => 'required|string|in:openlibrary,googlebooks',
             'url' => 'required|string',
         ]);
 
@@ -589,10 +565,6 @@ class BookController extends Controller
 
                 case 'googlebooks':
                     $editionData = $this->fetchFromGoogleBooks($url, $googleBooks);
-                    break;
-
-                case 'amazon':
-                    $editionData = $this->fetchFromAmazon($url);
                     break;
             }
 
@@ -695,24 +667,6 @@ class BookController extends Controller
         ];
     }
 
-    protected function fetchFromAmazon(string $url): ?array
-    {
-        // Extract ASIN or ISBN from Amazon URL
-        $identifier = $this->extractAmazonIdentifier($url);
-
-        if (!$identifier) {
-            return null;
-        }
-
-        // Amazon doesn't have a free public API, so we'll use the identifier as ISBN
-        // and try to fetch from Google Books or OpenLibrary as a fallback
-        // For now, we'll return a basic update with just the ISBN
-        return [
-            'isbn' => strlen($identifier) === 10 ? $identifier : null,
-            'isbn13' => strlen($identifier) === 13 ? $identifier : null,
-        ];
-    }
-
     protected function extractGoogleBooksId(string $input): ?string
     {
         // If it's a URL, extract the volume ID
@@ -728,32 +682,6 @@ class BookController extends Controller
         // Otherwise, treat it as a direct volume ID
         // Google Books IDs are typically 12 characters, alphanumeric
         if (preg_match('/^[a-zA-Z0-9_-]{10,14}$/', $input)) {
-            return $input;
-        }
-
-        return null;
-    }
-
-    protected function extractAmazonIdentifier(string $input): ?string
-    {
-        // Extract ASIN/ISBN from Amazon URL patterns
-        // Pattern 1: /dp/ASIN
-        if (preg_match('/\/dp\/([A-Z0-9]{10})/', $input, $matches)) {
-            return $matches[1];
-        }
-
-        // Pattern 2: /gp/product/ASIN
-        if (preg_match('/\/gp\/product\/([A-Z0-9]{10})/', $input, $matches)) {
-            return $matches[1];
-        }
-
-        // Pattern 3: /product/ASIN
-        if (preg_match('/\/product\/([A-Z0-9]{10})/', $input, $matches)) {
-            return $matches[1];
-        }
-
-        // If it's not a URL, treat it as direct ASIN/ISBN (10 or 13 digits/chars)
-        if (preg_match('/^[A-Z0-9]{10}$|^\d{13}$/', $input)) {
             return $input;
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -12,10 +13,9 @@ class GoogleBooksService
 
     public function __construct()
     {
-        // Try user's API key first, fallback to env config
-        $this->apiKey = auth()->check() && auth()->user()->google_books_api_key
-            ? auth()->user()->google_books_api_key
-            : config('services.google_books.api_key');
+        // Use global API key from system settings, fallback to env config
+        $this->apiKey = SystemSetting::get('google_books_api_key')
+            ?: config('services.google_books.api_key');
     }
 
     /**

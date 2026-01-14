@@ -40,12 +40,12 @@
                 <div class="text-center">
                     <h2 class="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl" x-text="t('hero_title')"></h2>
                     <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl" x-text="t('hero_subtitle')"></p>
-                    <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-                        <div class="rounded-md shadow">
-                            <a href="{{ route('register') }}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10" x-text="t('start_tracking')"></a>
+                    <div class="mt-5 max-w-2xl mx-auto sm:flex sm:justify-center md:mt-8">
+                        <div class="rounded-md shadow flex-1 sm:max-w-xs">
+                            <a href="{{ route('register') }}" class="w-full flex items-center justify-center px-12 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-16 whitespace-nowrap" x-text="t('start_tracking')"></a>
                         </div>
-                        <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-                            <a href="{{ route('login') }}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10" x-text="t('sign_in')"></a>
+                        <div class="mt-3 rounded-md shadow flex-1 sm:max-w-xs sm:mt-0 sm:ml-3">
+                            <a href="{{ route('login') }}" class="w-full flex items-center justify-center px-12 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-16" x-text="t('sign_in')"></a>
                         </div>
                     </div>
                 </div>
@@ -176,7 +176,7 @@
                         get_started: 'Get Started',
                         hero_title: 'Track Your Reading Journey',
                         hero_subtitle: 'Organize your book collection, track your reading progress, and discover your next favorite book with Leafmark.',
-                        start_tracking: 'Start Tracking',
+                        start_tracking: 'Register now for free',
                         sign_in: 'Sign In',
                         features_title: 'Everything you need to manage your reading',
                         feature1_title: 'Track Reading Progress',
@@ -208,7 +208,7 @@
                         get_started: 'Jetzt starten',
                         hero_title: 'Verfolge deine Leserreise',
                         hero_subtitle: 'Organisiere deine Buchsammlung, verfolge deinen Lesefortschritt und entdecke dein nächstes Lieblingsbuch mit Leafmark.',
-                        start_tracking: 'Jetzt starten',
+                        start_tracking: 'Jetzt kostenlos registrieren',
                         sign_in: 'Anmelden',
                         features_title: 'Alles, was du zum Verwalten deiner Lektüre brauchst',
                         feature1_title: 'Lesefortschritt verfolgen',
@@ -240,7 +240,7 @@
                         get_started: 'Comenzar',
                         hero_title: 'Sigue tu viaje de lectura',
                         hero_subtitle: 'Organiza tu colección de libros, sigue tu progreso de lectura y descubre tu próximo libro favorito con Leafmark.',
-                        start_tracking: 'Comenzar a rastrear',
+                        start_tracking: 'Regístrate ahora gratis',
                         sign_in: 'Iniciar sesión',
                         features_title: 'Todo lo que necesitas para gestionar tu lectura',
                         feature1_title: 'Seguimiento del progreso',
@@ -272,7 +272,7 @@
                         get_started: 'Commencer',
                         hero_title: 'Suivez votre parcours de lecture',
                         hero_subtitle: 'Organisez votre collection de livres, suivez votre progression de lecture et découvrez votre prochain livre préféré avec Leafmark.',
-                        start_tracking: 'Commencer le suivi',
+                        start_tracking: 'Inscrivez-vous gratuitement',
                         sign_in: 'Se connecter',
                         features_title: 'Tout ce dont vous avez besoin pour gérer votre lecture',
                         feature1_title: 'Suivre la progression',
@@ -304,7 +304,7 @@
                         get_started: 'Inizia',
                         hero_title: 'Segui il tuo percorso di lettura',
                         hero_subtitle: 'Organizza la tua collezione di libri, traccia i tuoi progressi di lettura e scopri il tuo prossimo libro preferito con Leafmark.',
-                        start_tracking: 'Inizia a tracciare',
+                        start_tracking: 'Registrati ora gratis',
                         sign_in: 'Accedi',
                         features_title: 'Tutto ciò di cui hai bisogno per gestire la tua lettura',
                         feature1_title: 'Traccia i progressi',
@@ -336,7 +336,7 @@
                         get_started: 'Rozpocznij',
                         hero_title: 'Śledź swoją podróż czytelniczą',
                         hero_subtitle: 'Organizuj swoją kolekcję książek, śledź postępy w czytaniu i odkryj swoją następną ulubioną książkę z Leafmark.',
-                        start_tracking: 'Rozpocznij śledzenie',
+                        start_tracking: 'Zarejestruj się teraz za darmo',
                         sign_in: 'Zaloguj się',
                         features_title: 'Wszystko, czego potrzebujesz do zarządzania swoim czytaniem',
                         feature1_title: 'Śledź postępy',

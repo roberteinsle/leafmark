@@ -42,6 +42,9 @@ class LoginController extends Controller
                 ])->with('email', $credentials['email'])->with('show_resend', true);
             }
 
+            // Update last login timestamp
+            $user->update(['last_login_at' => now()]);
+
             $request->session()->regenerate();
 
             return redirect()->intended(route('books.index'));

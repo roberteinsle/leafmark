@@ -29,11 +29,6 @@
                         class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
                     {{ __('app.settings.security') }}
                 </button>
-                <button @click="activeTab = 'api'"
-                        :class="activeTab === 'api' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
-                    {{ __('app.settings.api_keys') }}
-                </button>
             </nav>
         </div>
 
@@ -110,68 +105,6 @@
                 <p class="text-sm text-gray-500">
                     {{ __('app.settings.password_help') }}
                 </p>
-            </div>
-
-            <!-- API Keys Tab -->
-            <div x-show="activeTab === 'api'" class="space-y-6" style="display: none;">
-                <!-- Google Books API -->
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Google Books API</h3>
-                    <div>
-                        <label for="google_books_api_key" class="block text-sm font-medium text-gray-700">{{ __('app.settings.google_books_api_key') }}</label>
-                        <input type="text" name="google_books_api_key" id="google_books_api_key" value="{{ old('google_books_api_key', $user->google_books_api_key) }}"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('google_books_api_key') border-red-500 @enderror"
-                               placeholder="{{ __('app.settings.api_key_placeholder') }}">
-                        <p class="mt-1 text-sm text-gray-500">
-                            {{ __('app.settings.api_key_help') }}
-                            <a href="https://developers.google.com/books/docs/v1/using#APIKey" target="_blank" class="text-blue-600 hover:underline">{{ __('app.settings.get_api_key') }}</a>
-                        </p>
-                        @error('google_books_api_key')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-
-                <!-- Amazon Product Advertising API -->
-                <div class="border-t pt-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Amazon Product Advertising API</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="amazon_access_key" class="block text-sm font-medium text-gray-700">Amazon Access Key</label>
-                            <input type="text" name="amazon_access_key" id="amazon_access_key" value="{{ old('amazon_access_key', $user->amazon_access_key) }}"
-                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('amazon_access_key') border-red-500 @enderror"
-                                   placeholder="Enter your Amazon Access Key">
-                            @error('amazon_access_key')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="amazon_secret_key" class="block text-sm font-medium text-gray-700">Amazon Secret Key</label>
-                            <input type="password" name="amazon_secret_key" id="amazon_secret_key" value="{{ old('amazon_secret_key', $user->amazon_secret_key) }}"
-                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('amazon_secret_key') border-red-500 @enderror"
-                                   placeholder="Enter your Amazon Secret Key">
-                            @error('amazon_secret_key')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="amazon_associate_tag" class="block text-sm font-medium text-gray-700">Amazon Associate Tag</label>
-                            <input type="text" name="amazon_associate_tag" id="amazon_associate_tag" value="{{ old('amazon_associate_tag', $user->amazon_associate_tag) }}"
-                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('amazon_associate_tag') border-red-500 @enderror"
-                                   placeholder="Enter your Amazon Associate Tag">
-                            @error('amazon_associate_tag')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <p class="text-sm text-gray-500">
-                            Optional: Provide your Amazon Product Advertising API credentials for book searches.
-                            <a href="https://affiliate-program.amazon.com/assoc_credentials/home" target="_blank" class="text-blue-600 hover:underline">Get API credentials</a>
-                        </p>
-                    </div>
-                </div>
             </div>
 
             <div class="flex justify-end gap-3 pt-4">

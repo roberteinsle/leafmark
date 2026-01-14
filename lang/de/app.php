@@ -135,7 +135,6 @@ return [
         'update_book_info' => 'Buchinformationen aktualisieren',
         'openlibrary_help' => 'Fügen Sie eine OpenLibrary-Editions-URL ein, um die Buchinformationen und das Cover automatisch zu aktualisieren',
         'googlebooks_help' => 'Fügen Sie eine Google Books-URL oder Volume-ID ein (z.B. nggnmAEACAAJ)',
-        'amazon_help' => 'Fügen Sie eine Amazon-URL oder ASIN/ISBN ein',
         'tags_section' => 'Tags',
         'no_tags_yet' => 'Noch keine Tags hinzugefügt',
         'add_a_tag' => 'Tag hinzufügen...',

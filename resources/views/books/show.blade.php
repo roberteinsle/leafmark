@@ -313,7 +313,6 @@
                             >
                                 <option value="openlibrary">OpenLibrary</option>
                                 <option value="googlebooks">Google Books</option>
-                                <option value="amazon">Amazon</option>
                             </select>
                         </div>
                         <div>
@@ -351,9 +350,6 @@
                             } else if (source === 'googlebooks') {
                                 urlInput.placeholder = 'https://books.google.com/books?id=VOLUME_ID or just VOLUME_ID';
                                 helpText.textContent = '{{ __('app.books.googlebooks_help') }}';
-                            } else if (source === 'amazon') {
-                                urlInput.placeholder = 'https://www.amazon.com/dp/ASIN or just ASIN/ISBN';
-                                helpText.textContent = '{{ __('app.books.amazon_help') }}';
                             }
                         }
                     </script>

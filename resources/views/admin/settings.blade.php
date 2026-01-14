@@ -4,6 +4,24 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Breadcrumb Navigation -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{{ route('admin.index') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                    {{ __('app.admin.dashboard') }}
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('app.admin.system_settings') }}</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">{{ __('app.admin.system_settings') }}</h1>
     </div>
@@ -250,6 +268,37 @@
             <div class="flex justify-end">
                 <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg">
                     {{ __('app.admin.save_settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- API Settings -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">API Settings</h2>
+
+        <form method="POST" action="{{ route('admin.settings.update') }}">
+            @csrf
+            @method('PATCH')
+            <input type="hidden" name="section" value="api">
+
+            <!-- Google Books API Key -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Google Books API Key
+                </label>
+                <input type="text" name="google_books_api_key" value="{{ $googleBooksApiKey }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                       placeholder="Enter Google Books API Key">
+                <p class="mt-1 text-sm text-gray-500">
+                    This API key will be used globally for all users when importing books from Google Books.
+                    <a href="https://developers.google.com/books/docs/v1/using#APIKey" target="_blank" class="text-blue-600 hover:underline">Get an API key</a>
+                </p>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg">
+                    Save API Settings
                 </button>
             </div>
         </form>

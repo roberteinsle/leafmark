@@ -29,10 +29,6 @@ class UserSettingsController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
             'preferred_language' => 'required|in:' . implode(',', $availableLanguages),
-            'google_books_api_key' => 'nullable|string|max:255',
-            'amazon_access_key' => 'nullable|string|max:255',
-            'amazon_secret_key' => 'nullable|string|max:255',
-            'amazon_associate_tag' => 'nullable|string|max:255',
             'current_password' => 'nullable|string',
             'password' => 'nullable|string|min:8|confirmed',
         ]);

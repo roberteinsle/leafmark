@@ -29,8 +29,7 @@
                         @php
                             $defaultProvider = 'both';
                             $hasGoogle = auth()->user()->google_books_api_key || config('services.google_books.api_key');
-                            $hasAmazon = auth()->user()->amazon_access_key || config('services.amazon.access_key');
-                            if (!$hasGoogle && !$hasAmazon) {
+                            if (!$hasGoogle) {
                                 $defaultProvider = 'openlibrary';
                             }
                         @endphp
@@ -38,11 +37,6 @@
                         <option value="bookbrainz" {{ request('provider', $defaultProvider) === 'bookbrainz' ? 'selected' : '' }}>BookBrainz</option>
                         @if($hasGoogle)
                         <option value="google" {{ request('provider', $defaultProvider) === 'google' ? 'selected' : '' }}>{{ __('app.books.google_books') }}</option>
-                        @endif
-                        @if($hasAmazon)
-                        <option value="amazon" {{ request('provider', $defaultProvider) === 'amazon' ? 'selected' : '' }}>Amazon</option>
-                        @endif
-                        @if($hasGoogle || $hasAmazon)
                         <option value="both" {{ request('provider', $defaultProvider) === 'both' ? 'selected' : '' }}>{{ __('app.books.all_sources') }}</option>
                         @endif
                     </select>

@@ -6,6 +6,7 @@ return [
         'books' => 'Books',
         'tags' => 'Tags',
         'challenge' => 'Challenge',
+        'family' => 'Family',
         'add_book' => 'Add Book',
         'settings' => 'Settings',
         'logout' => 'Logout',
@@ -134,7 +135,6 @@ return [
         'update_book_info' => 'Update Book Info',
         'openlibrary_help' => 'Paste an OpenLibrary edition URL to auto-update this book\'s information and cover',
         'googlebooks_help' => 'Paste a Google Books URL or Volume ID (e.g., nggnmAEACAAJ)',
-        'amazon_help' => 'Paste an Amazon URL or ASIN/ISBN',
         'tags_section' => 'Tags',
         'no_tags_yet' => 'No tags added yet',
         'add_a_tag' => 'Add a tag...',
@@ -188,6 +188,67 @@ return [
         'current_year' => 'current year',
     ],
 
+    // Family
+    'family' => [
+        'title' => 'Family',
+        'description' => 'Connect with family or friends and share your reading adventures',
+        'no_family_title' => 'You are not in a family yet',
+        'no_family_description' => 'Create a new family or join an existing one to share your reading adventures with others.',
+        'create_family' => 'Create Family',
+        'join_existing' => 'Join Existing Family',
+        'back_to_family' => 'Back to Family',
+
+        // Create Family
+        'create_description' => 'Create a new family and invite friends or family members',
+        'family_name' => 'Family Name',
+        'family_name_placeholder' => 'e.g., Smith Family, Book Club NYC',
+        'family_name_help' => 'Choose a name that describes your group',
+        'what_happens' => 'What happens?',
+        'create_info_1' => 'You will automatically become the family owner',
+        'create_info_2' => 'You will receive a unique join code',
+        'create_info_3' => 'Each member keeps their own book collection',
+
+        // Join Family
+        'join_description' => 'Enter the join code to join an existing family',
+        'enter_join_code' => 'Join Code',
+        'join_code_help' => 'The code consists of 8 letters',
+        'join_note' => 'Note',
+        'join_note_text' => 'You can only be a member of one family. Your book collection remains private.',
+
+        // Family Info
+        'owner' => 'Owner',
+        'member_count' => '{1} 1 Member|[2,*] :count Members',
+        'books_count' => '{1} 1 Book|[2,*] :count Books',
+        'members' => 'Members',
+        'join_code' => 'Join Code',
+        'copy_code' => 'Copy Code',
+        'copied' => 'Copied!',
+        'share_code_info' => 'Share this code with people who want to join your family.',
+        'regenerate_code' => 'Generate New Code',
+        'regenerate_confirm' => 'Do you really want to generate a new join code? The old code will become invalid.',
+
+        // Actions
+        'leave_family_button' => 'Leave Family',
+        'join_family_button' => 'Join Family',
+        'delete_family' => 'Delete Family',
+        'leave_confirm' => 'Do you really want to leave the family?',
+        'delete_confirm' => 'Do you really want to delete the family? All members will lose their family membership.',
+
+        // Messages
+        'family_created' => 'Family successfully created!',
+        'joined_family' => 'You have joined the family ":name"!',
+        'left_family' => 'You have left the family',
+        'family_deleted' => 'Family successfully deleted',
+        'code_regenerated' => 'New join code has been generated',
+        'already_in_family' => 'You are already a member of a family',
+        'already_owns_family' => 'You already own a family',
+        'not_in_family' => 'You are not in a family',
+        'invalid_code' => 'Invalid join code',
+        'owner_cannot_leave' => 'As owner, you cannot leave the family while other members are present. Delete the family first or transfer ownership.',
+        'only_owner_can_delete' => 'Only the owner can delete the family',
+        'only_owner_can_regenerate' => 'Only the owner can regenerate the join code',
+    ],
+
     // Settings
     'settings' => [
         'title' => 'Settings',
@@ -196,6 +257,8 @@ return [
         'account' => 'Account',
         'security' => 'Security',
         'api_keys' => 'API Keys',
+        'api_keys_info' => 'API configuration has been removed',
+        'api_keys_help' => 'Amazon Product Advertising API support has been deprecated. Use Google Books or Open Library for book searches.',
         'name' => 'Name',
         'email' => 'Email',
         'preferred_language' => 'Preferred Language',

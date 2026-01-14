@@ -104,6 +104,16 @@ The application has core models with the following relationships:
 - Admins can create invitations for new users
 - Tracks who invited whom
 
+**User → Family (many:1)**
+- Users can belong to a family group
+- Family accounts allow shared membership (not shared books)
+- Each family has one owner who manages the family
+
+**Family → Users (1:many)**
+- Family owners can see all family members
+- Each family has a unique join code for new members
+- Family membership is separate from book collections
+
 **Books ↔ Tags (many:many)**
 - Books can have multiple tags
 - Tags can be applied to multiple books
@@ -135,6 +145,14 @@ The application has core models with the following relationships:
 - Each invitation has a unique token and expiration date
 - Tracks usage status and who created the invitation
 
+**Family Accounts:**
+- `Family` model for grouping users
+- Each family has a `name`, `join_code`, and `owner_id`
+- Join codes are 8-character uppercase random strings
+- Users can create or join one family
+- Family owners can regenerate join codes
+- Membership tracked via `family_id` on users table
+
 ### Book Status Tracking
 
 Books have three primary statuses (enum in database):
@@ -160,16 +178,15 @@ Books can be imported from external sources via Service classes:
 **Service classes:**
 - `GoogleBooksService` - Google Books API integration with auto-detection of ISBN/author/title
 - `OpenLibraryService` - Open Library API integration (no key required)
-- `AmazonProductService` - Amazon Product Advertising API (requires access key, secret key, associate tag)
 - `BookBrainzService` - BookBrainz API for additional metadata
 - `CoverImageService` - Handles cover image uploads and management
 - `LanguageService` - Language code conversions and display names
 
 **API Configuration:**
-- `api_source` field stores: 'google', 'openlibrary', 'amazon', or 'bookbrainz'
+- `api_source` field stores: 'google', 'openlibrary', or 'bookbrainz'
 - `external_id` stores the API's identifier for the book
 - Edition identifiers: `openlibrary_edition_id`, `goodreads_id`, `librarything_id`
-- API keys configured per user in settings (google_books_api_key, amazon credentials)
+- Google Books API key can be configured per user in settings (google_books_api_key)
 
 **Search Features:**
 - Smart query detection automatically identifies ISBN, author names, or titles
@@ -230,16 +247,23 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `/tags/{tag}/books/{book}` - POST/DELETE to add/remove books from tags
 - `/settings` - GET/PATCH for user settings
 - `/challenge` - Reading challenge routes (index, store, update, destroy)
+- `/family` - GET to view family, POST to create family, DELETE to disband family
+- `/family/create` - GET to show create family form
+- `/family/join` - GET/POST to join a family using join code
+- `/family/leave` - POST to leave current family
+- `/family/regenerate-code` - POST to generate new join code (owner only)
 
 **Admin routes (requires auth + admin):**
 - `/admin` - Admin dashboard with user statistics
 - `/admin/users` - User management (list, toggle admin, delete)
+- `/admin/users/{user}` - GET to edit user, PATCH to update user, DELETE to remove user
 - `/admin/users/{user}/toggle-admin` - PATCH to grant/revoke admin privileges
-- `/admin/users/{user}` - DELETE to remove user
 - `/admin/settings` - System settings and registration control
 - `/admin/settings` - PATCH to update system settings
+- `/admin/invitations` - Invitation management page (integrated into settings)
 - `/admin/invitations` - POST to create invitation
 - `/admin/invitations/{invitation}` - DELETE to remove invitation
+- `/admin/email-logs` - View email sending logs and history
 
 **Important Routing Details:**
 - Book routes use **Unix timestamp** from `added_at` as route key (not numeric ID)
@@ -300,6 +324,14 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `expires_at` - Expiration timestamp (default: 7 days from creation)
 - Validated during registration if mode is 'invitation'
 
+**families table:**
+- Family grouping for users
+- `name` - Family name
+- `join_code` - Unique 8-character uppercase code for joining
+- `owner_id` - Foreign key to users table (family owner)
+- Users link to families via `family_id` on users table
+- Cascade delete: removing family sets users' `family_id` to null
+
 ### Controller Patterns
 
 **BookController** handles:
@@ -325,17 +357,30 @@ Routes are defined in [routes/web.php](routes/web.php):
 **UserSettingsController** handles:
 - User profile updates (name, email, password)
 - Language preference
-- API keys (Google Books, Amazon credentials)
+- Google Books API key configuration
 
 **AdminController** handles:
 - `index()` - Admin dashboard with statistics (total users, admins, books)
 - `users()` - List all users with pagination
+- `editUser()` - Display edit form for a user
+- `updateUser()` - Update user details (name, email, admin status)
 - `toggleAdmin()` - Grant/revoke admin privileges for a user
 - `deleteUser()` - Delete a user (prevents self-deletion)
 - `settings()` - Display system settings and invitations
 - `updateSettings()` - Update registration mode and settings
 - `createInvitation()` - Create new user invitation
 - `deleteInvitation()` - Remove an invitation
+- `emailLogs()` - View email sending history and logs
+
+**FamilyController** handles:
+- `index()` - Display family overview and members
+- `create()` - Show form to create a new family
+- `store()` - Create a new family (auto-generates join code)
+- `showJoinForm()` - Display form to join a family with code
+- `join()` - Join a family using join code
+- `leave()` - Leave current family (owners cannot leave)
+- `destroy()` - Disband family (owner only)
+- `regenerateCode()` - Generate new join code (owner only)
 
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`
@@ -356,8 +401,16 @@ When implementing controllers:
 **Admin views:**
 - `admin/index.blade.php` - Dashboard with stats and quick links
 - `admin/users.blade.php` - User list with admin toggle and delete actions
+- `admin/edit-user.blade.php` - Edit individual user details
 - `admin/settings.blade.php` - System settings form and invitation management
+- `admin/invitations.blade.php` - Separate invitations management page
+- `admin/email-logs.blade.php` - Email sending history and logs
 - Admin link in navigation dropdown (only visible to admins)
+
+**Family views:**
+- `family/index.blade.php` - Family overview, members list, join code display
+- `family/create.blade.php` - Form to create a new family
+- `family/join.blade.php` - Form to join a family with a code
 
 ## Development Environment
 
@@ -607,9 +660,10 @@ This means book URLs use timestamps instead of sequential IDs, making them harde
 
 Migration files are dated `2026_01_08_*` onwards - new migrations will run in order based on timestamp prefix. Core tables must maintain their cascade delete relationships:
 
-- Deleting a user cascades to books, tags, reading challenges
+- Deleting a user cascades to books, tags, reading challenges, owned families
 - Deleting a book cascades to book covers, reading progress history
 - Book-tag relationships cascade on both sides
+- Deleting a family sets users' `family_id` to null (not cascade delete)
 
 ### Cover Image Management
 
@@ -681,3 +735,31 @@ The application now supports multi-user environments with admin controls:
 - At least one admin must exist (robert@einsle.com seeded by default)
 - Registration checks occur in `RegisterController` before user creation
 - Invalid invitations return validation errors, not exceptions
+
+### Family Accounts System
+
+**Family Account Features:**
+- Users can create or join a family group
+- Each family has an owner who created it
+- Membership tracked via `family_id` on users table
+- **Important: Family accounts DO NOT share book collections** - each user maintains their own private books
+- Family membership is for grouping/organization only
+
+**Family Model:**
+- Auto-generates unique 8-character uppercase join codes on creation
+- `Family::generateUniqueJoinCode()` ensures uniqueness
+- Owners can regenerate join codes if needed
+- Deleting a family sets members' `family_id` to null (cascade)
+
+**User Model Methods:**
+- `hasFamily()` - Check if user belongs to a family
+- `ownsFamily()` - Check if user owns a family
+- `family()` - BelongsTo relationship to Family model
+- `ownedFamily()` - HasOne relationship for owned families
+
+**Family Controller Rules:**
+- Users can only be in one family at a time
+- Family owners cannot leave their family (must disband instead)
+- Only owners can disband families
+- Only owners can regenerate join codes
+- Join codes are case-insensitive during validation

@@ -6,7 +6,7 @@ A Laravel-based web application for tracking book collections and reading progre
 
 ### 📚 Book Management
 - Add, edit, and organize your book collection
-- Import from multiple sources: Google Books, Open Library, Amazon, BookBrainz
+- Import from multiple sources: Google Books, Open Library, BookBrainz
 - Smart search auto-detects ISBN, author names, and book titles
 - Multiple cover support with automatic fetching
 - Series tracking and organization
