@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\SystemSetting;
-use App\Models\Invitation;
 use App\Models\EmailLog;
 use App\Mail\VerifyEmailMail;
 use Illuminate\Auth\Events\Registered;
@@ -26,17 +25,7 @@ class RegisterController extends Controller
             abort(403, 'Registration is currently disabled.');
         }
 
-        $invitationToken = $request->get('token');
-        $invitation = null;
-
-        if ($invitationToken) {
-            $invitation = Invitation::where('token', $invitationToken)
-                ->whereNull('used_at')
-                ->where('expires_at', '>', now())
-                ->first();
-        }
-
-        return view('auth.register', compact('invitation', 'invitationToken'));
+        return view('auth.register');
     }
 
     public function register(Request $request): RedirectResponse
@@ -84,24 +73,6 @@ class RegisterController extends Controller
             }
         }
 
-        if ($registrationMode === 'invitation') {
-            // Check invitation token
-            $request->validate([
-                'invitation_token' => ['required', 'string'],
-            ]);
-
-            $invitation = Invitation::findValidByTokenAndEmail(
-                $request->invitation_token,
-                $request->email
-            );
-
-            if (!$invitation) {
-                return back()->withErrors([
-                    'email' => 'Invalid or expired invitation.',
-                ])->withInput();
-            }
-        }
-
         // Check if this is the first user (will become admin)
         $isFirstUser = User::count() === 0;
 
@@ -112,11 +83,6 @@ class RegisterController extends Controller
             'email_verified_at' => null, // Set to null, requires email verification
             'is_admin' => $isFirstUser, // First user becomes admin automatically
         ]);
-
-        // Mark invitation as used if applicable
-        if ($registrationMode === 'invitation' && isset($invitation)) {
-            $invitation->markAsUsed();
-        }
 
         event(new Registered($user));
 

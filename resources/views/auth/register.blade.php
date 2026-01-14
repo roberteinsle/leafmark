@@ -72,15 +72,6 @@
                 </div>
                 @endif
 
-                @if($registrationMode === 'invitation' && isset($invitationToken))
-                <input type="hidden" name="invitation_token" value="{{ $invitationToken }}">
-                <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
-                    <p class="text-sm text-blue-800">
-                        You have been invited to join. Please use the email address from your invitation.
-                    </p>
-                </div>
-                @endif
-
                 @if($registrationMode === 'domain')
                 @php
                     $allowedDomains = \App\Models\SystemSetting::getAllowedEmailDomains();

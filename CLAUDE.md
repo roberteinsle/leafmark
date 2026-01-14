@@ -100,9 +100,6 @@ The application has core models with the following relationships:
 - Challenges track books finished within the year
 - Multiple challenges per user (one per year)
 
-**User → Invitations (1:many as inviter)**
-- Admins can create invitations for new users
-- Tracks who invited whom
 
 **User → Family (many:1)**
 - Users can belong to a family group
@@ -140,10 +137,6 @@ The application has core models with the following relationships:
 - Settings stored as key-value pairs in `system_settings` table
 - Used for registration control and system configuration
 
-**Invitation System:**
-- `Invitation` model for managing user invitations
-- Each invitation has a unique token and expiration date
-- Tracks usage status and who created the invitation
 
 **Family Accounts:**
 - `Family` model for grouping users
@@ -209,7 +202,7 @@ Books can be imported from external sources via Service classes:
 
 **Registration Control:**
 - `RegisterController` checks `SystemSetting` for registration rules
-- Four registration modes: open, domain, invitation, code
+- Three registration modes: open, domain, code
 - Registration can be completely disabled via admin settings
 
 ### Internationalization
@@ -260,9 +253,7 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `/admin/users/{user}/toggle-admin` - PATCH to grant/revoke admin privileges
 - `/admin/settings` - System settings and registration control
 - `/admin/settings` - PATCH to update system settings
-- `/admin/invitations` - Invitation management page (integrated into settings)
-- `/admin/invitations` - POST to create invitation
-- `/admin/invitations/{invitation}` - DELETE to remove invitation
+
 - `/admin/email-logs` - View email sending logs and history
 
 **Important Routing Details:**
@@ -315,14 +306,6 @@ Routes are defined in [routes/web.php](routes/web.php):
 - Keys: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
 - No caching in model (direct database queries)
 
-**invitations table:**
-- User invitations for controlled registration
-- `email` - Email address to invite
-- `token` - Unique invitation token (32 chars)
-- `invited_by` - Foreign key to users table
-- `used_at` - Timestamp when invitation was used (null if unused)
-- `expires_at` - Expiration timestamp (default: 7 days from creation)
-- Validated during registration if mode is 'invitation'
 
 **families table:**
 - Family grouping for users
@@ -366,10 +349,8 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `updateUser()` - Update user details (name, email, admin status)
 - `toggleAdmin()` - Grant/revoke admin privileges for a user
 - `deleteUser()` - Delete a user (prevents self-deletion)
-- `settings()` - Display system settings and invitations
+- `settings()` - Display system settings
 - `updateSettings()` - Update registration mode and settings
-- `createInvitation()` - Create new user invitation
-- `deleteInvitation()` - Remove an invitation
 - `emailLogs()` - View email sending history and logs
 
 **FamilyController** handles:
@@ -402,8 +383,7 @@ When implementing controllers:
 - `admin/index.blade.php` - Dashboard with stats and quick links
 - `admin/users.blade.php` - User list with admin toggle and delete actions
 - `admin/edit-user.blade.php` - Edit individual user details
-- `admin/settings.blade.php` - System settings form and invitation management
-- `admin/invitations.blade.php` - Separate invitations management page
+- `admin/settings.blade.php` - System settings form
 - `admin/email-logs.blade.php` - Email sending history and logs
 - Admin link in navigation dropdown (only visible to admins)
 
@@ -518,7 +498,7 @@ Password: password
 Then configure registration settings:
 1. Go to Admin → System Settings
 2. Choose registration mode (recommended: domain-restricted)
-3. Configure allowed domains or create invitations
+3. Configure allowed domains or registration code as needed
 
 ### Update Workflow
 
@@ -708,10 +688,6 @@ The application now supports multi-user environments with admin controls:
 2. **Domain-restricted (`registration_mode = 'domain'`)**: Only specific email domains allowed
    - Configured via `allowed_email_domains` (comma-separated)
    - Example: `example.com,company.org`
-3. **Invitation-only (`registration_mode = 'invitation'`)**: Admins must create invitations
-   - Invitations tied to specific email addresses
-   - Token-based with 7-day expiration
-   - Marked as used after registration
 4. **Code-required (`registration_mode = 'code'`)**: Users need registration code
    - Single shared code configured in settings
    - Example use: family sharing
@@ -722,44 +698,3 @@ The application now supports multi-user environments with admin controls:
 - Common settings: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
 - Helper methods: `isRegistrationEnabled()`, `getRegistrationMode()`, `isEmailDomainAllowed()`
 
-**Invitation System:**
-- `Invitation` model with email, token, invited_by, used_at, expires_at
-- Tokens generated with `Str::random(32)`
-- Default expiration: 7 days from creation
-- Validated during registration if mode is 'invitation'
-- Admins can create and delete invitations via settings page
-
-**Important Security Notes:**
-- Admins cannot change their own admin status (prevents lockout)
-- Admins cannot delete themselves (prevents lockout)
-- At least one admin must exist (robert@einsle.com seeded by default)
-- Registration checks occur in `RegisterController` before user creation
-- Invalid invitations return validation errors, not exceptions
-
-### Family Accounts System
-
-**Family Account Features:**
-- Users can create or join a family group
-- Each family has an owner who created it
-- Membership tracked via `family_id` on users table
-- **Important: Family accounts DO NOT share book collections** - each user maintains their own private books
-- Family membership is for grouping/organization only
-
-**Family Model:**
-- Auto-generates unique 8-character uppercase join codes on creation
-- `Family::generateUniqueJoinCode()` ensures uniqueness
-- Owners can regenerate join codes if needed
-- Deleting a family sets members' `family_id` to null (cascade)
-
-**User Model Methods:**
-- `hasFamily()` - Check if user belongs to a family
-- `ownsFamily()` - Check if user owns a family
-- `family()` - BelongsTo relationship to Family model
-- `ownedFamily()` - HasOne relationship for owned families
-
-**Family Controller Rules:**
-- Users can only be in one family at a time
-- Family owners cannot leave their family (must disband instead)
-- Only owners can disband families
-- Only owners can regenerate join codes
-- Join codes are case-insensitive during validation

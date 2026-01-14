@@ -61,9 +61,6 @@
                     <option value="domain" {{ $registrationMode === 'domain' ? 'selected' : '' }}>
                         {{ __('app.admin.mode_domain') }}
                     </option>
-                    <option value="invitation" {{ $registrationMode === 'invitation' ? 'selected' : '' }}>
-                        {{ __('app.admin.mode_invitation') }}
-                    </option>
                     <option value="code" {{ $registrationMode === 'code' ? 'selected' : '' }}>
                         {{ __('app.admin.mode_code') }}
                     </option>
@@ -303,96 +300,5 @@
             </div>
         </form>
     </div>
-
-    <!-- Invitations -->
-    <div id="invitations" class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">{{ __('app.admin.invitation_management') }}</h2>
-
-        <!-- Create Invitation Form -->
-        <form method="POST" action="{{ route('admin.invitations.create') }}" class="mb-6">
-            @csrf
-            <div class="flex gap-2">
-                <input type="email" name="email" required
-                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                       placeholder="{{ __('app.admin.invitation_email') }}">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
-                    {{ __('app.admin.create_invitation') }}
-                </button>
-            </div>
-        </form>
-
-        <!-- Invitations List -->
-        @if($invitations->isEmpty())
-        <p class="text-gray-500 text-center py-4">No invitations yet.</p>
-        @else
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('app.admin.invitation_email') }}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('app.admin.invitation_status') }}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('app.admin.invitation_expires') }}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('app.admin.invitation_invited_by') }}</th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($invitations as $invitation)
-                    <tr>
-                        <td class="px-4 py-3 text-sm text-gray-900">{{ $invitation->email }}</td>
-                        <td class="px-4 py-3 text-sm">
-                            @if($invitation->used_at)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                {{ __('app.admin.invitation_used') }}
-                            </span>
-                            @elseif($invitation->expires_at->isPast())
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                {{ __('app.admin.invitation_expired') }}
-                            </span>
-                            @else
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                {{ __('app.admin.invitation_pending') }}
-                            </span>
-                            @endif
-                        </td>
-                        <td class="px-4 py-3 text-sm text-gray-500">{{ $invitation->expires_at->format('M d, Y') }}</td>
-                        <td class="px-4 py-3 text-sm text-gray-500">{{ $invitation->invitedBy->name }}</td>
-                        <td class="px-4 py-3 text-sm text-right">
-                            @if(!$invitation->used_at && !$invitation->expires_at->isPast())
-                            <button onclick="copyInvitationLink('{{ route('register', ['token' => $invitation->token]) }}')"
-                                    class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                {{ __('app.admin.copy_invitation_link') }}
-                            </button>
-                            @endif
-
-                            <form method="POST" action="{{ route('admin.invitations.delete', $invitation) }}" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">
-                                    {{ __('app.admin.delete_invitation') }}
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <div class="mt-4">
-                {{ $invitations->links() }}
-            </div>
-        </div>
-        @endif
-    </div>
 </div>
-
-<script>
-function copyInvitationLink(url) {
-    navigator.clipboard.writeText(url).then(function() {
-        alert('Invitation link copied to clipboard!');
-    }, function(err) {
-        console.error('Could not copy text: ', err);
-    });
-}
-</script>
 @endsection

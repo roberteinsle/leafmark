@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\SystemSetting;
-use App\Models\Invitation;
 use App\Models\EmailLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -150,8 +149,6 @@ class AdminController extends Controller
 
         $googleBooksApiKey = SystemSetting::get('google_books_api_key', '');
 
-        $invitations = Invitation::with('invitedBy')->latest()->paginate(20);
-
         return view('admin.settings', compact(
             'registrationEnabled',
             'registrationMode',
@@ -168,8 +165,7 @@ class AdminController extends Controller
             'turnstileEnabled',
             'turnstileSiteKey',
             'turnstileSecretKey',
-            'googleBooksApiKey',
-            'invitations'
+            'googleBooksApiKey'
         ));
     }
 
@@ -231,7 +227,7 @@ class AdminController extends Controller
         // Default: registration settings
         $validated = $request->validate([
             'registration_enabled' => 'required|boolean',
-            'registration_mode' => 'required|in:open,domain,invitation,code',
+            'registration_mode' => 'required|in:open,domain,code',
             'allowed_email_domains' => 'nullable|string',
             'registration_code' => 'nullable|string|max:255',
         ]);
@@ -242,53 +238,6 @@ class AdminController extends Controller
         SystemSetting::set('registration_code', $validated['registration_code'] ?? '');
 
         return back()->with('success', 'Registration settings updated successfully.');
-    }
-
-    /**
-     * Show invitations management page
-     */
-    public function invitations(): View
-    {
-        $invitations = Invitation::with('invitedBy')->latest()->paginate(20);
-
-        return view('admin.invitations', compact('invitations'));
-    }
-
-    /**
-     * Create an invitation
-     */
-    public function createInvitation(Request $request): RedirectResponse
-    {
-        try {
-            $validated = $request->validate([
-                'email' => 'required|email|unique:users,email|unique:invitations,email',
-            ]);
-
-            Invitation::create([
-                'email' => $validated['email'],
-                'invited_by' => auth()->id(),
-            ]);
-
-            return back()->with('success', 'Invitation created successfully.');
-        } catch (\Exception $e) {
-            \Log::error('Failed to create invitation', [
-                'email' => $request->input('email'),
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return back()->withErrors(['error' => 'Failed to create invitation: ' . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Delete an invitation
-     */
-    public function deleteInvitation(Invitation $invitation): RedirectResponse
-    {
-        $invitation->delete();
-
-        return back()->with('success', 'Invitation deleted successfully.');
     }
 
     /**

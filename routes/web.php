@@ -140,8 +140,4 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/settings/test-email', [AdminController::class, 'sendTestEmail'])->name('settings.test-email');
 
     Route::get('/email-logs', [AdminController::class, 'emailLogs'])->name('email-logs');
-
-    Route::get('/invitations', [AdminController::class, 'invitations'])->name('invitations');
-    Route::post('/invitations', [AdminController::class, 'createInvitation'])->name('invitations.create');
-    Route::delete('/invitations/{invitation}', [AdminController::class, 'deleteInvitation'])->name('invitations.delete');
 });
