@@ -31,10 +31,9 @@ A Laravel-based web application for tracking book collections and reading progre
 - **Flexible registration modes:**
   - Open (anyone can register)
   - Domain-restricted (e.g., @yourcompany.com only)
-  - Invitation-only (admins send invitations)
   - Code-required (personal registration code)
 - User management with admin role assignment
-- Invitation system with expiring links
+- Family accounts for grouping users
 
 ### 🌍 Internationalization
 - Multi-language support: English, German, French, Italian, Spanish, Polish
@@ -96,9 +95,8 @@ After registration, configure system settings:
 4. Choose registration mode:
    - Open (anyone can register)
    - Domain-restricted (e.g., @yourcompany.com only)
-   - Invitation-only (admins send invitations)
    - Code-required (personal registration code)
-5. Configure allowed domains or create invitations as needed
+5. Configure allowed domains or registration code as needed
 
 ### Update Workflow
 
@@ -244,15 +242,17 @@ See `.env.example` for all available options.
 - **Registration Modes:**
   1. **Open** - Anyone can register
   2. **Domain-restricted** - Only specific email domains (e.g., @company.com)
-  3. **Invitation-only** - Admins must send invitation links
-  4. **Code-required** - Users need a registration code
+  3. **Code-required** - Users need a registration code
 
-### Invitation System (`/admin/settings#invitations`)
-- Create invitations for specific email addresses
-- Copy invitation links to share
-- Track invitation status (pending/used/expired)
-- Delete unused invitations
-- Invitations expire after 7 days
+- **SMTP Configuration:**
+  - Configure email settings for password reset and verification
+  - Test email functionality
+  - View email sending logs
+
+- **Email Logs** (`/admin/email-logs`):
+  - Track all sent emails (verification, password reset)
+  - Debug email delivery issues
+  - View email content and error messages
 
 ## Features in Detail
 
