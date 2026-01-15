@@ -256,6 +256,31 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Per Page Selector (only visible in table view) -->
+            @if($viewPref->view_mode === 'table')
+            <form action="{{ route('books.index') }}" method="GET" class="inline-block">
+                @if(request('status'))
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                @endif
+                @if(request('search'))
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
+                @if(request('author'))
+                    <input type="hidden" name="author" value="{{ request('author') }}">
+                @endif
+                @if(request('sort'))
+                    <input type="hidden" name="sort" value="{{ request('sort') }}">
+                @endif
+                <select name="per_page"
+                        onchange="this.form.submit()"
+                        class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-sm">
+                    <option value="10" {{ request('per_page', $viewPref->per_page ?? 25) == 10 ? 'selected' : '' }}>10 {{ __('app.books.per_page') }}</option>
+                    <option value="25" {{ request('per_page', $viewPref->per_page ?? 25) == 25 ? 'selected' : '' }}>25 {{ __('app.books.per_page') }}</option>
+                    <option value="50" {{ request('per_page', $viewPref->per_page ?? 25) == 50 ? 'selected' : '' }}>50 {{ __('app.books.per_page') }}</option>
+                    <option value="100" {{ request('per_page', $viewPref->per_page ?? 25) == 100 ? 'selected' : '' }}>100 {{ __('app.books.per_page') }}</option>
+                </select>
+            </form>
             @endif
 
             <!-- Sort Dropdown -->
@@ -302,8 +327,67 @@
                     <thead class="bg-gray-50">
                         <tr>
                             @foreach($visibleColumns as $column)
+                            @php
+                                // Define which columns are sortable and their field mappings
+                                $sortableColumns = [
+                                    'title' => 'title',
+                                    'author' => 'author',
+                                    'series' => 'series',
+                                    'rating' => 'rating',
+                                    'pages' => 'page_count',
+                                    'current_page' => 'current_page',
+                                    'publisher' => 'publisher',
+                                    'published_date' => 'published_date',
+                                    'purchase_date' => 'purchase_date',
+                                    'purchase_price' => 'purchase_price',
+                                    'date_added' => 'added_at',
+                                    'date_started' => 'started_at',
+                                    'date_finished' => 'finished_at',
+                                ];
+                                $isSortable = isset($sortableColumns[$column]);
+                                $sortField = $sortableColumns[$column] ?? null;
+
+                                // Current sort
+                                $currentSort = request('sort', 'added_at_desc');
+                                [$currentField, $currentDir] = explode('_', $currentSort . '_desc');
+                                $currentDir = substr($currentSort, strrpos($currentSort, '_') + 1);
+
+                                // Is this column currently sorted?
+                                $isCurrentSort = $sortField && $currentField === $sortField;
+
+                                // Toggle direction
+                                $newDir = ($isCurrentSort && $currentDir === 'asc') ? 'desc' : 'asc';
+                                $newSort = $sortField ? $sortField . '_' . $newDir : null;
+                            @endphp
+
                             <th scope="col" class="px-3 py-3 {{ $column === 'actions' ? 'text-right' : 'text-left' }} text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                @if($isSortable)
+                                <a href="{{ route('books.index', array_filter([
+                                    'status' => request('status'),
+                                    'search' => request('search'),
+                                    'author' => request('author'),
+                                    'sort' => $newSort,
+                                ])) }}" class="flex items-center gap-1 hover:text-gray-700 group">
+                                    <span>{{ __('app.books.column_' . $column) }}</span>
+                                    @if($isCurrentSort)
+                                        @if($currentDir === 'asc')
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                        </svg>
+                                        @else
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                        @endif
+                                    @else
+                                    <svg class="w-4 h-4 opacity-0 group-hover:opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                    </svg>
+                                    @endif
+                                </a>
+                                @else
                                 {{ __('app.books.column_' . $column) }}
+                                @endif
                             </th>
                             @endforeach
                         </tr>

@@ -48,78 +48,51 @@ class BookController extends Controller
         // Sorting
         $sort = $request->get('sort', 'added_at_desc');
 
+        // Parse sort field and direction
+        $sortParts = explode('_', $sort);
+        $sortDir = array_pop($sortParts); // Get last part (asc/desc)
+        $sortField = implode('_', $sortParts); // Rejoin remaining parts
+
+        // Validate sort direction
+        $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'desc';
+
+        // Map sortable fields - allow all table column fields
+        $allowedSorts = [
+            'title', 'author', 'series', 'rating', 'page_count', 'current_page',
+            'publisher', 'published_date', 'purchase_date', 'purchase_price',
+            'added_at', 'started_at', 'finished_at'
+        ];
+
+        // Default to added_at if field not allowed
+        if (!in_array($sortField, $allowedSorts)) {
+            $sortField = 'added_at';
+        }
+
         // For "ALL" status, prioritize currently_reading books
         if (!$request->has('status')) {
-            switch ($sort) {
-                case 'title_asc':
-                    $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
-                          ->orderBy('title', 'asc');
-                    break;
-                case 'title_desc':
-                    $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
-                          ->orderBy('title', 'desc');
-                    break;
-                case 'author_asc':
-                    $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
-                          ->orderBy('author', 'asc')
-                          ->orderBy('title', 'asc');
-                    break;
-                case 'author_desc':
-                    $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
-                          ->orderBy('author', 'desc')
-                          ->orderBy('title', 'asc');
-                    break;
-                case 'published_date_asc':
-                    $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
-                          ->orderBy('published_date', 'asc');
-                    break;
-                case 'published_date_desc':
-                    $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
-                          ->orderBy('published_date', 'desc');
-                    break;
-                case 'added_at_asc':
-                    $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
-                          ->orderBy('added_at', 'asc');
-                    break;
-                case 'added_at_desc':
-                default:
-                    $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
-                          ->orderBy('added_at', 'desc');
-                    break;
+            $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
+                  ->orderBy($sortField, $sortDir);
+
+            // Secondary sort by title for non-title sorts
+            if ($sortField !== 'title') {
+                $query->orderBy('title', 'asc');
             }
         } else {
             // When filtering by status, no priority needed
-            switch ($sort) {
-                case 'title_asc':
-                    $query->orderBy('title', 'asc');
-                    break;
-                case 'title_desc':
-                    $query->orderBy('title', 'desc');
-                    break;
-                case 'author_asc':
-                    $query->orderBy('author', 'asc')->orderBy('title', 'asc');
-                    break;
-                case 'author_desc':
-                    $query->orderBy('author', 'desc')->orderBy('title', 'asc');
-                    break;
-                case 'published_date_asc':
-                    $query->orderBy('published_date', 'asc');
-                    break;
-                case 'published_date_desc':
-                    $query->orderBy('published_date', 'desc');
-                    break;
-                case 'added_at_asc':
-                    $query->orderBy('added_at', 'asc');
-                    break;
-                case 'added_at_desc':
-                default:
-                    $query->orderBy('added_at', 'desc');
-                    break;
+            $query->orderBy($sortField, $sortDir);
+
+            // Secondary sort by title for non-title sorts
+            if ($sortField !== 'title') {
+                $query->orderBy('title', 'asc');
             }
         }
 
+        // Pagination - use per_page from view preference
+        $perPage = $request->get('per_page', $viewPref->per_page ?? 25);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 25;
+
         $books = $query->with('tags')
-            ->paginate(20)
+            ->paginate($perPage)
             ->withQueryString();
 
         // Get counts for each status

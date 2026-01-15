@@ -164,6 +164,7 @@ return [
         'save' => 'Save',
         'required' => 'Required',
         'column_settings_saved' => 'Column settings saved successfully!',
+        'per_page' => 'per page',
 
         // Column Names
         'column_cover' => 'Cover',

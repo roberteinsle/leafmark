@@ -164,6 +164,7 @@ return [
         'save' => 'Speichern',
         'required' => 'Erforderlich',
         'column_settings_saved' => 'Spalteneinstellungen erfolgreich gespeichert!',
+        'per_page' => 'pro Seite',
 
         // Column Names
         'column_cover' => 'Cover',
