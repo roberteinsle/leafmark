@@ -144,6 +144,12 @@ return [
         'review_label' => 'Dein Fazit (Optional)',
         'review_placeholder' => 'Kurzes, aussagekräftiges Fazit...',
         'save_rating' => 'Bewertung speichern',
+
+        // Author Filter
+        'filter_active' => 'Filter aktiv',
+        'showing_books_by' => 'Zeige Bücher von',
+        'books_count' => 'Bücher',
+        'clear_filter' => 'Filter entfernen',
     ],
 
     // Reading Challenge

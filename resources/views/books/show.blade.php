@@ -60,7 +60,13 @@
                         </p>
                         @endif
                         @if($book->author)
-                        <p class="text-xl text-gray-600 mt-2">{{ __('app.books.by_author') }} {{ $book->author }}</p>
+                        <p class="text-xl text-gray-600 mt-2">
+                            {{ __('app.books.by_author') }}
+                            <a href="{{ route('books.index', ['author' => $book->author]) }}"
+                               class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium transition-colors">
+                                {{ $book->author }}
+                            </a>
+                        </p>
                         @endif
                     </div>
                     <div class="flex space-x-2">

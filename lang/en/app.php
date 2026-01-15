@@ -144,6 +144,12 @@ return [
         'review_label' => 'Your Review (Optional)',
         'review_placeholder' => 'Brief, meaningful review...',
         'save_rating' => 'Save Rating',
+
+        // Author Filter
+        'filter_active' => 'Filter Active',
+        'showing_books_by' => 'Showing books by',
+        'books_count' => 'books',
+        'clear_filter' => 'Clear Filter',
     ],
 
     // Reading Challenge

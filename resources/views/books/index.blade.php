@@ -64,6 +64,39 @@
     </div>
     @endif
 
+    <!-- Active Author Filter Indicator -->
+    @if(request('author'))
+    <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                <div>
+                    <p class="text-sm font-medium text-blue-900">
+                        {{ __('app.books.filter_active') }}
+                    </p>
+                    <p class="text-sm text-blue-700">
+                        {{ __('app.books.showing_books_by') }}: <span class="font-semibold">{{ request('author') }}</span>
+                        <span class="text-blue-600">({{ $books->total() }} {{ __('app.books.books_count') }})</span>
+                    </p>
+                </div>
+            </div>
+            <a href="{{ route('books.index', array_filter([
+                    'status' => request('status'),
+                    'sort' => request('sort'),
+                    'search' => request('search')
+                ])) }}"
+               class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                {{ __('app.books.clear_filter') }}
+            </a>
+        </div>
+    </div>
+    @endif
+
     <!-- Search and Bulk Actions -->
     <div class="mb-6 bg-white rounded-lg shadow p-4">
         <form action="{{ route('books.index') }}" method="GET" class="flex gap-4">
@@ -81,12 +114,16 @@
                 <input type="hidden" name="sort" value="{{ request('sort') }}">
             @endif
 
+            @if(request('author'))
+                <input type="hidden" name="author" value="{{ request('author') }}">
+            @endif
+
             <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700">
                 {{ __('app.books.search') }}
             </button>
 
             @if(request('search'))
-                <a href="{{ route('books.index', request()->only(['status', 'sort'])) }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
+                <a href="{{ route('books.index', request()->only(['status', 'sort', 'author'])) }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
                     {{ __('app.books.clear') }}
                 </a>
             @endif
