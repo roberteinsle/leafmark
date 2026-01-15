@@ -485,4 +485,55 @@ return [
         'turnstile_required' => 'Please complete the security verification.',
         'turnstile_failed' => 'Security verification failed. Please try again.',
     ],
+
+    // Changelog
+    'changelog' => [
+        'title' => 'Changelog',
+        'subtitle' => 'See what\'s new and what we\'ve been working on',
+        'january_2026' => 'January 2026',
+
+        // January 15, 2026
+        'jan_15_title' => 'Major Feature Update',
+        'jan_15_date' => 'January 15, 2026',
+        'jan_15_contact_title' => 'New Contact Form',
+        'jan_15_contact_desc' => 'We\'ve added a comprehensive contact form with spam protection, making it easier and safer to get in touch with us.',
+        'jan_15_bigbook_title' => 'Big Book API Integration',
+        'jan_15_bigbook_desc' => 'You can now search for books using the Big Book API, giving you access to even more book data when adding titles to your collection.',
+        'jan_15_email_title' => 'Email Event Tracking',
+        'jan_15_email_desc' => 'View your recent email notifications in your settings, and admins can now see email events for each user.',
+        'jan_15_ui_title' => 'Interface Improvements',
+        'jan_15_ui_desc' => 'Made usernames clickable in admin areas, updated legal pages, and improved the overall user experience.',
+        'jan_15_removed_title' => 'Simplified Book Updates',
+        'jan_15_removed_desc' => 'Removed the external source update feature from book details to streamline the interface. You can still import books when first adding them.',
+
+        // January 14, 2026
+        'jan_14_title' => 'Flexible Registration System',
+        'jan_14_date' => 'January 14, 2026',
+        'jan_14_registration_title' => 'New Registration Options',
+        'jan_14_registration_desc' => 'Admins can now configure registration settings: open registration, domain-restricted, or code-required. The invitation system has been simplified.',
+
+        // January 11, 2026
+        'jan_11_title' => 'Family Accounts',
+        'jan_11_date' => 'January 11, 2026',
+        'jan_11_family_title' => 'Family Groups Feature',
+        'jan_11_family_desc' => 'Create or join family groups to see who else is reading! Each family gets a unique join code that can be shared with family members.',
+
+        // January 10, 2026
+        'jan_10_title' => 'Reading Features & System Improvements',
+        'jan_10_date' => 'January 10, 2026',
+        'jan_10_ratings_title' => 'Book Ratings & Reviews',
+        'jan_10_ratings_desc' => 'Rate books with a 5-star system and write reviews to remember your thoughts about each book.',
+        'jan_10_challenge_title' => 'Reading Challenges',
+        'jan_10_challenge_desc' => 'Set yearly reading goals and track your progress with reading challenges. See your progress right on your books page!',
+        'jan_10_backup_title' => 'Automated Backups',
+        'jan_10_backup_desc' => 'Your data is now automatically backed up to prevent any loss. We take data safety seriously!',
+        'jan_10_email_title' => 'Email Notifications',
+        'jan_10_email_desc' => 'Enhanced email system for password resets, email verification, and system notifications.',
+        'jan_10_multilingual_title' => 'Multilingual Support',
+        'jan_10_multilingual_desc' => 'Improved language support with better settings organization and multilingual landing page.',
+
+        // Info box
+        'info_title' => 'Want to see more?',
+        'info_desc' => 'This changelog shows the major features and improvements. For detailed technical changes, check out our GitHub repository.',
+    ],
 ];

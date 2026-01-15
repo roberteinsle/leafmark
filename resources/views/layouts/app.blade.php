@@ -120,6 +120,8 @@
                     <a href="{{ route('datenschutz') }}" class="text-gray-600 hover:text-gray-900">Datenschutz</a>
                     <span class="text-gray-400">·</span>
                     <a href="{{ route('kontakt') }}" class="text-gray-600 hover:text-gray-900">Kontakt</a>
+                    <span class="text-gray-400">·</span>
+                    <a href="{{ route('changelog') }}" class="text-gray-600 hover:text-gray-900">Changelog</a>
                 </div>
                 <p class="text-center text-gray-500 text-sm">
                     &copy; {{ date('Y') }} Leafmark. Made with ❤️ in Hamburg

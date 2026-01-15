@@ -33,6 +33,10 @@ Route::get('/datenschutz', function () {
 Route::get('/kontakt', [ContactController::class, 'show'])->name('kontakt');
 Route::post('/kontakt', [ContactController::class, 'submit'])->name('kontakt.submit');
 
+Route::get('/changelog', function () {
+    return view('changelog');
+})->name('changelog');
+
 // Authentication routes
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');

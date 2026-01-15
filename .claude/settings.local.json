@@ -67,7 +67,8 @@
       "Bash(docker volume:*)",
       "Bash(test:*)",
       "Bash(php -l:*)",
-      "Read(///**)"
+      "Read(///**)",
+      "Bash(git log:*)"
     ]
   }
 }

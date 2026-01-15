@@ -492,4 +492,55 @@ return [
         'turnstile_required' => 'Bitte schließen Sie die Sicherheitsprüfung ab.',
         'turnstile_failed' => 'Sicherheitsprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.',
     ],
+
+    // Changelog
+    'changelog' => [
+        'title' => 'Changelog',
+        'subtitle' => 'Sehen Sie, was neu ist und woran wir gearbeitet haben',
+        'january_2026' => 'Januar 2026',
+
+        // January 15, 2026
+        'jan_15_title' => 'Großes Feature-Update',
+        'jan_15_date' => '15. Januar 2026',
+        'jan_15_contact_title' => 'Neues Kontaktformular',
+        'jan_15_contact_desc' => 'Wir haben ein umfassendes Kontaktformular mit Spam-Schutz hinzugefügt, das es einfacher und sicherer macht, mit uns in Kontakt zu treten.',
+        'jan_15_bigbook_title' => 'Big Book API Integration',
+        'jan_15_bigbook_desc' => 'Sie können jetzt über die Big Book API nach Büchern suchen und haben beim Hinzufügen von Titeln zu Ihrer Sammlung Zugriff auf noch mehr Buchdaten.',
+        'jan_15_email_title' => 'E-Mail-Ereignisverfolgung',
+        'jan_15_email_desc' => 'Sehen Sie Ihre letzten E-Mail-Benachrichtigungen in Ihren Einstellungen, und Administratoren können jetzt E-Mail-Ereignisse für jeden Benutzer sehen.',
+        'jan_15_ui_title' => 'Verbesserungen der Benutzeroberfläche',
+        'jan_15_ui_desc' => 'Benutzernamen in Admin-Bereichen sind jetzt anklickbar, rechtliche Seiten wurden aktualisiert und die allgemeine Benutzererfahrung wurde verbessert.',
+        'jan_15_removed_title' => 'Vereinfachte Buchaktualisierungen',
+        'jan_15_removed_desc' => 'Die Funktion zum Aktualisieren aus externen Quellen wurde aus den Buchdetails entfernt, um die Oberfläche zu vereinfachen. Sie können Bücher weiterhin beim ersten Hinzufügen importieren.',
+
+        // January 14, 2026
+        'jan_14_title' => 'Flexibles Registrierungssystem',
+        'jan_14_date' => '14. Januar 2026',
+        'jan_14_registration_title' => 'Neue Registrierungsoptionen',
+        'jan_14_registration_desc' => 'Administratoren können jetzt Registrierungseinstellungen konfigurieren: offene Registrierung, domain-beschränkt oder code-erforderlich. Das Einladungssystem wurde vereinfacht.',
+
+        // January 11, 2026
+        'jan_11_title' => 'Familienkonten',
+        'jan_11_date' => '11. Januar 2026',
+        'jan_11_family_title' => 'Familiengruppen-Funktion',
+        'jan_11_family_desc' => 'Erstellen oder treten Sie Familiengruppen bei, um zu sehen, wer sonst noch liest! Jede Familie erhält einen eindeutigen Beitrittscode, der mit Familienmitgliedern geteilt werden kann.',
+
+        // January 10, 2026
+        'jan_10_title' => 'Lesefunktionen & Systemverbesserungen',
+        'jan_10_date' => '10. Januar 2026',
+        'jan_10_ratings_title' => 'Buchbewertungen & Rezensionen',
+        'jan_10_ratings_desc' => 'Bewerten Sie Bücher mit einem 5-Sterne-System und schreiben Sie Rezensionen, um sich an Ihre Gedanken zu jedem Buch zu erinnern.',
+        'jan_10_challenge_title' => 'Lese-Challenges',
+        'jan_10_challenge_desc' => 'Setzen Sie sich jährliche Leseziele und verfolgen Sie Ihren Fortschritt mit Lese-Challenges. Sehen Sie Ihren Fortschritt direkt auf Ihrer Bücher-Seite!',
+        'jan_10_backup_title' => 'Automatische Backups',
+        'jan_10_backup_desc' => 'Ihre Daten werden jetzt automatisch gesichert, um jeden Verlust zu verhindern. Wir nehmen Datensicherheit ernst!',
+        'jan_10_email_title' => 'E-Mail-Benachrichtigungen',
+        'jan_10_email_desc' => 'Verbessertes E-Mail-System für Passwort-Resets, E-Mail-Verifizierung und Systembenachrichtigungen.',
+        'jan_10_multilingual_title' => 'Mehrsprachige Unterstützung',
+        'jan_10_multilingual_desc' => 'Verbesserte Sprachunterstützung mit besserer Einstellungsorganisation und mehrsprachiger Landingpage.',
+
+        // Info box
+        'info_title' => 'Möchten Sie mehr sehen?',
+        'info_desc' => 'Dieses Changelog zeigt die wichtigsten Funktionen und Verbesserungen. Für detaillierte technische Änderungen schauen Sie in unser GitHub-Repository.',
+    ],
 ];
