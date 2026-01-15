@@ -62,6 +62,11 @@ class User extends Authenticatable
         return $this->hasMany(Family::class, 'owner_id');
     }
 
+    public function emailLogs(): HasMany
+    {
+        return $this->hasMany(EmailLog::class);
+    }
+
     // Helper methods
     public function getDefaultTags(): \Illuminate\Database\Eloquent\Collection
     {

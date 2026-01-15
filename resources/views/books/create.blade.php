@@ -29,14 +29,20 @@
                         @php
                             $defaultProvider = 'both';
                             $hasGoogle = auth()->user()->google_books_api_key || config('services.google_books.api_key');
-                            if (!$hasGoogle) {
+                            $hasBigBook = \App\Models\SystemSetting::get('bigbook_api_key');
+                            if (!$hasGoogle && !$hasBigBook) {
                                 $defaultProvider = 'openlibrary';
                             }
                         @endphp
                         <option value="openlibrary" {{ request('provider', $defaultProvider) === 'openlibrary' ? 'selected' : '' }}>{{ __('app.books.openlibrary') }}</option>
                         <option value="bookbrainz" {{ request('provider', $defaultProvider) === 'bookbrainz' ? 'selected' : '' }}>BookBrainz</option>
+                        @if($hasBigBook)
+                        <option value="bigbook" {{ request('provider', $defaultProvider) === 'bigbook' ? 'selected' : '' }}>Big Book API</option>
+                        @endif
                         @if($hasGoogle)
                         <option value="google" {{ request('provider', $defaultProvider) === 'google' ? 'selected' : '' }}>{{ __('app.books.google_books') }}</option>
+                        @endif
+                        @if($hasGoogle || $hasBigBook)
                         <option value="both" {{ request('provider', $defaultProvider) === 'both' ? 'selected' : '' }}>{{ __('app.books.all_sources') }}</option>
                         @endif
                     </select>
@@ -120,6 +126,8 @@
                                     <input type="hidden" name="amazon_asin" value="{{ $result['asin'] }}">
                                 @elseif($result['source'] === 'bookbrainz')
                                     <input type="hidden" name="bookbrainz_id" value="{{ $result['bookbrainz_id'] }}">
+                                @elseif($result['source'] === 'bigbook')
+                                    <input type="hidden" name="bigbook_id" value="{{ $result['bigbook_id'] }}">
                                 @else
                                     <input type="hidden" name="open_library_id" value="{{ $result['open_library_id'] }}">
                                 @endif
@@ -142,6 +150,8 @@
                                             Amazon
                                         @elseif($result['source'] === 'bookbrainz')
                                             BookBrainz
+                                        @elseif($result['source'] === 'bigbook')
+                                            Big Book API
                                         @else
                                             {{ __('app.books.openlibrary') }}
                                         @endif

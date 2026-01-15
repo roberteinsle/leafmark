@@ -54,7 +54,13 @@ class AdminController extends Controller
             }
         ]);
 
-        return view('admin.edit-user', compact('user'));
+        // Get the last 5 email events for this user
+        $recentEmailEvents = $user->emailLogs()
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        return view('admin.edit-user', compact('user', 'recentEmailEvents'));
     }
 
     /**
@@ -148,6 +154,7 @@ class AdminController extends Controller
         $turnstileSecretKey = SystemSetting::get('turnstile_secret_key', '');
 
         $googleBooksApiKey = SystemSetting::get('google_books_api_key', '');
+        $bigBookApiKey = SystemSetting::get('bigbook_api_key', '');
 
         return view('admin.settings', compact(
             'registrationEnabled',
@@ -165,7 +172,8 @@ class AdminController extends Controller
             'turnstileEnabled',
             'turnstileSiteKey',
             'turnstileSecretKey',
-            'googleBooksApiKey'
+            'googleBooksApiKey',
+            'bigBookApiKey'
         ));
     }
 
@@ -217,9 +225,11 @@ class AdminController extends Controller
         if ($section === 'api') {
             $validated = $request->validate([
                 'google_books_api_key' => 'nullable|string|max:255',
+                'bigbook_api_key' => 'nullable|string|max:255',
             ]);
 
             SystemSetting::set('google_books_api_key', $validated['google_books_api_key'] ?? '');
+            SystemSetting::set('bigbook_api_key', $validated['bigbook_api_key'] ?? '');
 
             return back()->with('success', 'API settings updated successfully.');
         }
@@ -344,12 +354,25 @@ class AdminController extends Controller
     /**
      * Show email logs
      */
-    public function emailLogs(): View
+    public function emailLogs(Request $request): View
     {
-        $logs = EmailLog::with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate(50);
+        $query = EmailLog::with('user');
 
-        return view('admin.email-logs', compact('logs'));
+        // Filter by user if user parameter is provided
+        if ($request->has('user') && $request->user) {
+            $query->where('user_id', $request->user);
+        }
+
+        $logs = $query->orderBy('created_at', 'desc')
+            ->paginate(50)
+            ->appends($request->only('user')); // Preserve filter in pagination
+
+        // Get the filtered user if applicable
+        $filteredUser = null;
+        if ($request->has('user') && $request->user) {
+            $filteredUser = User::find($request->user);
+        }
+
+        return view('admin.email-logs', compact('logs', 'filteredUser'));
     }
 }

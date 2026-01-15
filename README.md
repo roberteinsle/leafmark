@@ -6,7 +6,7 @@ A Laravel-based web application for tracking book collections and reading progre
 
 ### 📚 Book Management
 - Add, edit, and organize your book collection
-- Import from multiple sources: Google Books, Open Library, BookBrainz
+- Import from multiple sources: Google Books, Open Library, BookBrainz, Big Book API
 - Smart search auto-detects ISBN, author names, and book titles
 - Multiple cover support with automatic fetching
 - Series tracking and organization
@@ -48,13 +48,15 @@ A Laravel-based web application for tracking book collections and reading progre
 - **Deployment:** Docker + Docker Compose
 - **Architecture:** Multi-container (App + Database)
 
-### Optional: Add Google Books API Key
+### Optional: Configure API Keys
 
-After registering, you can optionally add a Google Books API key:
-- Go to Settings in the app
-- Add your API key there (recommended)
+After registering, you can optionally configure API keys for enhanced book search:
+- Go to **Admin → System Settings** in the app
+- **Google Books API**: Add your Google Books API key for better metadata
+- **Big Book API**: Add your Big Book API key (free tier: 60 requests/minute)
+- These API keys are used globally for all users
 
-This enables better search results, but Open Library works without a key.
+Open Library and BookBrainz work without API keys, so this is completely optional.
 
 ## Production Deployment
 
@@ -217,9 +219,6 @@ DB_DATABASE=leafmark
 DB_USERNAME=leafmark
 DB_PASSWORD=secure_password_here
 MYSQL_ROOT_PASSWORD=root_password_here
-
-# Optional: API Keys
-GOOGLE_BOOKS_API_KEY=your_key_here
 ```
 
 See `.env.example` for all available options.
@@ -244,6 +243,12 @@ See `.env.example` for all available options.
   2. **Domain-restricted** - Only specific email domains (e.g., @company.com)
   3. **Code-required** - Users need a registration code
 
+- **API Configuration:**
+  - Configure Google Books API key for enhanced book search
+  - Configure Big Book API key for comprehensive book data (free tier available)
+  - Applies to all users system-wide
+  - Optional - Open Library and BookBrainz work without API keys
+
 - **SMTP Configuration:**
   - Configure email settings for password reset and verification
   - Test email functionality
@@ -266,9 +271,11 @@ The search automatically detects:
 ### Multi-source Search
 
 Choose your search provider:
-- **Open Library** - Free, no API key required
-- **Google Books** - Requires API key, better metadata
-- **All Sources** - Searches both and merges results
+- **Open Library** - Free, no API key required, language-aware
+- **BookBrainz** - Free, community-driven database, language-aware
+- **Big Book API** - Comprehensive data, requires API key (free tier: 60 req/min), no language filtering
+- **Google Books** - Requires API key, extensive metadata, language-aware
+- **All Sources** - Searches all configured sources and merges results
 
 ### Reading Progress Tracking
 

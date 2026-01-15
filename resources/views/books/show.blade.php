@@ -295,66 +295,6 @@
                 </div>
                 @endif
 
-                <!-- Update from External Source -->
-                <div class="mt-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-3">{{ __('app.books.update_from_source') }}</h2>
-                    <form method="POST" action="{{ route('books.update-from-url', $book) }}" class="space-y-3">
-                        @csrf
-                        @method('PATCH')
-                        <div>
-                            <label for="source" class="block text-sm font-medium text-gray-700 mb-1">
-                                {{ __('app.books.source_label') }}
-                            </label>
-                            <select
-                                name="source"
-                                id="source"
-                                class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 mb-3"
-                                onchange="updatePlaceholder()"
-                            >
-                                <option value="openlibrary">OpenLibrary</option>
-                                <option value="googlebooks">Google Books</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="url" class="block text-sm font-medium text-gray-700 mb-1">
-                                {{ __('app.books.url_or_id') }}
-                            </label>
-                            <input
-                                type="text"
-                                name="url"
-                                id="url"
-                                placeholder="https://openlibrary.org/books/OL9064566M/..."
-                                class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                required
-                            >
-                            <p id="help-text" class="mt-1 text-xs text-gray-500">
-                                {{ __('app.books.openlibrary_help') }}
-                            </p>
-                        </div>
-                        <button
-                            type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm"
-                        >
-                            {{ __('app.books.update_book_info') }}
-                        </button>
-                    </form>
-                    <script>
-                        function updatePlaceholder() {
-                            const source = document.getElementById('source').value;
-                            const urlInput = document.getElementById('url');
-                            const helpText = document.getElementById('help-text');
-
-                            if (source === 'openlibrary') {
-                                urlInput.placeholder = 'https://openlibrary.org/books/OL9064566M/...';
-                                helpText.textContent = '{{ __('app.books.openlibrary_help') }}';
-                            } else if (source === 'googlebooks') {
-                                urlInput.placeholder = 'https://books.google.com/books?id=VOLUME_ID or just VOLUME_ID';
-                                helpText.textContent = '{{ __('app.books.googlebooks_help') }}';
-                            }
-                        }
-                    </script>
-                </div>
-
                 <!-- Tags Section -->
                 <div class="mt-6">
                     <h2 class="text-lg font-semibold text-gray-900 mb-3">{{ __('app.books.tags_section') }}</h2>

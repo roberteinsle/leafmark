@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Services\BigBookApiService;
 use App\Services\BookBrainzService;
 use App\Services\CoverImageService;
 use App\Services\GoogleBooksService;
@@ -145,7 +146,7 @@ class BookController extends Controller
         return view('books.index', compact('books', 'counts', 'challenge'));
     }
 
-    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz): View
+    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook): View
     {
         $searchQuery = $request->get('q');
         $language = $request->get('lang', auth()->user()->preferred_language ?? 'en');
@@ -157,6 +158,7 @@ class BookController extends Controller
             $googleResults = [];
             $openLibraryResults = [];
             $bookBrainzResults = [];
+            $bigBookResults = [];
 
             // Search based on selected provider
             if ($provider === 'both' || $provider === 'google') {
@@ -171,8 +173,12 @@ class BookController extends Controller
                 $bookBrainzResults = $bookBrainz->search($searchQuery, 10, $language);
             }
 
+            if ($provider === 'both' || $provider === 'bigbook') {
+                $bigBookResults = $bigBook->search($searchQuery, 10, $language);
+            }
+
             // Merge and deduplicate results based on ISBN
-            $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults, $bookBrainzResults);
+            $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults, $bookBrainzResults, $bigBookResults);
             $noResults = empty($searchResults);
         }
 
@@ -182,7 +188,7 @@ class BookController extends Controller
     /**
      * Merge and deduplicate search results from multiple sources
      */
-    private function mergeSearchResults(array $googleResults, array $openLibraryResults, array $bookBrainzResults = []): array
+    private function mergeSearchResults(array $googleResults, array $openLibraryResults, array $bookBrainzResults = [], array $bigBookResults = []): array
     {
         $merged = [];
         $seenIsbns = [];
@@ -197,6 +203,20 @@ class BookController extends Controller
             } elseif (!$isbn) {
                 // Add books without ISBN too
                 $result['source'] = 'google';
+                $merged[] = $result;
+            }
+        }
+
+        // Add Big Book API results
+        foreach ($bigBookResults as $result) {
+            $isbn = $result['isbn13'] ?? $result['isbn'] ?? null;
+            if ($isbn && !in_array($isbn, $seenIsbns)) {
+                $seenIsbns[] = $isbn;
+                $result['source'] = 'bigbook';
+                $merged[] = $result;
+            } elseif (!$isbn) {
+                // Add books without ISBN too
+                $result['source'] = 'bigbook';
                 $merged[] = $result;
             }
         }
@@ -232,13 +252,14 @@ class BookController extends Controller
         return $merged;
     }
 
-    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, CoverImageService $coverService): RedirectResponse
+    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook, CoverImageService $coverService): RedirectResponse
     {
         $validated = $request->validate([
             'google_books_id' => 'nullable|string',
             'open_library_id' => 'nullable|string',
             'bookbrainz_id' => 'nullable|string',
-            'source' => 'required|in:google,openlibrary,bookbrainz',
+            'bigbook_id' => 'nullable|string',
+            'source' => 'required|in:google,openlibrary,bookbrainz,bigbook',
             'status' => 'required|in:want_to_read,currently_reading,read',
         ]);
 
@@ -249,6 +270,9 @@ class BookController extends Controller
         } elseif ($validated['source'] === 'bookbrainz') {
             $bookData = $bookBrainz->getBook($validated['bookbrainz_id']);
             $externalId = $validated['bookbrainz_id'];
+        } elseif ($validated['source'] === 'bigbook') {
+            $bookData = $bigBook->getBook($validated['bigbook_id']);
+            $externalId = $validated['bigbook_id'];
         } else {
             $bookData = $openLibrary->getBook($validated['open_library_id']);
             $externalId = $validated['open_library_id'];
@@ -540,152 +564,6 @@ class BookController extends Controller
 
         return redirect()->route('books.index')
             ->with('success', "{$deletedCount} book(s) deleted successfully!");
-    }
-
-    public function updateFromUrl(Request $request, Book $book, OpenLibraryService $openLibrary, GoogleBooksService $googleBooks, CoverImageService $coverService): RedirectResponse
-    {
-        if ($book->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $validated = $request->validate([
-            'source' => 'required|string|in:openlibrary,googlebooks',
-            'url' => 'required|string',
-        ]);
-
-        $source = $validated['source'];
-        $url = $validated['url'];
-        $editionData = null;
-
-        try {
-            switch ($source) {
-                case 'openlibrary':
-                    $editionData = $this->fetchFromOpenLibrary($url, $openLibrary);
-                    break;
-
-                case 'googlebooks':
-                    $editionData = $this->fetchFromGoogleBooks($url, $googleBooks);
-                    break;
-            }
-
-            if (!$editionData) {
-                return back()->with('error', "Could not fetch book data from {$source}. Please check the URL/ID and try again.");
-            }
-
-            // Download and store cover image locally if available
-            if (!empty($editionData['cover_url'])) {
-                $identifier = $editionData['isbn13'] ?? $editionData['isbn'] ?? $book->id;
-                $localCoverPath = $coverService->downloadAndStore($editionData['cover_url'], $identifier);
-
-                if ($localCoverPath) {
-                    // Delete old cover if exists
-                    if ($book->local_cover_path) {
-                        $coverService->delete($book->local_cover_path);
-                    }
-
-                    $editionData['local_cover_path'] = $localCoverPath;
-
-                    // Create BookCover entry
-                    $book->covers()->create([
-                        'path' => $localCoverPath,
-                        'is_primary' => $book->covers()->count() === 0,
-                        'sort_order' => $book->covers()->count(),
-                    ]);
-                }
-            }
-
-            // Update the book with edition data
-            $book->update($editionData);
-
-            return redirect()->route('books.show', $book)
-                ->with('success', 'Book updated successfully from ' . ucfirst($source) . '!');
-
-        } catch (\Exception $e) {
-            Log::error('Error updating book from URL', [
-                'source' => $source,
-                'url' => $url,
-                'error' => $e->getMessage(),
-            ]);
-
-            return back()->with('error', 'An error occurred while updating the book. Please try again.');
-        }
-    }
-
-    protected function fetchFromOpenLibrary(string $url, OpenLibraryService $openLibrary): ?array
-    {
-        $editionData = $openLibrary->getEdition($url);
-
-        if (!$editionData) {
-            return null;
-        }
-
-        return [
-            'title' => $editionData['title'] ?? null,
-            'author' => $editionData['author'] ?? null,
-            'isbn' => $editionData['isbn'] ?? null,
-            'isbn13' => $editionData['isbn13'] ?? null,
-            'publisher' => $editionData['publisher'] ?? null,
-            'published_date' => $editionData['published_date'] ?? null,
-            'page_count' => $editionData['page_count'] ?? null,
-            'language' => $editionData['language'] ?? null,
-            'cover_url' => $editionData['cover_url'] ?? null,
-            'thumbnail' => $editionData['thumbnail'] ?? null,
-            'openlibrary_edition_id' => $editionData['openlibrary_edition_id'] ?? null,
-            'openlibrary_url' => $editionData['openlibrary_url'] ?? null,
-            'goodreads_id' => $editionData['goodreads_id'] ?? null,
-            'librarything_id' => $editionData['librarything_id'] ?? null,
-        ];
-    }
-
-    protected function fetchFromGoogleBooks(string $url, GoogleBooksService $googleBooks): ?array
-    {
-        // Extract Volume ID from URL or use directly if it's just an ID
-        $volumeId = $this->extractGoogleBooksId($url);
-
-        if (!$volumeId) {
-            return null;
-        }
-
-        $bookData = $googleBooks->getBook($volumeId);
-
-        if (!$bookData) {
-            return null;
-        }
-
-        return [
-            'title' => $bookData['title'] ?? null,
-            'author' => $bookData['author'] ?? null,
-            'isbn' => $bookData['isbn'] ?? null,
-            'isbn13' => $bookData['isbn13'] ?? null,
-            'publisher' => $bookData['publisher'] ?? null,
-            'published_date' => $bookData['published_date'] ?? null,
-            'description' => $bookData['description'] ?? null,
-            'page_count' => $bookData['page_count'] ?? null,
-            'language' => $bookData['language'] ?? null,
-            'cover_url' => $bookData['cover_url'] ?? null,
-            'thumbnail' => $bookData['thumbnail'] ?? null,
-        ];
-    }
-
-    protected function extractGoogleBooksId(string $input): ?string
-    {
-        // If it's a URL, extract the volume ID
-        if (preg_match('/[?&]id=([^&]+)/', $input, $matches)) {
-            return $matches[1];
-        }
-
-        // If it's a direct books.google.com URL with /books/about/
-        if (preg_match('/books\.google\.[^\/]+\/books\/about\/[^\/]+\/([^?]+)/', $input, $matches)) {
-            return $matches[1];
-        }
-
-        // Otherwise, treat it as a direct volume ID
-        // Google Books IDs are typically 12 characters, alphanumeric
-        if (preg_match('/^[a-zA-Z0-9_-]{10,14}$/', $input)) {
-            return $input;
-        }
-
-        return null;
     }
 
     public function showSeries(string $series): View

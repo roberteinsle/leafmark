@@ -9,6 +9,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserSettingsController;
 use App\Http\Controllers\FamilyController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,9 +30,8 @@ Route::get('/datenschutz', function () {
     return view('datenschutz');
 })->name('datenschutz');
 
-Route::get('/kontakt', function () {
-    return view('kontakt');
-})->name('kontakt');
+Route::get('/kontakt', [ContactController::class, 'show'])->name('kontakt');
+Route::post('/kontakt', [ContactController::class, 'submit'])->name('kontakt.submit');
 
 // Authentication routes
 Route::middleware('guest')->group(function () {
@@ -84,7 +84,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/books/{book}/status', [BookController::class, 'updateStatus'])->name('books.status')->where('book', '[0-9]+');
     Route::patch('/books/{book}/rating', [BookController::class, 'updateRating'])->name('books.update-rating')->where('book', '[0-9]+');
     Route::delete('/books/{book}/progress/{entry}', [BookController::class, 'deleteProgressEntry'])->name('books.progress.delete')->where(['book' => '[0-9]+', 'entry' => '[0-9]+']);
-    Route::patch('/books/{book}/update-from-url', [BookController::class, 'updateFromUrl'])->name('books.update-from-url')->where('book', '[0-9]+');
 
     // Resource route MUST come AFTER all specific routes to avoid conflicts
     // The 'only' parameter ensures we don't generate conflicting routes

@@ -44,9 +44,21 @@
                 Wir hosten die Inhalte unserer Website bei folgendem Anbieter:
             </p>
 
+            <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Hetzner Online GmbH</h3>
+            <p class="text-gray-700 mb-4">
+                Anbieter: <a href="https://link.einsle.cloud/hetzner" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800">Hetzner Online GmbH</a><br>
+                Serverstandort: Helsinki, Finnland
+            </p>
+
             <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Externes Hosting</h3>
             <p class="text-gray-700 mb-4">
                 Diese Website wird bei einem externen Dienstleister gehostet (Hoster). Die personenbezogenen Daten, die auf dieser Website erfasst werden, werden auf den Servern des Hosters gespeichert. Hierbei kann es sich v. a. um IP-Adressen, Kontaktanfragen, Meta- und Kommunikationsdaten, Vertragsdaten, Kontaktdaten, Namen, Webseitenzugriffe und sonstige Daten, die über eine Website generiert werden, handeln.
+            </p>
+            <p class="text-gray-700 mb-4">
+                Der Einsatz des Hosters erfolgt zum Zwecke der Vertragserfüllung gegenüber unseren potenziellen und bestehenden Kunden (Art. 6 Abs. 1 lit. b DSGVO) und im Interesse einer sicheren, schnellen und effizienten Bereitstellung unseres Online-Angebots durch einen professionellen Anbieter (Art. 6 Abs. 1 lit. f DSGVO).
+            </p>
+            <p class="text-gray-700 mb-4">
+                Unser Hoster wird deine Daten nur insoweit verarbeiten, wie dies zur Erfüllung seiner Leistungspflichten erforderlich ist und unsere Weisungen in Bezug auf diese Daten befolgen.
             </p>
 
             <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-4">3. Allgemeine Hinweise und Pflichtinformationen</h2>
@@ -58,11 +70,7 @@
 
             <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Hinweis zur verantwortlichen Stelle</h3>
             <p class="text-gray-700 mb-4">
-                Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:
-            </p>
-            <p class="text-gray-700 mb-4">
-                Robert Einsle<br>
-                E-Mail: <a href="mailto:robert@einsle.com" class="text-blue-600 hover:text-blue-800">robert@einsle.com</a>
+                Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist im <a href="{{ route('impressum') }}" class="text-blue-600 hover:text-blue-800 font-medium">Impressum</a> zu finden.
             </p>
 
             <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Widerruf deiner Einwilligung zur Datenverarbeitung</h3>

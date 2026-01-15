@@ -172,19 +172,23 @@ Books can be imported from external sources via Service classes:
 - `GoogleBooksService` - Google Books API integration with auto-detection of ISBN/author/title
 - `OpenLibraryService` - Open Library API integration (no key required)
 - `BookBrainzService` - BookBrainz API for additional metadata
+- `BigBookApiService` - Big Book API integration with comprehensive book data (no language filtering supported)
 - `CoverImageService` - Handles cover image uploads and management
 - `LanguageService` - Language code conversions and display names
 
 **API Configuration:**
-- `api_source` field stores: 'google', 'openlibrary', or 'bookbrainz'
+- `api_source` field stores: 'google', 'openlibrary', 'bookbrainz', or 'bigbook'
 - `external_id` stores the API's identifier for the book
 - Edition identifiers: `openlibrary_edition_id`, `goodreads_id`, `librarything_id`
-- Google Books API key can be configured per user in settings (google_books_api_key)
+- API keys configured system-wide in Admin → System Settings:
+  - `google_books_api_key` - Google Books API key (optional)
+  - `bigbook_api_key` - Big Book API key (optional, free tier: 60 req/min)
 
 **Search Features:**
 - Smart query detection automatically identifies ISBN, author names, or titles
 - Multi-source search merges results from multiple APIs
-- Language-aware search with fallback to language-neutral results
+- Language-aware search with fallback to language-neutral results (Google Books, Open Library, BookBrainz)
+- Note: Big Book API does not support language filtering
 
 ### Authentication & Authorization
 

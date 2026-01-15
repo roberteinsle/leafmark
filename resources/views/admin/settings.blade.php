@@ -293,6 +293,20 @@
                 </p>
             </div>
 
+            <!-- Big Book API Key -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Big Book API Key
+                </label>
+                <input type="text" name="bigbook_api_key" value="{{ $bigBookApiKey }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                       placeholder="Enter Big Book API Key">
+                <p class="mt-1 text-sm text-gray-500">
+                    This API key will be used globally for all users when importing books from Big Book API. Free tier provides 60 requests/minute.
+                    <a href="https://bigbookapi.com/" target="_blank" class="text-blue-600 hover:underline">Get an API key</a>
+                </p>
+            </div>
+
             <div class="flex justify-end">
                 <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg">
                     Save API Settings

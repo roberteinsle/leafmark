@@ -25,6 +25,22 @@
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('app.admin.email_logs') }}</h1>
         <p class="mt-1 text-sm text-gray-600">{{ __('app.admin.email_logs_description') }}</p>
+
+        @if($filteredUser)
+            <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                    <span class="text-sm text-blue-800">
+                        Filtered by user: <strong>{{ $filteredUser->name }}</strong> ({{ $filteredUser->email }})
+                    </span>
+                </div>
+                <a href="{{ route('admin.email-logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    Clear filter ×
+                </a>
+            </div>
+        @endif
     </div>
 
     @if($logs->isEmpty())

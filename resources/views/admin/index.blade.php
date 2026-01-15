@@ -88,8 +88,10 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($recentUsers as $user)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ $user->name }}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{{ route('admin.users.edit', $user) }}" class="text-blue-600 hover:text-blue-900">
+                                {{ $user->name }}
+                            </a>
                             @if($user->is_admin)
                             <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Admin</span>
                             @endif

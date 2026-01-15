@@ -135,6 +135,48 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Email Events Section -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Email Events</h2>
+
+                @if($recentEmailEvents->isEmpty())
+                    <div class="text-center py-6">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-500">No email events</p>
+                    </div>
+                @else
+                    <div class="space-y-3">
+                        @foreach($recentEmailEvents as $event)
+                            <div class="border border-gray-200 rounded-lg p-3">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                                            {{ $event->status === 'sent' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ $event->status === 'sent' ? 'Sent' : 'Failed' }}
+                                        </span>
+                                        <span class="text-xs text-gray-500">{{ $event->type }}</span>
+                                    </div>
+                                    <span class="text-xs text-gray-400">{{ $event->created_at->diffForHumans() }}</span>
+                                </div>
+                                <p class="text-sm font-medium text-gray-900 mb-1">{{ $event->subject }}</p>
+                                <p class="text-xs text-gray-500">To: {{ $event->recipient }}</p>
+                                @if($event->status === 'failed' && $event->error_message)
+                                    <p class="mt-2 text-xs text-red-600">Error: {{ Str::limit($event->error_message, 80) }}</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <a href="{{ route('admin.email-logs') }}?user={{ $user->id }}" class="text-sm text-blue-600 hover:text-blue-800">
+                            View all email logs for this user →
+                        </a>
+                    </div>
+                @endif
+            </div>
         </div>
 
         <div class="lg:col-span-2">

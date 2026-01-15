@@ -8,24 +8,39 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Impressum</h1>
 
         <div class="prose prose-blue max-w-none">
-            <h2 class="text-xl font-semibold text-gray-900 mt-6 mb-4">Angaben gemäß § 5 TMG</h2>
+            <!-- Legal Information (§ 5 DDG) -->
+            <h2 class="text-xl font-semibold text-gray-900 mt-6 mb-4">Angaben gemäß § 5 DDG</h2>
             <p class="text-gray-700">
                 Robert Einsle<br>
-                Leafmark<br>
-                Hamburg, Deutschland
+                Heerdestieg 3<br>
+                22145 Braak<br>
+                Deutschland
             </p>
 
+            <!-- Contact Details -->
             <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Kontakt</h2>
             <p class="text-gray-700">
-                E-Mail: <a href="mailto:robert@einsle.com" class="text-blue-600 hover:text-blue-800">robert@einsle.com</a>
+                <strong>E-Mail:</strong> <a href="mailto:ews@einsle.com" class="text-blue-600 hover:text-blue-800">ews@einsle.com</a><br>
+                <strong>Telefon:</strong> <a href="tel:+4940414312534" class="text-blue-600 hover:text-blue-800">040 / 414 312 534</a>
             </p>
 
+            <!-- VAT Information -->
+            <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Umsatzsteuer-Identifikationsnummer</h2>
+            <p class="text-gray-700">
+                Umsatzsteuer-Identifikationsnummer gemäß §27a UStG:<br>
+                <strong>DE294130331</strong>
+            </p>
+
+            <!-- Responsible for Content -->
             <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
             <p class="text-gray-700">
                 Robert Einsle<br>
-                Hamburg, Deutschland
+                Heerdestieg 3<br>
+                22145 Braak<br>
+                Deutschland
             </p>
 
+            <!-- Disclaimer Section -->
             <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Haftungsausschluss</h2>
 
             <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Haftung für Inhalte</h3>
@@ -41,6 +56,20 @@
             <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Urheberrecht</h3>
             <p class="text-gray-700 mb-4">
                 Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.
+            </p>
+
+            <!-- EU Dispute Resolution -->
+            <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-4">EU-Streitschlichtung</h2>
+            <p class="text-gray-700 mb-4">
+                Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
+                <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800">https://ec.europa.eu/consumers/odr/</a>.<br>
+                Unsere E-Mail-Adresse finden Sie oben im Impressum.
+            </p>
+
+            <!-- Consumer Dispute Resolution -->
+            <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Verbraucherstreitbeilegung / Universalschlichtungsstelle</h2>
+            <p class="text-gray-700 mb-4">
+                Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
             </p>
         </div>
 
