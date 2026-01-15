@@ -257,32 +257,6 @@
                 </div>
             </div>
 
-            <!-- Per Page Selector (only visible in table view) -->
-            @if($viewPref->view_mode === 'table')
-            <form action="{{ route('books.index') }}" method="GET" class="inline-block">
-                @if(request('status'))
-                    <input type="hidden" name="status" value="{{ request('status') }}">
-                @endif
-                @if(request('search'))
-                    <input type="hidden" name="search" value="{{ request('search') }}">
-                @endif
-                @if(request('author'))
-                    <input type="hidden" name="author" value="{{ request('author') }}">
-                @endif
-                @if(request('sort'))
-                    <input type="hidden" name="sort" value="{{ request('sort') }}">
-                @endif
-                <select name="per_page"
-                        onchange="this.form.submit()"
-                        class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-sm">
-                    <option value="10" {{ request('per_page', $viewPref->per_page ?? 25) == 10 ? 'selected' : '' }}>10 {{ __('app.books.per_page') }}</option>
-                    <option value="25" {{ request('per_page', $viewPref->per_page ?? 25) == 25 ? 'selected' : '' }}>25 {{ __('app.books.per_page') }}</option>
-                    <option value="50" {{ request('per_page', $viewPref->per_page ?? 25) == 50 ? 'selected' : '' }}>50 {{ __('app.books.per_page') }}</option>
-                    <option value="100" {{ request('per_page', $viewPref->per_page ?? 25) == 100 ? 'selected' : '' }}>100 {{ __('app.books.per_page') }}</option>
-                </select>
-            </form>
-            @endif
-
             <!-- Sort Dropdown -->
             <form action="{{ route('books.index') }}" method="GET" class="inline-block">
                 @if(request('status'))
@@ -699,8 +673,35 @@
     @endif
     @endif
 
-    <div class="mt-6">
-        {{ $books->links() }}
+    <div class="mt-6 flex items-center justify-between">
+        <div>
+            {{ $books->links() }}
+        </div>
+
+        @if($viewPref->view_mode === 'table')
+        <form action="{{ route('books.index') }}" method="GET" class="inline-block">
+            @if(request('status'))
+                <input type="hidden" name="status" value="{{ request('status') }}">
+            @endif
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+            @if(request('author'))
+                <input type="hidden" name="author" value="{{ request('author') }}">
+            @endif
+            @if(request('sort'))
+                <input type="hidden" name="sort" value="{{ request('sort') }}">
+            @endif
+            <select name="per_page"
+                    onchange="this.form.submit()"
+                    class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-sm">
+                <option value="10" {{ request('per_page', $viewPref->per_page ?? 25) == 10 ? 'selected' : '' }}>10 {{ __('app.books.per_page') }}</option>
+                <option value="25" {{ request('per_page', $viewPref->per_page ?? 25) == 25 ? 'selected' : '' }}>25 {{ __('app.books.per_page') }}</option>
+                <option value="50" {{ request('per_page', $viewPref->per_page ?? 25) == 50 ? 'selected' : '' }}>50 {{ __('app.books.per_page') }}</option>
+                <option value="100" {{ request('per_page', $viewPref->per_page ?? 25) == 100 ? 'selected' : '' }}>100 {{ __('app.books.per_page') }}</option>
+            </select>
+        </form>
+        @endif
     </div>
     @endif
 </div>
