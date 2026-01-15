@@ -68,17 +68,19 @@ class BookController extends Controller
             $sortField = 'added_at';
         }
 
-        // For "ALL" status, prioritize currently_reading books
-        if (!$request->has('status')) {
+        // For "ALL" status WITHOUT explicit sorting, prioritize currently_reading books
+        // But when user explicitly sorts, respect their choice
+        if (!$request->has('status') && !$request->has('sort')) {
+            // Default: prioritize currently_reading, then sort by added_at
             $query->orderByRaw("CASE WHEN status = 'currently_reading' THEN 0 ELSE 1 END")
                   ->orderBy($sortField, $sortDir);
 
-            // Secondary sort by title for non-title sorts
+            // Secondary sort by title
             if ($sortField !== 'title') {
                 $query->orderBy('title', 'asc');
             }
         } else {
-            // When filtering by status, no priority needed
+            // When filtering by status OR explicitly sorting, respect user's choice
             $query->orderBy($sortField, $sortDir);
 
             // Secondary sort by title for non-title sorts

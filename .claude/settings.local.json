@@ -68,7 +68,9 @@
       "Bash(test:*)",
       "Bash(php -l:*)",
       "Read(///**)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(sudo chmod:*)",
+      "Bash(git restore:*)"
     ]
   }
 }
