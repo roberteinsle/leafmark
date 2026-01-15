@@ -214,6 +214,23 @@
                             </button>
                         </div>
 
+                        <!-- Predefined Column Sets -->
+                        <div class="mb-4 pb-4 border-b border-gray-200">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('app.books.column_presets') }}</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                @php
+                                    $columnSets = \App\Models\BookViewPreference::getColumnSets();
+                                @endphp
+                                @foreach($columnSets as $setName => $setColumns)
+                                <button type="button"
+                                        onclick="applyColumnSet({{ json_encode($setColumns) }})"
+                                        class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left">
+                                    {{ __('app.books.preset_' . $setName) }}
+                                </button>
+                                @endforeach
+                            </div>
+                        </div>
+
                         <form id="column-settings-form" action="{{ route('books.update-column-settings') }}" method="POST">
                             @csrf
                             <input type="hidden" name="shelf" value="{{ request('status', 'all') }}">
@@ -774,6 +791,22 @@ document.addEventListener('DOMContentLoaded', function() {
             form.submit();
         });
     }
+
+    // Apply column set preset
+    window.applyColumnSet = function(columns) {
+        // Uncheck all checkboxes first (except disabled ones)
+        document.querySelectorAll('#column-settings-form input[type=checkbox]:not([disabled])').forEach(cb => {
+            cb.checked = false;
+        });
+
+        // Check the columns in the preset
+        columns.forEach(column => {
+            const checkbox = document.querySelector(`#column-settings-form input[value="${column}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+    };
 });
 </script>
 @endpush

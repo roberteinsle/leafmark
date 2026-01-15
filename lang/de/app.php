@@ -165,6 +165,13 @@ return [
         'required' => 'Erforderlich',
         'column_settings_saved' => 'Spalteneinstellungen erfolgreich gespeichert!',
         'per_page' => 'pro Seite',
+        'column_presets' => 'Schnellauswahl',
+        'preset_minimal' => 'Minimal',
+        'preset_default' => 'Standard',
+        'preset_reading' => 'Lesefortschritt',
+        'preset_catalog' => 'Bibliothekskatalog',
+        'preset_collection' => 'Meine Sammlung',
+        'preset_complete' => 'Alle Spalten',
 
         // Column Names
         'column_cover' => 'Cover',

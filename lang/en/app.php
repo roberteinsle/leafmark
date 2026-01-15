@@ -165,6 +165,13 @@ return [
         'required' => 'Required',
         'column_settings_saved' => 'Column settings saved successfully!',
         'per_page' => 'per page',
+        'column_presets' => 'Quick Presets',
+        'preset_minimal' => 'Minimal',
+        'preset_default' => 'Default',
+        'preset_reading' => 'Reading Progress',
+        'preset_catalog' => 'Library Catalog',
+        'preset_collection' => 'My Collection',
+        'preset_complete' => 'All Columns',
 
         // Column Names
         'column_cover' => 'Cover',

@@ -62,20 +62,97 @@ class BookViewPreference extends Model
     }
 
     /**
+     * Get predefined column sets
+     */
+    public static function getColumnSets(): array
+    {
+        return [
+            'minimal' => [
+                'cover',
+                'title',
+                'author',
+                'status',
+                'actions',
+            ],
+            'default' => [
+                'cover',
+                'title',
+                'author',
+                'status',
+                'rating',
+                'pages',
+                'date_added',
+                'actions',
+            ],
+            'reading' => [
+                'cover',
+                'title',
+                'author',
+                'series',
+                'status',
+                'current_page',
+                'pages',
+                'date_started',
+                'date_finished',
+                'tags',
+                'actions',
+            ],
+            'catalog' => [
+                'cover',
+                'title',
+                'author',
+                'series',
+                'publisher',
+                'published_date',
+                'isbn',
+                'language',
+                'format',
+                'tags',
+                'actions',
+            ],
+            'collection' => [
+                'cover',
+                'title',
+                'author',
+                'format',
+                'purchase_date',
+                'purchase_price',
+                'rating',
+                'date_added',
+                'tags',
+                'actions',
+            ],
+            'complete' => [
+                'cover',
+                'title',
+                'author',
+                'series',
+                'status',
+                'rating',
+                'pages',
+                'current_page',
+                'language',
+                'publisher',
+                'published_date',
+                'isbn',
+                'format',
+                'purchase_date',
+                'purchase_price',
+                'date_added',
+                'date_started',
+                'date_finished',
+                'tags',
+                'actions',
+            ],
+        ];
+    }
+
+    /**
      * Get default visible columns for table view
      */
     public static function getDefaultColumns(): array
     {
-        return [
-            'cover',
-            'title',
-            'author',
-            'status',
-            'rating',
-            'pages',
-            'date_added',
-            'actions',
-        ];
+        return static::getColumnSets()['default'];
     }
 
     /**
