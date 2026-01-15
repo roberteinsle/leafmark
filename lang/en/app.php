@@ -542,6 +542,16 @@ return [
         'jan_16_changelog_title' => 'Changelog Page',
         'jan_16_changelog_desc' => 'New changelog page accessible from the footer shows all recent updates and features in user-friendly language, with links to GitHub for technical details.',
 
+        // January 15, 2026 - Table View
+        'jan_15_table_view_title' => 'Table View for Books',
+        'jan_15_table_view_date' => 'January 15, 2026',
+        'jan_15_table_view_mode_title' => 'New Table View Mode',
+        'jan_15_table_view_mode_desc' => 'Switch between card and table view for your book collection. The table view provides a compact, spreadsheet-like overview with all your book information at a glance.',
+        'jan_15_table_columns_title' => 'Customizable Columns',
+        'jan_15_table_columns_desc' => 'Choose which columns to display in table view from 20 available options including cover, author, series, rating, pages, ISBN, publisher, purchase info, tags, and dates. Customize your view to see exactly what matters to you.',
+        'jan_15_table_persistence_title' => 'Personalized Settings',
+        'jan_15_table_persistence_desc' => 'Your view preferences and column selections are saved separately for each shelf (All Books, Want to Read, Currently Reading, Read), giving you complete flexibility in how you organize and view your collection.',
+
         // January 15, 2026
         'jan_15_title' => 'Major Feature Update',
         'jan_15_date' => 'January 15, 2026',

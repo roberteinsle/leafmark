@@ -549,6 +549,16 @@ return [
         'jan_16_changelog_title' => 'Changelog-Seite',
         'jan_16_changelog_desc' => 'Neue Changelog-Seite im Footer zeigt alle aktuellen Updates und Funktionen in benutzerfreundlicher Sprache, mit Links zu GitHub für technische Details.',
 
+        // January 15, 2026 - Table View
+        'jan_15_table_view_title' => 'Tabellenansicht für Bücher',
+        'jan_15_table_view_date' => '15. Januar 2026',
+        'jan_15_table_view_mode_title' => 'Neue Tabellenansicht',
+        'jan_15_table_view_mode_desc' => 'Wechseln Sie zwischen Karten- und Tabellenansicht für Ihre Buchsammlung. Die Tabellenansicht bietet eine kompakte, tabellenartige Übersicht mit allen Buchinformationen auf einen Blick.',
+        'jan_15_table_columns_title' => 'Anpassbare Spalten',
+        'jan_15_table_columns_desc' => 'Wählen Sie aus 20 verfügbaren Spalten, welche in der Tabellenansicht angezeigt werden sollen: Cover, Autor, Serie, Bewertung, Seiten, ISBN, Verlag, Kaufinformationen, Tags und Datumsangaben. Passen Sie Ihre Ansicht an, um genau das zu sehen, was für Sie wichtig ist.',
+        'jan_15_table_persistence_title' => 'Personalisierte Einstellungen',
+        'jan_15_table_persistence_desc' => 'Ihre Ansichtseinstellungen und Spaltenauswahl werden separat für jedes Regal gespeichert (Alle Bücher, Möchte ich lesen, Lese ich gerade, Gelesen), sodass Sie volle Flexibilität bei der Organisation und Ansicht Ihrer Sammlung haben.',
+
         // January 15, 2026
         'jan_15_title' => 'Großes Feature-Update',
         'jan_15_date' => '15. Januar 2026',
