@@ -338,10 +338,16 @@
                                 $isSortable = isset($sortableColumns[$column]);
                                 $sortField = $sortableColumns[$column] ?? null;
 
-                                // Current sort
+                                // Current sort - parse it the same way as controller
                                 $currentSort = request('sort', 'added_at_desc');
-                                [$currentField, $currentDir] = explode('_', $currentSort . '_desc');
-                                $currentDir = substr($currentSort, strrpos($currentSort, '_') + 1);
+                                $currentSortParts = explode('_', $currentSort);
+                                $currentDir = array_pop($currentSortParts);
+                                $currentField = implode('_', $currentSortParts);
+
+                                // Validate direction, default to desc if invalid
+                                if (!in_array($currentDir, ['asc', 'desc'])) {
+                                    $currentDir = 'desc';
+                                }
 
                                 // Is this column currently sorted?
                                 $isCurrentSort = $sortField && $currentField === $sortField;
