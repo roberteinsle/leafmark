@@ -572,8 +572,8 @@
     @else
         <!-- Card View (existing) -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-        @foreach($books as $book)
-        <div class="bg-white rounded-lg shadow hover:shadow-lg transition relative group">
+            @foreach($books as $book)
+            <div class="bg-white rounded-lg shadow hover:shadow-lg transition relative group">
             <!-- Checkbox for selection -->
             <div class="absolute top-2 left-2 z-10">
                 <input type="checkbox" class="book-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 w-5 h-5" data-book-id="{{ $book->id }}">
@@ -691,9 +691,9 @@
                 </div>
                 @endif
             </div>
+            </div>
+            @endforeach
         </div>
-        @endforeach
-    </div>
     @endif
     @endif
 

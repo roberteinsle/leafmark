@@ -70,7 +70,9 @@
       "Read(///**)",
       "Bash(git log:*)",
       "Bash(sudo chmod:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Read(//tmp/**)",
+      "Bash(md5sum:*)"
     ]
   }
 }
