@@ -559,6 +559,8 @@ return [
         'jan_15_table_columns_desc' => 'Choose which columns to display in table view from 20 available options including cover, author, series, rating, pages, ISBN, publisher, purchase info, tags, and dates. Customize your view to see exactly what matters to you.',
         'jan_15_table_persistence_title' => 'Personalized Settings',
         'jan_15_table_persistence_desc' => 'Your view preferences and column selections are saved separately for each shelf (All Books, Want to Read, Currently Reading, Read), giving you complete flexibility in how you organize and view your collection.',
+        'jan_15_table_sorting_fix_title' => 'Improved Column Sorting',
+        'jan_15_table_sorting_fix_desc' => 'Fixed table sorting to respect your chosen column order when viewing all books. Previously, "Currently Reading" books were always shown first, which interfered with custom sorting.',
 
         // January 15, 2026
         'jan_15_title' => 'Major Feature Update',

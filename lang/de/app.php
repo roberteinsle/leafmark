@@ -566,6 +566,8 @@ return [
         'jan_15_table_columns_desc' => 'Wählen Sie aus 20 verfügbaren Spalten, welche in der Tabellenansicht angezeigt werden sollen: Cover, Autor, Serie, Bewertung, Seiten, ISBN, Verlag, Kaufinformationen, Tags und Datumsangaben. Passen Sie Ihre Ansicht an, um genau das zu sehen, was für Sie wichtig ist.',
         'jan_15_table_persistence_title' => 'Personalisierte Einstellungen',
         'jan_15_table_persistence_desc' => 'Ihre Ansichtseinstellungen und Spaltenauswahl werden separat für jedes Regal gespeichert (Alle Bücher, Möchte ich lesen, Lese ich gerade, Gelesen), sodass Sie volle Flexibilität bei der Organisation und Ansicht Ihrer Sammlung haben.',
+        'jan_15_table_sorting_fix_title' => 'Verbesserte Spaltensortierung',
+        'jan_15_table_sorting_fix_desc' => 'Die Tabellensortierung wurde korrigiert, um Ihre gewählte Spaltenreihenfolge beim Anzeigen aller Bücher zu respektieren. Zuvor wurden "Lese ich gerade"-Bücher immer zuerst angezeigt, was die benutzerdefinierte Sortierung störte.',
 
         // January 15, 2026
         'jan_15_title' => 'Großes Feature-Update',

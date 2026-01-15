@@ -45,6 +45,13 @@
                                 <p class="text-sm text-gray-600">{{ __('app.changelog.jan_15_table_persistence_desc') }}</p>
                             </div>
                         </div>
+                        <div class="flex items-start">
+                            <span class="text-purple-500 mr-2 mt-1">🔧</span>
+                            <div>
+                                <strong>{{ __('app.changelog.jan_15_table_sorting_fix_title') }}</strong>
+                                <p class="text-sm text-gray-600">{{ __('app.changelog.jan_15_table_sorting_fix_desc') }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
