@@ -81,6 +81,8 @@ Route::middleware('auth')->group(function () {
     // Books routes - specific routes MUST come before resource routes
     Route::post('/books/store-from-api', [BookController::class, 'storeFromApi'])->name('books.store-from-api');
     Route::post('/books/bulk-delete', [BookController::class, 'bulkDelete'])->name('books.bulk-delete');
+    Route::post('/books/bulk-add-tags', [BookController::class, 'bulkAddTags'])->name('books.bulk-add-tags');
+    Route::post('/books/bulk-remove-tag', [BookController::class, 'bulkRemoveTag'])->name('books.bulk-remove-tag');
     Route::get('/series/{series}', [BookController::class, 'showSeries'])->name('books.series');
 
     // Book view mode toggle

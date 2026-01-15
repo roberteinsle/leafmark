@@ -123,7 +123,10 @@ class BookController extends Controller
         $currentYear = now()->year;
         $challenge = auth()->user()->readingChallenges()->where('year', $currentYear)->first();
 
-        return view('books.index', compact('books', 'counts', 'challenge', 'viewPref'));
+        // Get user's tags for bulk tag operations
+        $userTags = auth()->user()->tags()->ordered()->get();
+
+        return view('books.index', compact('books', 'counts', 'challenge', 'viewPref', 'userTags'));
     }
 
     public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook): View
@@ -544,6 +547,89 @@ class BookController extends Controller
 
         return redirect()->route('books.index')
             ->with('success', "{$deletedCount} book(s) deleted successfully!");
+    }
+
+    public function bulkAddTags(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'book_ids' => 'required|array',
+            'book_ids.*' => 'integer|exists:books,id',
+            'tag_ids' => 'required|array',
+            'tag_ids.*' => 'integer|exists:tags,id',
+        ]);
+
+        $user = auth()->user();
+
+        // Verify all books belong to the user
+        $books = $user->books()->whereIn('id', $validated['book_ids'])->get();
+
+        // Verify all tags belong to the user
+        $tags = $user->tags()->whereIn('id', $validated['tag_ids'])->get();
+
+        if ($books->count() !== count($validated['book_ids'])) {
+            return redirect()->route('books.index')
+                ->with('error', 'Some books do not belong to you.');
+        }
+
+        if ($tags->count() !== count($validated['tag_ids'])) {
+            return redirect()->route('books.index')
+                ->with('error', 'Some tags do not belong to you.');
+        }
+
+        // Add tags to each book (sync will handle duplicates)
+        $totalAdded = 0;
+        foreach ($books as $book) {
+            $existingTagIds = $book->tags->pluck('id')->toArray();
+            $newTagIds = array_diff($validated['tag_ids'], $existingTagIds);
+
+            if (!empty($newTagIds)) {
+                $book->tags()->attach($newTagIds);
+                $totalAdded += count($newTagIds);
+            }
+        }
+
+        $tagNames = $tags->pluck('name')->implode(', ');
+        return redirect()->route('books.index')
+            ->with('success', "Added tag(s) '{$tagNames}' to {$books->count()} book(s) ({$totalAdded} new tag associations).");
+    }
+
+    public function bulkRemoveTag(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'book_ids' => 'required|array',
+            'book_ids.*' => 'integer|exists:books,id',
+            'tag_id' => 'required|integer|exists:tags,id',
+        ]);
+
+        $user = auth()->user();
+
+        // Verify all books belong to the user
+        $books = $user->books()->whereIn('id', $validated['book_ids'])->get();
+
+        // Verify tag belongs to the user
+        $tag = $user->tags()->find($validated['tag_id']);
+
+        if ($books->count() !== count($validated['book_ids'])) {
+            return redirect()->route('books.index')
+                ->with('error', 'Some books do not belong to you.');
+        }
+
+        if (!$tag) {
+            return redirect()->route('books.index')
+                ->with('error', 'Tag does not belong to you.');
+        }
+
+        // Remove tag from each book
+        $totalRemoved = 0;
+        foreach ($books as $book) {
+            if ($book->tags()->where('tags.id', $tag->id)->exists()) {
+                $book->tags()->detach($tag->id);
+                $totalRemoved++;
+            }
+        }
+
+        return redirect()->route('books.index')
+            ->with('success', "Removed tag '{$tag->name}' from {$totalRemoved} book(s).");
     }
 
     public function showSeries(string $series): View

@@ -129,19 +129,34 @@
             @endif
         </form>
 
-        <!-- Bulk Delete Form -->
+        <!-- Bulk Actions -->
         @if($books->isNotEmpty())
         <div class="mt-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <input type="checkbox" id="select-all" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                 <label for="select-all" class="text-sm text-gray-700">{{ __('app.books.select_all') }}</label>
+                <span id="selection-count" class="text-sm text-gray-600 ml-2"></span>
             </div>
-            <button type="button"
-                    id="bulk-delete-btn"
-                    class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled>
-                {{ __('app.books.delete_selected') }}
-            </button>
+            <div class="flex gap-2">
+                <button type="button"
+                        id="bulk-add-tags-btn"
+                        class="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                    {{ __('app.books.add_tags') }}
+                </button>
+                <button type="button"
+                        id="bulk-remove-tag-btn"
+                        class="px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                    {{ __('app.books.remove_tag') }}
+                </button>
+                <button type="button"
+                        id="bulk-delete-btn"
+                        class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                    {{ __('app.books.delete_selected') }}
+                </button>
+            </div>
         </div>
         @endif
     </div>
@@ -730,12 +745,63 @@
     </div>
 </div>
 
+<!-- Add Tags Modal -->
+<div id="add-tags-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('app.books.add_tags_to_books') }}</h3>
+            <div class="mt-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('app.books.select_tags') }}</label>
+                <input type="text" id="tag-search" placeholder="{{ __('app.books.search_tags') }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 mb-2">
+                <div id="tags-list" class="max-h-64 overflow-y-auto border border-gray-300 rounded-md p-2">
+                    @foreach($userTags as $tag)
+                        <label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer tag-option">
+                            <input type="checkbox" name="tag_ids[]" value="{{ $tag->id }}" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 tag-checkbox">
+                            <span class="ml-3 text-sm text-gray-700 tag-name">{{ $tag->name }}</span>
+                            <span class="ml-auto w-4 h-4 rounded-full" style="background-color: {{ $tag->color }}"></span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+            <div class="mt-4 flex justify-between items-center">
+                <button type="button" id="select-all-tags" class="text-sm text-indigo-600 hover:text-indigo-800">{{ __('app.books.select_all') }}</button>
+                <div class="flex gap-2">
+                    <button type="button" id="cancel-add-tags" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">{{ __('app.books.cancel') }}</button>
+                    <button type="button" id="confirm-add-tags" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">{{ __('app.books.add_tags') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Tag Modal -->
+<div id="remove-tag-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('app.books.remove_tag_from_books') }}</h3>
+            <div class="mt-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('app.books.select_tag_to_remove') }}</label>
+                <select id="tag-to-remove" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">{{ __('app.books.select_tag') }}</option>
+                </select>
+            </div>
+            <div class="mt-4 flex justify-end gap-2">
+                <button type="button" id="cancel-remove-tag" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">{{ __('app.books.cancel') }}</button>
+                <button type="button" id="confirm-remove-tag" class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700">{{ __('app.books.remove_tag') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const selectAllCheckbox = document.getElementById('select-all');
     const bookCheckboxes = document.querySelectorAll('.book-checkbox');
     const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    const bulkAddTagsBtn = document.getElementById('bulk-add-tags-btn');
+    const bulkRemoveTagBtn = document.getElementById('bulk-remove-tag-btn');
+    const selectionCount = document.getElementById('selection-count');
 
     // Select/deselect all
     if (selectAllCheckbox) {
@@ -743,19 +809,27 @@ document.addEventListener('DOMContentLoaded', function() {
             bookCheckboxes.forEach(checkbox => {
                 checkbox.checked = this.checked;
             });
-            updateBulkDeleteButton();
+            updateBulkActionButtons();
         });
     }
 
-    // Update bulk delete button state
+    // Update bulk action button states
     bookCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateBulkDeleteButton);
+        checkbox.addEventListener('change', updateBulkActionButtons);
     });
 
-    function updateBulkDeleteButton() {
+    function updateBulkActionButtons() {
         const checkedBoxes = document.querySelectorAll('.book-checkbox:checked');
-        if (bulkDeleteBtn) {
-            bulkDeleteBtn.disabled = checkedBoxes.length === 0;
+        const count = checkedBoxes.length;
+
+        // Update button states
+        if (bulkDeleteBtn) bulkDeleteBtn.disabled = count === 0;
+        if (bulkAddTagsBtn) bulkAddTagsBtn.disabled = count === 0;
+        if (bulkRemoveTagBtn) bulkRemoveTagBtn.disabled = count === 0;
+
+        // Update selection count
+        if (selectionCount) {
+            selectionCount.textContent = count > 0 ? `(${count} selected)` : '';
         }
     }
 
@@ -798,6 +872,211 @@ document.addEventListener('DOMContentLoaded', function() {
             form.submit();
         });
     }
+
+    // Bulk Add Tags functionality
+    const addTagsModal = document.getElementById('add-tags-modal');
+    const tagSearch = document.getElementById('tag-search');
+    const tagsList = document.getElementById('tags-list');
+    const cancelAddTags = document.getElementById('cancel-add-tags');
+    const confirmAddTags = document.getElementById('confirm-add-tags');
+    const selectAllTagsBtn = document.getElementById('select-all-tags');
+
+    if (bulkAddTagsBtn) {
+        bulkAddTagsBtn.addEventListener('click', function() {
+            // Clear search and uncheck all tags
+            tagSearch.value = '';
+            document.querySelectorAll('.tag-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.tag-option').forEach(opt => opt.style.display = '');
+
+            // Show modal
+            addTagsModal.classList.remove('hidden');
+        });
+    }
+
+    // Tag search functionality
+    if (tagSearch) {
+        tagSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            document.querySelectorAll('.tag-option').forEach(option => {
+                const tagName = option.querySelector('.tag-name').textContent.toLowerCase();
+                option.style.display = tagName.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    }
+
+    // Select all tags
+    if (selectAllTagsBtn) {
+        selectAllTagsBtn.addEventListener('click', function() {
+            const visibleCheckboxes = Array.from(document.querySelectorAll('.tag-option'))
+                .filter(opt => opt.style.display !== 'none')
+                .map(opt => opt.querySelector('.tag-checkbox'));
+
+            const allChecked = visibleCheckboxes.every(cb => cb.checked);
+            visibleCheckboxes.forEach(cb => cb.checked = !allChecked);
+        });
+    }
+
+    if (cancelAddTags) {
+        cancelAddTags.addEventListener('click', function() {
+            addTagsModal.classList.add('hidden');
+        });
+    }
+
+    if (confirmAddTags) {
+        confirmAddTags.addEventListener('click', function() {
+            const checkedBoxes = document.querySelectorAll('.book-checkbox:checked');
+            const bookIds = Array.from(checkedBoxes).map(cb => cb.dataset.bookId);
+            const selectedTags = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => cb.value);
+
+            if (bookIds.length === 0 || selectedTags.length === 0) {
+                alert('{{ __('app.books.select_books_and_tags') }}');
+                return;
+            }
+
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("books.bulk-add-tags") }}';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+
+            // Add book IDs
+            bookIds.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'book_ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            // Add tag IDs
+            selectedTags.forEach(tagId => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'tag_ids[]';
+                input.value = tagId;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
+
+    // Bulk Remove Tag functionality
+    const removeTagModal = document.getElementById('remove-tag-modal');
+    const tagToRemove = document.getElementById('tag-to-remove');
+    const cancelRemoveTag = document.getElementById('cancel-remove-tag');
+    const confirmRemoveTag = document.getElementById('confirm-remove-tag');
+
+    if (bulkRemoveTagBtn) {
+        bulkRemoveTagBtn.addEventListener('click', function() {
+            const checkedBoxes = document.querySelectorAll('.book-checkbox:checked');
+            const bookIds = Array.from(checkedBoxes).map(cb => cb.dataset.bookId);
+
+            // Get all tags from selected books
+            const allTags = @json($userTags);
+            const bookTagsMap = {};
+
+            // Build a map of book tags from the page (we'll need to get this from the DOM)
+            checkedBoxes.forEach(checkbox => {
+                const bookCard = checkbox.closest('.bg-white');
+                const tagLinks = bookCard ? bookCard.querySelectorAll('a[href*="/tags/"]') : [];
+                const bookId = checkbox.dataset.bookId;
+                bookTagsMap[bookId] = Array.from(tagLinks).map(link => {
+                    const tagName = link.textContent.trim();
+                    const tag = allTags.find(t => t.name === tagName);
+                    return tag ? tag.id : null;
+                }).filter(id => id !== null);
+            });
+
+            // Find tags that exist on at least one selected book
+            const tagsOnSelectedBooks = new Set();
+            Object.values(bookTagsMap).forEach(tags => {
+                tags.forEach(tagId => tagsOnSelectedBooks.add(tagId));
+            });
+
+            // Populate dropdown with applicable tags
+            tagToRemove.innerHTML = '<option value="">{{ __('app.books.select_tag') }}</option>';
+            allTags.forEach(tag => {
+                if (tagsOnSelectedBooks.has(tag.id)) {
+                    const option = document.createElement('option');
+                    option.value = tag.id;
+                    option.textContent = tag.name;
+                    tagToRemove.appendChild(option);
+                }
+            });
+
+            // Show modal
+            removeTagModal.classList.remove('hidden');
+        });
+    }
+
+    if (cancelRemoveTag) {
+        cancelRemoveTag.addEventListener('click', function() {
+            removeTagModal.classList.add('hidden');
+        });
+    }
+
+    if (confirmRemoveTag) {
+        confirmRemoveTag.addEventListener('click', function() {
+            const checkedBoxes = document.querySelectorAll('.book-checkbox:checked');
+            const bookIds = Array.from(checkedBoxes).map(cb => cb.dataset.bookId);
+            const tagId = tagToRemove.value;
+
+            if (bookIds.length === 0 || !tagId) {
+                alert('{{ __('app.books.select_books_and_tag') }}');
+                return;
+            }
+
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("books.bulk-remove-tag") }}';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+
+            // Add book IDs
+            bookIds.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'book_ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            // Add tag ID
+            const tagInput = document.createElement('input');
+            tagInput.type = 'hidden';
+            tagInput.name = 'tag_id';
+            tagInput.value = tagId;
+            form.appendChild(tagInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
+
+    // Close modals on outside click
+    [addTagsModal, removeTagModal].forEach(modal => {
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+    });
 
     // Apply column set preset
     window.applyColumnSet = function(columns) {
