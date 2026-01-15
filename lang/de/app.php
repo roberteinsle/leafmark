@@ -562,7 +562,7 @@ return [
 
         // January 16, 2026
         'jan_16_title' => 'Verbesserungen der Benutzererfahrung',
-        'jan_16_date' => '16. Januar 2026',
+        'jan_16_date' => '15. Januar 2026',
         'jan_16_author_filter_title' => 'Anklickbarer Autoren-Filter',
         'jan_16_author_filter_desc' => 'Klicken Sie auf einen Autorennamen, um Ihre Bibliothek sofort zu filtern und alle Bücher dieses Autors anzuzeigen. Mit klarer Filteranzeige und einfacher Entfernung.',
         'jan_16_changelog_title' => 'Changelog-Seite',
