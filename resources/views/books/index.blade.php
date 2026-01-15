@@ -297,6 +297,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     @if($books->isEmpty())
     <div class="bg-white rounded-lg shadow p-8 text-center">
