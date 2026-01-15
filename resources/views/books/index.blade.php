@@ -571,7 +571,7 @@
         </div>
     @else
         <!-- Card View (existing) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
+        <div style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 1.5rem !important; width: 100% !important;">
             @foreach($books as $book)
             <div class="bg-white rounded-lg shadow hover:shadow-lg transition relative group">
             <!-- Checkbox for selection -->
