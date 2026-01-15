@@ -575,7 +575,7 @@ return [
 
         // January 16, 2026 - Bulk Tag Management
         'jan_16_bulk_tags_title' => 'Bulk Tag Management',
-        'jan_16_bulk_tags_date' => 'January 16, 2026',
+        'jan_16_bulk_tags_date' => 'January 15, 2026',
         'jan_16_bulk_add_tags_title' => 'Bulk Add Tags',
         'jan_16_bulk_add_tags_desc' => 'Select multiple books and add one or more tags to all of them at once. Perfect for organizing imported books or reorganizing your library.',
         'jan_16_bulk_remove_tag_title' => 'Bulk Remove Tag',

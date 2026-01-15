@@ -582,7 +582,7 @@ return [
 
         // January 16, 2026 - Bulk Tag Management
         'jan_16_bulk_tags_title' => 'Massenbearbeitung von Tags',
-        'jan_16_bulk_tags_date' => '16. Januar 2026',
+        'jan_16_bulk_tags_date' => '15. Januar 2026',
         'jan_16_bulk_add_tags_title' => 'Tags Massenhaft Hinzufügen',
         'jan_16_bulk_add_tags_desc' => 'Wählen Sie mehrere Bücher aus und fügen Sie allen auf einmal einen oder mehrere Tags hinzu. Perfekt zum Organisieren importierter Bücher oder zur Neuorganisation Ihrer Bibliothek.',
         'jan_16_bulk_remove_tag_title' => 'Tag Massenhaft Entfernen',
