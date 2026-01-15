@@ -157,6 +157,35 @@ return [
         'cover' => 'Cover',
         'date_added' => 'Hinzugefügt am',
         'actions' => 'Aktionen',
+
+        // Column Settings
+        'columns' => 'Spalten',
+        'select_columns' => 'Spalten auswählen',
+        'save' => 'Speichern',
+        'required' => 'Erforderlich',
+        'column_settings_saved' => 'Spalteneinstellungen erfolgreich gespeichert!',
+
+        // Column Names
+        'column_cover' => 'Cover',
+        'column_title' => 'Titel',
+        'column_author' => 'Autor',
+        'column_series' => 'Serie',
+        'column_status' => 'Status',
+        'column_rating' => 'Bewertung',
+        'column_pages' => 'Seiten',
+        'column_current_page' => 'Aktuelle Seite',
+        'column_language' => 'Sprache',
+        'column_publisher' => 'Verlag',
+        'column_published_date' => 'Veröffentlicht',
+        'column_isbn' => 'ISBN',
+        'column_format' => 'Format',
+        'column_purchase_date' => 'Kaufdatum',
+        'column_purchase_price' => 'Kaufpreis',
+        'column_date_added' => 'Hinzugefügt am',
+        'column_date_started' => 'Begonnen am',
+        'column_date_finished' => 'Beendet am',
+        'column_tags' => 'Tags',
+        'column_actions' => 'Aktionen',
     ],
 
     // Reading Challenge

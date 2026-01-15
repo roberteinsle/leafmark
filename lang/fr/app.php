@@ -56,6 +56,35 @@ return [
         'cover' => 'Couverture',
         'date_added' => 'Date d\'ajout',
         'actions' => 'Actions',
+
+        // Column Settings
+        'columns' => 'Colonnes',
+        'select_columns' => 'Sélectionner les colonnes',
+        'save' => 'Enregistrer',
+        'required' => 'Requis',
+        'column_settings_saved' => 'Paramètres de colonnes enregistrés avec succès!',
+
+        // Column Names
+        'column_cover' => 'Couverture',
+        'column_title' => 'Titre',
+        'column_author' => 'Auteur',
+        'column_series' => 'Série',
+        'column_status' => 'Statut',
+        'column_rating' => 'Note',
+        'column_pages' => 'Pages',
+        'column_current_page' => 'Page actuelle',
+        'column_language' => 'Langue',
+        'column_publisher' => 'Éditeur',
+        'column_published_date' => 'Publié',
+        'column_isbn' => 'ISBN',
+        'column_format' => 'Format',
+        'column_purchase_date' => 'Date d\'achat',
+        'column_purchase_price' => 'Prix d\'achat',
+        'column_date_added' => 'Date d\'ajout',
+        'column_date_started' => 'Date de début',
+        'column_date_finished' => 'Date de fin',
+        'column_tags' => 'Étiquettes',
+        'column_actions' => 'Actions',
     ],
 
     // Family

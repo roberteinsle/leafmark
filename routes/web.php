@@ -85,6 +85,7 @@ Route::middleware('auth')->group(function () {
 
     // Book view mode toggle
     Route::post('/books/toggle-view-mode', [BookController::class, 'toggleViewMode'])->name('books.toggle-view-mode');
+    Route::post('/books/update-column-settings', [BookController::class, 'updateColumnSettings'])->name('books.update-column-settings');
 
     // Book-specific routes with numeric ID constraint
     Route::patch('/books/{book}/progress', [BookController::class, 'updateProgress'])->name('books.progress')->where('book', '[0-9]+');

@@ -56,6 +56,35 @@ return [
         'cover' => 'Portada',
         'date_added' => 'Fecha añadida',
         'actions' => 'Acciones',
+
+        // Column Settings
+        'columns' => 'Columnas',
+        'select_columns' => 'Seleccionar columnas',
+        'save' => 'Guardar',
+        'required' => 'Requerido',
+        'column_settings_saved' => '¡Configuración de columnas guardada con éxito!',
+
+        // Column Names
+        'column_cover' => 'Portada',
+        'column_title' => 'Título',
+        'column_author' => 'Autor',
+        'column_series' => 'Serie',
+        'column_status' => 'Estado',
+        'column_rating' => 'Calificación',
+        'column_pages' => 'Páginas',
+        'column_current_page' => 'Página actual',
+        'column_language' => 'Idioma',
+        'column_publisher' => 'Editorial',
+        'column_published_date' => 'Publicado',
+        'column_isbn' => 'ISBN',
+        'column_format' => 'Formato',
+        'column_purchase_date' => 'Fecha de compra',
+        'column_purchase_price' => 'Precio de compra',
+        'column_date_added' => 'Fecha añadida',
+        'column_date_started' => 'Fecha de inicio',
+        'column_date_finished' => 'Fecha de finalización',
+        'column_tags' => 'Etiquetas',
+        'column_actions' => 'Acciones',
     ],
 
     // Family

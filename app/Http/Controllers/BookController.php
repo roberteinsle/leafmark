@@ -695,4 +695,31 @@ class BookController extends Controller
         ]));
     }
 
+    /**
+     * Update column visibility settings
+     */
+    public function updateColumnSettings(Request $request): RedirectResponse
+    {
+        $shelf = $request->get('shelf', 'all');
+        $visibleColumns = $request->get('visible_columns', []);
+
+        // Always include title and actions (required columns)
+        $requiredColumns = ['title', 'actions'];
+        $visibleColumns = array_unique(array_merge($requiredColumns, $visibleColumns));
+
+        // Validate that columns are from allowed list
+        $allowedColumns = BookViewPreference::getAllAvailableColumns();
+        $visibleColumns = array_intersect($visibleColumns, $allowedColumns);
+
+        // Preserve original order from getAllAvailableColumns
+        $visibleColumns = array_values(array_intersect($allowedColumns, $visibleColumns));
+
+        $viewPref = BookViewPreference::getForUser(auth()->id(), $shelf);
+        $viewPref->update(['visible_columns' => $visibleColumns]);
+
+        return redirect()->route('books.index', array_filter([
+            'status' => $shelf !== 'all' ? $shelf : null,
+        ]))->with('success', __('app.books.column_settings_saved'));
+    }
+
 }

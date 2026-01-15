@@ -157,6 +157,35 @@ return [
         'cover' => 'Cover',
         'date_added' => 'Date Added',
         'actions' => 'Actions',
+
+        // Column Settings
+        'columns' => 'Columns',
+        'select_columns' => 'Select Columns',
+        'save' => 'Save',
+        'required' => 'Required',
+        'column_settings_saved' => 'Column settings saved successfully!',
+
+        // Column Names
+        'column_cover' => 'Cover',
+        'column_title' => 'Title',
+        'column_author' => 'Author',
+        'column_series' => 'Series',
+        'column_status' => 'Status',
+        'column_rating' => 'Rating',
+        'column_pages' => 'Pages',
+        'column_current_page' => 'Current Page',
+        'column_language' => 'Language',
+        'column_publisher' => 'Publisher',
+        'column_published_date' => 'Published',
+        'column_isbn' => 'ISBN',
+        'column_format' => 'Format',
+        'column_purchase_date' => 'Purchase Date',
+        'column_purchase_price' => 'Purchase Price',
+        'column_date_added' => 'Date Added',
+        'column_date_started' => 'Date Started',
+        'column_date_finished' => 'Date Finished',
+        'column_tags' => 'Tags',
+        'column_actions' => 'Actions',
     ],
 
     // Reading Challenge

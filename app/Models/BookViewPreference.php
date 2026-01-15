@@ -33,6 +33,35 @@ class BookViewPreference extends Model
     }
 
     /**
+     * Get all available columns for table view
+     */
+    public static function getAllAvailableColumns(): array
+    {
+        return [
+            'cover',
+            'title',
+            'author',
+            'series',
+            'status',
+            'rating',
+            'pages',
+            'current_page',
+            'language',
+            'publisher',
+            'published_date',
+            'isbn',
+            'format',
+            'purchase_date',
+            'purchase_price',
+            'date_added',
+            'date_started',
+            'date_finished',
+            'tags',
+            'actions',
+        ];
+    }
+
+    /**
      * Get default visible columns for table view
      */
     public static function getDefaultColumns(): array
