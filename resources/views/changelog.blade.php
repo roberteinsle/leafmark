@@ -17,6 +17,30 @@
             </div>
             <div class="p-6 space-y-6">
 
+                <!-- January 16, 2026 -->
+                <div class="border-l-4 border-green-500 pl-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ __('app.changelog.jan_16_title') }}</h3>
+                        <span class="text-sm text-gray-500">{{ __('app.changelog.jan_16_date') }}</span>
+                    </div>
+                    <div class="space-y-3 text-gray-700">
+                        <div class="flex items-start">
+                            <span class="text-green-500 mr-2 mt-1">🔍</span>
+                            <div>
+                                <strong>{{ __('app.changelog.jan_16_author_filter_title') }}</strong>
+                                <p class="text-sm text-gray-600">{{ __('app.changelog.jan_16_author_filter_desc') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-green-500 mr-2 mt-1">📋</span>
+                            <div>
+                                <strong>{{ __('app.changelog.jan_16_changelog_title') }}</strong>
+                                <p class="text-sm text-gray-600">{{ __('app.changelog.jan_16_changelog_desc') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- January 15, 2026 -->
                 <div class="border-l-4 border-blue-500 pl-4">
                     <div class="flex items-center justify-between mb-2">

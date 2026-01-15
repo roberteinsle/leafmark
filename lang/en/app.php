@@ -498,6 +498,14 @@ return [
         'subtitle' => 'See what\'s new and what we\'ve been working on',
         'january_2026' => 'January 2026',
 
+        // January 16, 2026
+        'jan_16_title' => 'User Experience Improvements',
+        'jan_16_date' => 'January 16, 2026',
+        'jan_16_author_filter_title' => 'Clickable Author Filter',
+        'jan_16_author_filter_desc' => 'Click on any author name to instantly filter your library and see all books by that author. Features a clear filter indicator and easy removal.',
+        'jan_16_changelog_title' => 'Changelog Page',
+        'jan_16_changelog_desc' => 'New changelog page accessible from the footer shows all recent updates and features in user-friendly language, with links to GitHub for technical details.',
+
         // January 15, 2026
         'jan_15_title' => 'Major Feature Update',
         'jan_15_date' => 'January 15, 2026',
