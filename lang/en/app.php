@@ -150,6 +150,13 @@ return [
         'showing_books_by' => 'Showing books by',
         'books_count' => 'books',
         'clear_filter' => 'Clear Filter',
+
+        // View Mode
+        'view_card' => 'Card View',
+        'view_table' => 'Table View',
+        'cover' => 'Cover',
+        'date_added' => 'Date Added',
+        'actions' => 'Actions',
     ],
 
     // Reading Challenge

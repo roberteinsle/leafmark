@@ -164,6 +164,32 @@
                 </a>
             </div>
 
+            <!-- View Mode Toggle -->
+            <div class="flex gap-1 border border-gray-300 rounded-lg p-1 bg-white">
+                <form action="{{ route('books.toggle-view-mode') }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="shelf" value="{{ request('status', 'all') }}">
+                    <input type="hidden" name="view_mode" value="card">
+                    <button type="submit" class="px-3 py-1.5 rounded {{ $viewPref->view_mode === 'card' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100' }} transition-colors">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                        </svg>
+                        {{ __('app.books.view_card') }}
+                    </button>
+                </form>
+                <form action="{{ route('books.toggle-view-mode') }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="shelf" value="{{ request('status', 'all') }}">
+                    <input type="hidden" name="view_mode" value="table">
+                    <button type="submit" class="px-3 py-1.5 rounded {{ $viewPref->view_mode === 'table' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100' }} transition-colors">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        {{ __('app.books.view_table') }}
+                    </button>
+                </form>
+            </div>
+
             <!-- Sort Dropdown -->
             <form action="{{ route('books.index') }}" method="GET" class="inline-block">
                 @if(request('status'))
@@ -196,7 +222,133 @@
         </a>
     </div>
     @else
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+
+    @if($viewPref->view_mode === 'table')
+        <!-- Table View -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('app.books.cover') }}
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('app.books.title') }}
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('app.books.author') }}
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('app.books.status') }}
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('app.books.rating') }}
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('app.books.pages') }}
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('app.books.date_added') }}
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('app.books.actions') }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($books as $book)
+                        <tr class="hover:bg-gray-50 transition">
+                            <!-- Cover -->
+                            <td class="px-3 py-4 whitespace-nowrap">
+                                <a href="{{ route('books.show', $book) }}">
+                                    @if($book->thumbnail_image)
+                                    <img src="{{ $book->thumbnail_image }}" alt="{{ $book->title }}" class="h-16 w-12 object-cover rounded">
+                                    @else
+                                    <div class="h-16 w-12 bg-gray-200 rounded flex items-center justify-center">
+                                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                        </svg>
+                                    </div>
+                                    @endif
+                                </a>
+                            </td>
+                            <!-- Title -->
+                            <td class="px-3 py-4">
+                                <a href="{{ route('books.show', $book) }}" class="text-sm font-medium text-gray-900 hover:text-indigo-600">
+                                    {{ $book->title }}
+                                </a>
+                                @if($book->series)
+                                <div class="text-xs text-indigo-600">
+                                    {{ $book->series }}@if($book->series_position) #{{ $book->series_position }}@endif
+                                </div>
+                                @endif
+                            </td>
+                            <!-- Author -->
+                            <td class="px-3 py-4 whitespace-nowrap">
+                                @if($book->author)
+                                <a href="{{ route('books.index', ['author' => $book->author]) }}" class="text-sm text-gray-700 hover:text-indigo-600">
+                                    {{ $book->author }}
+                                </a>
+                                @else
+                                <span class="text-sm text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <!-- Status -->
+                            <td class="px-3 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {{ $book->status === 'read' ? 'bg-green-100 text-green-800' : '' }}
+                                    {{ $book->status === 'currently_reading' ? 'bg-blue-100 text-blue-800' : '' }}
+                                    {{ $book->status === 'want_to_read' ? 'bg-gray-100 text-gray-800' : '' }}">
+                                    {{ __('app.books.' . $book->status) }}
+                                </span>
+                            </td>
+                            <!-- Rating -->
+                            <td class="px-3 py-4 whitespace-nowrap">
+                                @if($book->rating)
+                                <div class="flex items-center text-sm">
+                                    <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span class="ml-1 text-gray-700">{{ $book->rating }}</span>
+                                </div>
+                                @else
+                                <span class="text-sm text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <!-- Pages -->
+                            <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {{ $book->page_count ?? '-' }}
+                            </td>
+                            <!-- Date Added -->
+                            <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {{ $book->added_at->format('M d, Y') }}
+                            </td>
+                            <!-- Actions -->
+                            <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('books.show', $book) }}" class="text-blue-600 hover:text-blue-900" title="{{ __('app.books.view') }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="{{ route('books.edit', $book) }}" class="text-gray-600 hover:text-gray-900" title="{{ __('app.books.edit') }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @else
+        <!-- Card View (existing) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
         @foreach($books as $book)
         <div class="bg-white rounded-lg shadow hover:shadow-lg transition relative group">
             <!-- Checkbox for selection -->

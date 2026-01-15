@@ -150,6 +150,13 @@ return [
         'showing_books_by' => 'Zeige Bücher von',
         'books_count' => 'Bücher',
         'clear_filter' => 'Filter entfernen',
+
+        // View Mode
+        'view_card' => 'Kartenansicht',
+        'view_table' => 'Tabellenansicht',
+        'cover' => 'Cover',
+        'date_added' => 'Hinzugefügt am',
+        'actions' => 'Aktionen',
     ],
 
     // Reading Challenge

@@ -83,6 +83,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/books/bulk-delete', [BookController::class, 'bulkDelete'])->name('books.bulk-delete');
     Route::get('/series/{series}', [BookController::class, 'showSeries'])->name('books.series');
 
+    // Book view mode toggle
+    Route::post('/books/toggle-view-mode', [BookController::class, 'toggleViewMode'])->name('books.toggle-view-mode');
+
     // Book-specific routes with numeric ID constraint
     Route::patch('/books/{book}/progress', [BookController::class, 'updateProgress'])->name('books.progress')->where('book', '[0-9]+');
     Route::patch('/books/{book}/status', [BookController::class, 'updateStatus'])->name('books.status')->where('book', '[0-9]+');

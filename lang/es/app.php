@@ -49,6 +49,13 @@ return [
         'want_to_read' => 'Quiero leer',
         'currently_reading' => 'Leyendo actualmente',
         'read' => 'Leído',
+
+        // View Mode
+        'view_card' => 'Vista de Tarjetas',
+        'view_table' => 'Vista de Tabla',
+        'cover' => 'Portada',
+        'date_added' => 'Fecha añadida',
+        'actions' => 'Acciones',
     ],
 
     // Family

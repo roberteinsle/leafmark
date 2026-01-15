@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\BookViewPreference;
 use App\Services\BigBookApiService;
 use App\Services\BookBrainzService;
 use App\Services\CoverImageService;
@@ -17,6 +18,10 @@ class BookController extends Controller
 {
     public function index(Request $request): View
     {
+        // Get or create view preference for current shelf
+        $shelf = $request->get('status', 'all');
+        $viewPref = BookViewPreference::getForUser(auth()->id(), $shelf);
+
         $query = auth()->user()->books();
 
         // Search functionality
@@ -143,7 +148,7 @@ class BookController extends Controller
         $currentYear = now()->year;
         $challenge = auth()->user()->readingChallenges()->where('year', $currentYear)->first();
 
-        return view('books.index', compact('books', 'counts', 'challenge'));
+        return view('books.index', compact('books', 'counts', 'challenge', 'viewPref'));
     }
 
     public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook): View
@@ -675,6 +680,19 @@ class BookController extends Controller
         $cover->update(['is_primary' => true]);
 
         return back()->with('success', 'Primary cover updated!');
+    }
+
+    public function toggleViewMode(Request $request): RedirectResponse
+    {
+        $shelf = $request->get('shelf', 'all');
+        $viewMode = $request->get('view_mode', 'card');
+
+        $viewPref = BookViewPreference::getForUser(auth()->id(), $shelf);
+        $viewPref->update(['view_mode' => $viewMode]);
+
+        return redirect()->route('books.index', array_filter([
+            'status' => $shelf !== 'all' ? $shelf : null,
+        ]));
     }
 
 }
