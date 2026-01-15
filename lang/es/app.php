@@ -198,5 +198,6 @@ return [
         'jan_10_multilingual_desc' => 'Soporte de idiomas mejorado.',
         'info_title' => '¿Quiere ver más?',
         'info_desc' => 'Para cambios técnicos detallados, consulte nuestro repositorio de GitHub.',
+        'view_github' => 'Ver en GitHub →',
     ],
 ];

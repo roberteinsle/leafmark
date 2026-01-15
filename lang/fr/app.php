@@ -206,5 +206,6 @@ return [
         'jan_10_multilingual_desc' => 'Support linguistique amélioré.',
         'info_title' => 'Vous voulez en voir plus?',
         'info_desc' => 'Pour les changements techniques détaillés, consultez notre dépôt GitHub.',
+        'view_github' => 'Voir sur GitHub →',
     ],
 ];

@@ -535,5 +535,6 @@ return [
         // Info box
         'info_title' => 'Want to see more?',
         'info_desc' => 'This changelog shows the major features and improvements. For detailed technical changes, check out our GitHub repository.',
+        'view_github' => 'View on GitHub →',
     ],
 ];
