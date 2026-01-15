@@ -695,6 +695,7 @@
         @endforeach
     </div>
     @endif
+    @endif
 
     <div class="mt-6 flex items-center justify-between">
         <div>
@@ -726,7 +727,6 @@
         </form>
         @endif
     </div>
-    @endif
 </div>
 
 @push('scripts')
