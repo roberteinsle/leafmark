@@ -274,6 +274,8 @@
                 </div>
             </div>
 
+            @endif
+
             <!-- Sort Dropdown -->
             <form action="{{ route('books.index') }}" method="GET" class="inline-block">
                 @if(request('status'))
@@ -297,7 +299,6 @@
             </form>
         </div>
     </div>
-    @endif
 
     @if($books->isEmpty())
     <div class="bg-white rounded-lg shadow p-8 text-center">
@@ -571,7 +572,7 @@
         </div>
     @else
         <!-- Card View (existing) -->
-        <div style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 1.5rem !important; width: 100% !important;">
+        <div style="display: grid !important; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important; gap: 1rem !important; width: 100% !important;">
             @foreach($books as $book)
             <div class="bg-white rounded-lg shadow hover:shadow-lg transition relative group">
             <!-- Checkbox for selection -->
@@ -612,9 +613,9 @@
 
             <a href="{{ route('books.show', $book) }}" class="block">
                 @if($book->thumbnail_image)
-                <img src="{{ $book->thumbnail_image }}" alt="{{ $book->title }}" class="w-full h-64 object-cover rounded-t-lg">
+                <img src="{{ $book->thumbnail_image }}" alt="{{ $book->title }}" class="w-full h-56 object-cover rounded-t-lg">
                 @else
-                <div class="w-full h-64 bg-gray-200 rounded-t-lg flex items-center justify-center">
+                <div class="w-full h-56 bg-gray-200 rounded-t-lg flex items-center justify-center">
                     <svg class="h-20 w-20 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
@@ -691,9 +692,9 @@
                 </div>
                 @endif
             </div>
-            </div>
-            @endforeach
         </div>
+        @endforeach
+    </div>
     @endif
     @endif
 
