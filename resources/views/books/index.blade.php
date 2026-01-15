@@ -471,6 +471,7 @@
         </div>
         @endforeach
     </div>
+    @endif
 
     <div class="mt-6">
         {{ $books->links() }}
