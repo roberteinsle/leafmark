@@ -212,6 +212,12 @@ return [
         'column_date_finished' => 'Beendet am',
         'column_tags' => 'Tags',
         'column_actions' => 'Aktionen',
+
+        // API Refresh
+        'refresh_from_api' => 'Von API neu importieren',
+        'refresh_hint' => 'Klicke auf eine Quelle, um aktualisierte Buchdaten von externen APIs abzurufen',
+        'apply_changes' => 'Ausgewählte Änderungen übernehmen',
+        'refreshed_fields' => ':count Feld(er) erfolgreich aktualisiert',
     ],
 
     // Reading Challenge
@@ -698,11 +704,5 @@ return [
         'errors_occurred' => 'Fehler aufgetreten',
         'view_library' => 'Bibliothek anzeigen',
         'import_another' => 'Weitere Datei importieren',
-    ],
-];
-        'refresh_from_api' => 'Von API neu importieren',
-        'refresh_hint' => 'Klicke auf eine Quelle, um aktualisierte Buchdaten von externen APIs abzurufen',
-        'apply_changes' => 'Ausgewählte Änderungen übernehmen',
-        'refreshed_fields' => ':count Feld(er) erfolgreich aktualisiert',
     ],
 ];
