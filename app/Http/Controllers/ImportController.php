@@ -9,11 +9,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ImportController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     /**
      * Show import upload form
      */
