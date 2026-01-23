@@ -644,7 +644,6 @@ return [
         'info_desc' => 'Dieses Changelog zeigt die wichtigsten Funktionen und Verbesserungen. Für detaillierte technische Änderungen schauen Sie in unser GitHub-Repository.',
         'view_github' => 'Auf GitHub ansehen →',
     ],
-];
 
     // Import
     'import' => [
