@@ -10,6 +10,7 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserSettingsController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -117,6 +118,15 @@ Route::middleware('auth')->group(function () {
     // User settings routes
     Route::get('/settings', [UserSettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings', [UserSettingsController::class, 'update'])->name('settings.update');
+
+    // Import routes
+    Route::get('/import', [ImportController::class, 'index'])->name('import.index');
+    Route::post('/import/upload', [ImportController::class, 'upload'])->name('import.upload');
+    Route::post('/import/execute', [ImportController::class, 'execute'])->name('import.execute');
+    Route::post('/import/cancel', [ImportController::class, 'cancel'])->name('import.cancel');
+    Route::get('/import/history', [ImportController::class, 'history'])->name('import.history');
+    Route::get('/import/result/{importHistory}', [ImportController::class, 'result'])->name('import.result');
+    Route::delete('/import/{importHistory}', [ImportController::class, 'destroy'])->name('import.destroy');
 
     // Reading Challenge routes
     Route::get('/challenge', [App\Http\Controllers\ReadingChallengeController::class, 'index'])->name('challenge.index');
