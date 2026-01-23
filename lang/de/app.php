@@ -130,10 +130,17 @@ return [
         'progress' => 'Fortschritt',
 
         // Book details page
+        'tab_details' => 'Details',
+        'tab_progress' => 'Lesefortschritt',
         'reading_status' => 'Lesestatus',
         'current_page_label' => 'Aktuelle Seite',
         'update' => 'Aktualisieren',
         'reading_progress_history' => 'Lesefortschritt-Verlauf',
+        'progress_chart' => 'Fortschrittsdiagramm',
+        'progress_over_time' => 'Fortschritt im Zeitverlauf',
+        'max_pages' => 'Max: :count Seiten',
+        'no_progress_history' => 'Noch kein Fortschrittsverlauf vorhanden',
+        'update_progress_to_see_chart' => 'Aktualisieren Sie Ihren Lesefortschritt, um das Diagramm zu sehen',
         'page' => 'Seite',
         'delete_progress_confirm' => 'Diesen Fortschrittseintrag löschen? Die aktuelle Seite wird auf den vorherigen Eintrag zurückgesetzt.',
         'format_label' => 'Format',

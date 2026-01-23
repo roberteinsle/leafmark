@@ -85,6 +85,21 @@ return [
         'column_date_finished' => 'Data di fine',
         'column_tags' => 'Tag',
         'column_actions' => 'Azioni',
+
+        // Book details page
+        'tab_details' => 'Dettagli',
+        'tab_progress' => 'Progressi di lettura',
+        'reading_status' => 'Stato di lettura',
+        'current_page_label' => 'Pagina attuale',
+        'update' => 'Aggiorna',
+        'reading_progress_history' => 'Cronologia progressi',
+        'progress_chart' => 'Grafico dei progressi',
+        'progress_over_time' => 'Progressi nel tempo',
+        'max_pages' => 'Max: :count pagine',
+        'no_progress_history' => 'Nessuna cronologia dei progressi ancora',
+        'update_progress_to_see_chart' => 'Aggiorna i tuoi progressi di lettura per vedere il grafico',
+        'page' => 'Pagina',
+        'delete_progress_confirm' => 'Eliminare questa voce di progresso? La pagina attuale tornerà alla voce precedente.',
     ],
 
     // Family
@@ -193,7 +208,6 @@ return [
         'turnstile_required' => 'Completa la verifica di sicurezza.',
         'turnstile_failed' => 'Verifica di sicurezza fallita. Riprova.',
     ],
-];
 
     // Changelog
     'changelog' => [

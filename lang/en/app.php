@@ -130,10 +130,17 @@ return [
         'progress' => 'Progress',
 
         // Book details page
+        'tab_details' => 'Details',
+        'tab_progress' => 'Reading Progress',
         'reading_status' => 'Reading Status',
         'current_page_label' => 'Current Page',
         'update' => 'Update',
         'reading_progress_history' => 'Reading Progress History',
+        'progress_chart' => 'Progress Chart',
+        'progress_over_time' => 'Progress over time',
+        'max_pages' => 'Max: :count pages',
+        'no_progress_history' => 'No progress history yet',
+        'update_progress_to_see_chart' => 'Update your reading progress to see the chart',
         'page' => 'Page',
         'delete_progress_confirm' => 'Delete this progress entry? Current page will revert to the previous entry.',
         'format_label' => 'Format',
