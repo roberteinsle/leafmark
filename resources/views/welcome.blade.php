@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" x-data="welcomePage()">
+<html lang="en" x-data="welcomePage()" :lang="currentLang">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="P83A54mzktESaX8bAfsLcUk9Ex-jUq5TNtUMmO59gaQ" />
-    <title x-text="t('title')"></title>
+
+    <!-- SEO Meta Tags -->
+    <title x-text="t('meta_title')"></title>
+    <meta name="description" x-bind:content="t('meta_description')">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ config('app.url') }}">
+
+    <!-- Hreflang Tags -->
+    <link rel="alternate" hreflang="en" href="{{ config('app.url') }}" />
+    <link rel="alternate" hreflang="de" href="{{ config('app.url') }}" />
+    <link rel="alternate" hreflang="es" href="{{ config('app.url') }}" />
+    <link rel="alternate" hreflang="fr" href="{{ config('app.url') }}" />
+    <link rel="alternate" hreflang="it" href="{{ config('app.url') }}" />
+    <link rel="alternate" hreflang="pl" href="{{ config('app.url') }}" />
+    <link rel="alternate" hreflang="x-default" href="{{ config('app.url') }}" />
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -173,6 +189,8 @@
                 translations: {
                     en: {
                         title: 'Leafmark - Track Your Reading Journey',
+                        meta_title: 'Leafmark - Track Books & Reading Progress',
+                        meta_description: 'Organize your book collection, track reading progress, and discover your next favorite book. Multi-user support for families and book clubs.',
                         login: 'Login',
                         get_started: 'Get Started',
                         hero_title: 'Track Your Reading Journey',
@@ -205,6 +223,8 @@
                     },
                     de: {
                         title: 'Leafmark - Verfolge deine Leserreise',
+                        meta_title: 'Leafmark - Bücher & Lesefortschritt verfolgen',
+                        meta_description: 'Organisiere deine Buchsammlung, verfolge deinen Lesefortschritt und entdecke dein nächstes Lieblingsbuch. Multi-User-Unterstützung für Familien und Buchclubs.',
                         login: 'Anmelden',
                         get_started: 'Jetzt starten',
                         hero_title: 'Verfolge deine Leserreise',
@@ -237,6 +257,8 @@
                     },
                     es: {
                         title: 'Leafmark - Sigue tu viaje de lectura',
+                        meta_title: 'Leafmark - Seguir libros y progreso de lectura',
+                        meta_description: 'Organiza tu colección de libros, sigue tu progreso de lectura y descubre tu próximo libro favorito. Soporte multiusuario para familias y clubes de lectura.',
                         login: 'Iniciar sesión',
                         get_started: 'Comenzar',
                         hero_title: 'Sigue tu viaje de lectura',
@@ -269,6 +291,8 @@
                     },
                     fr: {
                         title: 'Leafmark - Suivez votre parcours de lecture',
+                        meta_title: 'Leafmark - Suivre livres et progression de lecture',
+                        meta_description: 'Organisez votre collection de livres, suivez votre progression de lecture et découvrez votre prochain livre préféré. Support multi-utilisateurs pour familles et clubs de lecture.',
                         login: 'Connexion',
                         get_started: 'Commencer',
                         hero_title: 'Suivez votre parcours de lecture',
@@ -301,6 +325,8 @@
                     },
                     it: {
                         title: 'Leafmark - Segui il tuo percorso di lettura',
+                        meta_title: 'Leafmark - Traccia libri e progressi di lettura',
+                        meta_description: 'Organizza la tua collezione di libri, traccia i tuoi progressi di lettura e scopri il tuo prossimo libro preferito. Supporto multi-utente per famiglie e club del libro.',
                         login: 'Accedi',
                         get_started: 'Inizia',
                         hero_title: 'Segui il tuo percorso di lettura',
@@ -333,6 +359,8 @@
                     },
                     pl: {
                         title: 'Leafmark - Śledź swoją podróż czytelniczą',
+                        meta_title: 'Leafmark - Śledź książki i postępy w czytaniu',
+                        meta_description: 'Organizuj swoją kolekcję książek, śledź postępy w czytaniu i odkryj swoją następną ulubioną książkę. Wsparcie wielu użytkowników dla rodzin i klubów książki.',
                         login: 'Zaloguj się',
                         get_started: 'Rozpocznij',
                         hero_title: 'Śledź swoją podróż czytelniczą',
@@ -376,15 +404,17 @@
                         this.currentLang = 'en';  // fallback to English
                     }
 
-                    // Update document title
-                    document.title = this.t('title');
+                    // Update document title and meta description
+                    document.title = this.t('meta_title');
+                    document.querySelector('meta[name="description"]').setAttribute('content', this.t('meta_description'));
                 },
                 t(key) {
                     return this.translations[this.currentLang][key] || this.translations.en[key] || key;
                 },
                 changeLang(lang) {
                     this.currentLang = lang;
-                    document.title = this.t('title');
+                    document.title = this.t('meta_title');
+                    document.querySelector('meta[name="description"]').setAttribute('content', this.t('meta_description'));
                 }
             }
         }
