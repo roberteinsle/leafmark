@@ -16,6 +16,68 @@
     <div class="bg-white rounded-lg shadow-lg p-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Edit Book</h1>
 
+        <!-- Re-import from API Section -->
+        @if($book->isbn || $book->isbn13 || $book->external_id)
+        <div class="mb-8 border-l-4 border-blue-500 bg-blue-50 p-4" x-data="{
+            open: false,
+            loading: false,
+            data: null,
+            selected: [],
+            async fetchData(source) {
+                this.loading = true;
+                try {
+                    const response = await fetch('{{ route('books.fetch-api-data', $book) }}?source=' + source);
+                    const result = await response.json();
+                    if (result.success) {
+                        this.data = result;
+                        this.open = true;
+                    } else {
+                        alert(result.error || 'Failed to fetch data');
+                    }
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            async applyChanges() {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route('books.refresh-from-api', $book) }}';
+                form.innerHTML = '@csrf';
+                form.innerHTML += '<input name=\"source\" value=\"' + this.data.source + '\">';
+                this.selected.forEach(f => form.innerHTML += '<input name=\"fields[]\" value=\"' + f + '\">');
+                Object.keys(this.data.fetched).forEach(k => {
+                    if (this.data.fetched[k]) form.innerHTML += '<input name=\"data[' + k + ']\" value=\"' + this.data.fetched[k] + '\">';
+                });
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="font-semibold text-blue-900">{{ __('app.books.refresh_from_api') }}</h3>
+                <div class="flex gap-2">
+                    <button type="button" @click="fetchData('google')" :disabled="loading" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded disabled:opacity-50">Google Books</button>
+                    <button type="button" @click="fetchData('bigbook')" :disabled="loading" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded disabled:opacity-50">Big Book</button>
+                    <button type="button" @click="fetchData('openlibrary')" :disabled="loading" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded disabled:opacity-50">Open Library</button>
+                </div>
+            </div>
+            <p class="text-sm text-blue-700" x-show="!open">{{ __('app.books.refresh_hint') }}</p>
+            <div x-show="open" class="mt-4 space-y-2" x-cloak>
+                <template x-for="(field, key) in data?.fetched" :key="key">
+                    <label x-show="field && field !== data.current[key]" class="flex items-start gap-2 p-2 bg-white rounded">
+                        <input type="checkbox" :value="key" x-model="selected" class="mt-1">
+                        <div class="flex-1 text-sm">
+                            <strong x-text="key" class="capitalize"></strong>:
+                            <div class="text-gray-600"><s x-text="data.current[key]"></s> → <span class="text-green-600" x-text="field"></span></div>
+                        </div>
+                    </label>
+                </template>
+                <button type="button" @click="applyChanges()" :disabled="selected.length === 0" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded disabled:opacity-50">{{ __('app.books.apply_changes') }}</button>
+            </div>
+        </div>
+        @endif
+
         <!-- Separate form for deleting cover (must be outside main form) -->
         @if($book->local_cover_path)
         <form id="delete-cover-form" action="{{ route('books.delete-cover', $book) }}" method="POST" style="display: none;">

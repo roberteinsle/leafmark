@@ -95,6 +95,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/books/{book}/status', [BookController::class, 'updateStatus'])->name('books.status')->where('book', '[0-9]+');
     Route::patch('/books/{book}/rating', [BookController::class, 'updateRating'])->name('books.update-rating')->where('book', '[0-9]+');
     Route::delete('/books/{book}/progress/{entry}', [BookController::class, 'deleteProgressEntry'])->name('books.progress.delete')->where(['book' => '[0-9]+', 'entry' => '[0-9]+']);
+    Route::get('/books/{book}/fetch-api-data', [BookController::class, 'fetchApiData'])->name('books.fetch-api-data')->where('book', '[0-9]+');
+    Route::post('/books/{book}/refresh-from-api', [BookController::class, 'refreshFromApi'])->name('books.refresh-from-api')->where('book', '[0-9]+');
 
     // Resource route MUST come AFTER all specific routes to avoid conflicts
     // The 'only' parameter ensures we don't generate conflicting routes

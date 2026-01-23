@@ -783,4 +783,151 @@ class BookController extends Controller
         ]))->with('success', __('app.books.column_settings_saved'));
     }
 
+    /**
+     * Fetch fresh data from API for preview
+     */
+    public function fetchApiData(Request $request, Book $book, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook)
+    {
+        if ($book->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $source = $request->get('source', 'auto');
+
+        // Auto-detect source or use specific source
+        if ($source === 'auto') {
+            // Try to use existing API source if available
+            $source = $book->api_source ?? 'google';
+        }
+
+        // Determine identifier for API call
+        $identifier = null;
+        if ($source === 'google') {
+            $identifier = $book->external_id ?? ($book->isbn13 ?: $book->isbn);
+        } elseif ($source === 'bigbook') {
+            $identifier = $book->isbn13 ?: $book->isbn;
+        } elseif ($source === 'openlibrary') {
+            $identifier = $book->external_id ?? ($book->isbn13 ?: $book->isbn);
+        }
+
+        if (!$identifier) {
+            return response()->json(['error' => 'No ISBN or external ID available'], 400);
+        }
+
+        // Fetch data from API
+        try {
+            $bookData = null;
+            if ($source === 'google') {
+                if ($book->external_id) {
+                    $bookData = $googleBooks->getBook($book->external_id);
+                } else {
+                    $results = $googleBooks->searchByISBN($identifier);
+                    $bookData = !empty($results) ? $results[0] : null;
+                }
+            } elseif ($source === 'bigbook') {
+                $bookData = $bigBook->getBookByISBN($identifier);
+            } elseif ($source === 'openlibrary') {
+                if ($book->external_id) {
+                    $bookData = $openLibrary->getBook($book->external_id);
+                } else {
+                    $results = $openLibrary->searchByISBN($identifier);
+                    $bookData = !empty($results) ? $results[0] : null;
+                }
+            }
+
+            if (!$bookData) {
+                return response()->json(['error' => 'No data found from API'], 404);
+            }
+
+            // Return comparison data
+            return response()->json([
+                'success' => true,
+                'current' => [
+                    'title' => $book->title,
+                    'author' => $book->author,
+                    'description' => $book->description,
+                    'page_count' => $book->page_count,
+                    'publisher' => $book->publisher,
+                    'published_date' => $book->published_date?->format('Y-m-d'),
+                    'cover_url' => $book->cover_image,
+                    'isbn' => $book->isbn,
+                    'isbn13' => $book->isbn13,
+                ],
+                'fetched' => [
+                    'title' => $bookData['title'] ?? null,
+                    'author' => $bookData['author'] ?? null,
+                    'description' => $bookData['description'] ?? null,
+                    'page_count' => $bookData['page_count'] ?? null,
+                    'publisher' => $bookData['publisher'] ?? null,
+                    'published_date' => $bookData['published_date'] ?? null,
+                    'cover_url' => $bookData['cover_url'] ?? null,
+                    'isbn' => $bookData['isbn'] ?? null,
+                    'isbn13' => $bookData['isbn13'] ?? null,
+                ],
+                'source' => $source,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('API fetch error', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'API request failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Apply selected fields from API data
+     */
+    public function refreshFromApi(Request $request, Book $book, CoverImageService $coverService)
+    {
+        if ($book->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'fields' => 'required|array',
+            'fields.*' => 'in:title,author,description,page_count,publisher,published_date,cover,isbn,isbn13',
+            'data' => 'required|array',
+            'source' => 'required|string',
+        ]);
+
+        $updateData = [];
+        $fieldsUpdated = [];
+
+        foreach ($validated['fields'] as $field) {
+            if ($field === 'cover' && isset($validated['data']['cover_url'])) {
+                // Download and update cover
+                $coverUrl = $validated['data']['cover_url'];
+                $identifier = $book->isbn13 ?? $book->isbn ?? $book->id;
+                $localCoverPath = $coverService->downloadAndStore($coverUrl, $identifier);
+
+                if ($localCoverPath) {
+                    $updateData['local_cover_path'] = $localCoverPath;
+                    $updateData['cover_url'] = $coverUrl;
+                    $updateData['thumbnail'] = $coverUrl;
+
+                    // Create new BookCover entry
+                    $book->covers()->create([
+                        'path' => $localCoverPath,
+                        'is_primary' => true,
+                        'sort_order' => 0,
+                    ]);
+
+                    $fieldsUpdated[] = 'cover';
+                }
+            } elseif (isset($validated['data'][$field])) {
+                $updateData[$field] = $validated['data'][$field];
+                $fieldsUpdated[] = $field;
+            }
+        }
+
+        if (!empty($updateData)) {
+            // Update api_source if refreshing
+            $updateData['api_source'] = $validated['source'];
+            $book->update($updateData);
+        }
+
+        $count = count($fieldsUpdated);
+        return redirect()->route('books.edit', $book)
+            ->with('success', __('app.books.refreshed_fields', ['count' => $count]));
+    }
+
 }

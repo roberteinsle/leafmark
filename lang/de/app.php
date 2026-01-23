@@ -700,3 +700,9 @@ return [
         'import_another' => 'Weitere Datei importieren',
     ],
 ];
+        'refresh_from_api' => 'Von API neu importieren',
+        'refresh_hint' => 'Klicke auf eine Quelle, um aktualisierte Buchdaten von externen APIs abzurufen',
+        'apply_changes' => 'Ausgewählte Änderungen übernehmen',
+        'refreshed_fields' => ':count Feld(er) erfolgreich aktualisiert',
+    ],
+];

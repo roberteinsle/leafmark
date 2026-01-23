@@ -693,3 +693,9 @@ return [
         'import_another' => 'Import Another File',
     ],
 ];
+        'refresh_from_api' => 'Re-import from API',
+        'refresh_hint' => 'Click a source to fetch updated book data from external APIs',
+        'apply_changes' => 'Apply Selected Changes',
+        'refreshed_fields' => ':count field(s) updated successfully',
+    ],
+];
