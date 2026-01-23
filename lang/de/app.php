@@ -599,6 +599,14 @@ return [
         'jan_16_bulk_tag_smart_title' => 'Intelligente Tag-Filterung',
         'jan_16_bulk_tag_smart_desc' => 'Beim Entfernen von Tags werden nur Tags angezeigt, die bei mindestens einem ausgewählten Buch vorhanden sind, was das Finden des richtigen Tags zum Entfernen erleichtert.',
 
+        // January 23, 2026
+        'jan_23_title' => 'Goodreads Import & Lesefortschritt',
+        'jan_23_date' => '23. Januar 2026',
+        'jan_23_import_title' => 'Goodreads CSV Import',
+        'jan_23_import_desc' => 'Migriere deine gesamte Buchbibliothek von Goodreads mit unserem neuen CSV-Import. Lade deinen Goodreads-Export hoch, sieh dir die Bücher in der Vorschau an und importiere sie mit intelligenter Duplikatserkennung und automatischem Tagging. Inklusive detaillierter Importstatistiken und Fehlerberichten.',
+        'jan_23_progress_title' => 'Verbesserte Lesefortschritt-Visualisierung',
+        'jan_23_progress_desc' => 'Verfolge deinen Lesefortschritt mit einem neuen Tab mit interaktivem Balkendiagramm. Visualisiere deine Lesegeschwindigkeit im Zeitverlauf, sieh dir die Fortschrittshistorie mit Mini-Balken an und genieße eine übersichtlichere Organisation der Buchdetails.',
+
         // January 15, 2026
         'jan_15_title' => 'Großes Feature-Update',
         'jan_15_date' => '15. Januar 2026',

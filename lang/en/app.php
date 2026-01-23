@@ -592,6 +592,14 @@ return [
         'jan_16_bulk_tag_smart_title' => 'Smart Tag Filtering',
         'jan_16_bulk_tag_smart_desc' => 'When removing tags, only tags that exist on at least one selected book are shown, making it easy to find the right tag to remove.',
 
+        // January 23, 2026
+        'jan_23_title' => 'Goodreads Import & Reading Progress',
+        'jan_23_date' => 'January 23, 2026',
+        'jan_23_import_title' => 'Goodreads CSV Import',
+        'jan_23_import_desc' => 'Easily migrate your entire book library from Goodreads with our new CSV import feature. Upload your Goodreads export, preview the books, and import with smart duplicate detection and automatic tagging. Includes detailed import statistics and error reporting.',
+        'jan_23_progress_title' => 'Enhanced Reading Progress Visualization',
+        'jan_23_progress_desc' => 'Track your reading progress with a new dedicated tab featuring an interactive bar chart. Visualize your reading speed over time, see progress history with mini bars, and enjoy a cleaner organization of book details.',
+
         // January 15, 2026
         'jan_15_title' => 'Major Feature Update',
         'jan_15_date' => 'January 15, 2026',
