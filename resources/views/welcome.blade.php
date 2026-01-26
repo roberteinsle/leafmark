@@ -13,13 +13,13 @@
     <link rel="canonical" :href="canonicalUrl()">
 
     <!-- Hreflang Tags -->
-    <link rel="alternate" hreflang="en" href="{{ rtrim(config('app.url'), '/') }}" />
-    <link rel="alternate" hreflang="de" href="{{ rtrim(config('app.url'), '/') }}/de" />
-    <link rel="alternate" hreflang="es" href="{{ rtrim(config('app.url'), '/') }}/es" />
-    <link rel="alternate" hreflang="fr" href="{{ rtrim(config('app.url'), '/') }}/fr" />
-    <link rel="alternate" hreflang="it" href="{{ rtrim(config('app.url'), '/') }}/it" />
-    <link rel="alternate" hreflang="pl" href="{{ rtrim(config('app.url'), '/') }}/pl" />
-    <link rel="alternate" hreflang="x-default" href="{{ rtrim(config('app.url'), '/') }}" />
+    <link rel="alternate" hreflang="en" href="{{ rtrim(config('app.url'), '/') }}/en/" />
+    <link rel="alternate" hreflang="de" href="{{ rtrim(config('app.url'), '/') }}/de/" />
+    <link rel="alternate" hreflang="es" href="{{ rtrim(config('app.url'), '/') }}/es/" />
+    <link rel="alternate" hreflang="fr" href="{{ rtrim(config('app.url'), '/') }}/fr/" />
+    <link rel="alternate" hreflang="it" href="{{ rtrim(config('app.url'), '/') }}/it/" />
+    <link rel="alternate" hreflang="pl" href="{{ rtrim(config('app.url'), '/') }}/pl/" />
+    <link rel="alternate" hreflang="x-default" href="{{ rtrim(config('app.url'), '/') }}/en/" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -44,8 +44,8 @@
                             <option value="it">Italiano</option>
                             <option value="pl">Polski</option>
                         </select>
-                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900" x-text="t('login')"></a>
-                        <a href="{{ route('register') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" x-text="t('get_started')"></a>
+                        <a :href="baseUrl + '/' + currentLang + '/login'" class="text-gray-700 hover:text-gray-900" x-text="t('login')"></a>
+                        <a :href="baseUrl + '/' + currentLang + '/register'" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" x-text="t('get_started')"></a>
                     </div>
                 </div>
             </div>
@@ -59,10 +59,10 @@
                     <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl" x-text="t('hero_subtitle')"></p>
                     <div class="mt-5 max-w-2xl mx-auto sm:flex sm:justify-center md:mt-8">
                         <div class="rounded-md shadow flex-1 sm:max-w-xs">
-                            <a href="{{ route('register') }}" class="w-full flex items-center justify-center px-12 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-16 whitespace-nowrap" x-text="t('start_tracking')"></a>
+                            <a :href="baseUrl + '/' + currentLang + '/register'" class="w-full flex items-center justify-center px-12 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-16 whitespace-nowrap" x-text="t('start_tracking')"></a>
                         </div>
                         <div class="mt-3 rounded-md shadow flex-1 sm:max-w-xs sm:mt-0 sm:ml-3">
-                            <a href="{{ route('login') }}" class="w-full flex items-center justify-center px-12 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-16" x-text="t('sign_in')"></a>
+                            <a :href="baseUrl + '/' + currentLang + '/login'" class="w-full flex items-center justify-center px-12 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-16" x-text="t('sign_in')"></a>
                         </div>
                     </div>
                 </div>
@@ -170,11 +170,11 @@
             <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col items-center space-y-4">
                     <div class="flex space-x-6 text-sm">
-                        <a href="/impressum" class="text-gray-600 hover:text-gray-900" x-text="t('impressum')"></a>
+                        <a :href="getLocalizedLink('impressum')" class="text-gray-600 hover:text-gray-900" x-text="t('impressum')"></a>
                         <span class="text-gray-400">·</span>
-                        <a href="/datenschutz" class="text-gray-600 hover:text-gray-900" x-text="t('privacy')"></a>
+                        <a :href="getLocalizedLink('privacy')" class="text-gray-600 hover:text-gray-900" x-text="t('privacy')"></a>
                         <span class="text-gray-400">·</span>
-                        <a href="/kontakt" class="text-gray-600 hover:text-gray-900" x-text="t('contact')"></a>
+                        <a :href="getLocalizedLink('contact')" class="text-gray-600 hover:text-gray-900" x-text="t('contact')"></a>
                     </div>
                     <p class="text-center text-gray-500 text-sm" x-html="t('footer')"></p>
                 </div>
@@ -402,18 +402,48 @@
                     return this.translations[this.currentLang][key] || this.translations.en[key] || key;
                 },
                 canonicalUrl() {
-                    if (this.currentLang === 'en') {
-                        return this.baseUrl;
-                    }
-                    return this.baseUrl + '/' + this.currentLang;
+                    return this.baseUrl + '/' + this.currentLang + '/';
                 },
                 changeLang(lang) {
                     // Redirect to the correct language URL
-                    if (lang === 'en') {
-                        window.location.href = this.baseUrl;
-                    } else {
-                        window.location.href = this.baseUrl + '/' + lang;
-                    }
+                    window.location.href = this.baseUrl + '/' + lang + '/';
+                },
+                getLocalizedLink(page) {
+                    // Map page names to localized URLs
+                    const pageMap = {
+                        'en': {
+                            'impressum': '/en/imprint',
+                            'privacy': '/en/privacy',
+                            'contact': '/en/contact'
+                        },
+                        'de': {
+                            'impressum': '/de/impressum',
+                            'privacy': '/de/datenschutz',
+                            'contact': '/de/kontakt'
+                        },
+                        'fr': {
+                            'impressum': '/fr/mentions-legales',
+                            'privacy': '/fr/confidentialite',
+                            'contact': '/fr/contact'
+                        },
+                        'es': {
+                            'impressum': '/es/aviso-legal',
+                            'privacy': '/es/privacidad',
+                            'contact': '/es/contacto'
+                        },
+                        'it': {
+                            'impressum': '/it/note-legali',
+                            'privacy': '/it/privacy',
+                            'contact': '/it/contatto'
+                        },
+                        'pl': {
+                            'impressum': '/pl/nota-prawna',
+                            'privacy': '/pl/prywatnosc',
+                            'contact': '/pl/kontakt'
+                        }
+                    };
+
+                    return this.baseUrl + (pageMap[this.currentLang]?.[page] || pageMap['en'][page]);
                 }
             }
         }

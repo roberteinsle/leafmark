@@ -79,7 +79,8 @@
       "Bash(done)",
       "Bash(sudo mkdir:*)",
       "Bash(sudo docker ps:*)",
-      "Bash(sudo docker exec:*)"
+      "Bash(sudo docker exec:*)",
+      "Bash(do echo \"Testing /$lang:\")"
     ]
   }
 }

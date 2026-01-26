@@ -13,17 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
-            \App\Http\Middleware\DetectBrowserLocale::class,
             \App\Http\Middleware\SetUserLocale::class,
         ]);
         $middleware->alias([
             'admin' => \App\Http\Middleware\IsAdmin::class,
+            'locale' => \App\Http\Middleware\SetLocaleFromUrl::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })
     ->withProviders([
+        \App\Providers\AppServiceProvider::class,
         \App\Providers\DynamicMailConfigServiceProvider::class,
     ])
     ->create();
