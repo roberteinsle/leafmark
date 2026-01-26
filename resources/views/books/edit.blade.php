@@ -26,7 +26,19 @@
             async fetchData(source) {
                 this.loading = true;
                 try {
-                    const response = await fetch('{{ route('books.fetch-api-data', $book) }}?source=' + source);
+                    const response = await fetch('{{ route('books.fetch-api-data', $book) }}?source=' + source, {
+                        method: 'GET',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+
                     const result = await response.json();
                     if (result.success) {
                         this.data = result;
@@ -44,12 +56,41 @@
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ route('books.refresh-from-api', $book) }}';
-                form.innerHTML = '@csrf';
-                form.innerHTML += '<input name=\"source\" value=\"' + this.data.source + '\">';
-                this.selected.forEach(f => form.innerHTML += '<input name=\"fields[]\" value=\"' + f + '\">');
-                Object.keys(this.data.fetched).forEach(k => {
-                    if (this.data.fetched[k]) form.innerHTML += '<input name=\"data[' + k + ']\" value=\"' + this.data.fetched[k] + '\">';
+
+                // Add CSRF token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                form.appendChild(csrfInput);
+
+                // Add source
+                const sourceInput = document.createElement('input');
+                sourceInput.type = 'hidden';
+                sourceInput.name = 'source';
+                sourceInput.value = this.data.source;
+                form.appendChild(sourceInput);
+
+                // Add selected fields
+                this.selected.forEach(f => {
+                    const fieldInput = document.createElement('input');
+                    fieldInput.type = 'hidden';
+                    fieldInput.name = 'fields[]';
+                    fieldInput.value = f;
+                    form.appendChild(fieldInput);
                 });
+
+                // Add data
+                Object.keys(this.data.fetched).forEach(k => {
+                    if (this.data.fetched[k]) {
+                        const dataInput = document.createElement('input');
+                        dataInput.type = 'hidden';
+                        dataInput.name = 'data[' + k + ']';
+                        dataInput.value = this.data.fetched[k];
+                        form.appendChild(dataInput);
+                    }
+                });
+
                 document.body.appendChild(form);
                 form.submit();
             }
@@ -65,13 +106,39 @@
             <p class="text-sm text-blue-700" x-show="!open">{{ __('app.books.refresh_hint') }}</p>
             <div x-show="open" class="mt-4 space-y-2" x-cloak>
                 <template x-for="(field, key) in data?.fetched" :key="key">
-                    <label x-show="field && field !== data.current[key]" class="flex items-start gap-2 p-2 bg-white rounded">
-                        <input type="checkbox" :value="key" x-model="selected" class="mt-1">
-                        <div class="flex-1 text-sm">
-                            <strong x-text="key" class="capitalize"></strong>:
-                            <div class="text-gray-600"><s x-text="data.current[key]"></s> → <span class="text-green-600" x-text="field"></span></div>
-                        </div>
-                    </label>
+                    <div x-show="field && field !== data.current[key]">
+                        <!-- Special display for cover_url with image preview -->
+                        <label x-show="key === 'cover_url'" class="flex items-start gap-2 p-2 bg-white rounded">
+                            <input type="checkbox" :value="key" x-model="selected" class="mt-1">
+                            <div class="flex-1">
+                                <strong class="text-sm capitalize">Cover Image:</strong>
+                                <div class="flex gap-4 mt-2">
+                                    <div class="text-center">
+                                        <div class="text-xs text-gray-600 mb-1">Current</div>
+                                        <img :src="data.current[key] || '/placeholder.png'" alt="Current cover" class="w-20 h-28 object-cover rounded border">
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xs text-green-600 font-medium mb-1">New from API</div>
+                                        <img :src="field" alt="New cover" class="w-20 h-28 object-cover rounded border border-green-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Regular text fields -->
+                        <label x-show="key !== 'cover_url'" class="flex items-start gap-2 p-2 bg-white rounded">
+                            <input type="checkbox" :value="key" x-model="selected" class="mt-1">
+                            <div class="flex-1 text-sm">
+                                <strong x-text="key" class="capitalize"></strong>:
+                                <div class="text-gray-600"><s x-text="data.current[key]"></s> → <span class="text-green-600" x-text="field"></span></div>
+                            </div>
+                        </label>
+                    </div>
                 </template>
                 <button type="button" @click="applyChanges()" :disabled="selected.length === 0" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded disabled:opacity-50">{{ __('app.books.apply_changes') }}</button>
             </div>

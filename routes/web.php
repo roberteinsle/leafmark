@@ -14,13 +14,48 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
+// Public routes - Landing page with language support
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('books.index');
     }
-    return view('welcome');
-});
+    return view('welcome', ['locale' => 'en']);
+})->name('welcome');
+
+Route::get('/de', function () {
+    if (auth()->check()) {
+        return redirect()->route('books.index');
+    }
+    return view('welcome', ['locale' => 'de']);
+})->name('welcome.de');
+
+Route::get('/fr', function () {
+    if (auth()->check()) {
+        return redirect()->route('books.index');
+    }
+    return view('welcome', ['locale' => 'fr']);
+})->name('welcome.fr');
+
+Route::get('/es', function () {
+    if (auth()->check()) {
+        return redirect()->route('books.index');
+    }
+    return view('welcome', ['locale' => 'es']);
+})->name('welcome.es');
+
+Route::get('/it', function () {
+    if (auth()->check()) {
+        return redirect()->route('books.index');
+    }
+    return view('welcome', ['locale' => 'it']);
+})->name('welcome.it');
+
+Route::get('/pl', function () {
+    if (auth()->check()) {
+        return redirect()->route('books.index');
+    }
+    return view('welcome', ['locale' => 'pl']);
+})->name('welcome.pl');
 
 // Service pages
 Route::get('/impressum', function () {

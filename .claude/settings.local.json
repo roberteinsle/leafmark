@@ -73,7 +73,13 @@
       "Bash(git restore:*)",
       "Read(//tmp/**)",
       "Bash(md5sum:*)",
-      "Bash(xargs awk:*)"
+      "Bash(xargs awk:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)",
+      "Bash(sudo mkdir:*)",
+      "Bash(sudo docker ps:*)",
+      "Bash(sudo docker exec:*)"
     ]
   }
 }

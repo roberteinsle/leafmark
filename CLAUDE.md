@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Leafmark is a **multi-user** book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, organize books with tags, import book data from external APIs (Google Books, Open Library, Amazon, BookBrainz), and set yearly reading goals.
+Leafmark is a **multi-user** book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, organize books with tags, import book data from external APIs (Google Books, Open Library, BookBrainz, Big Book API) or CSV files (Goodreads), and set yearly reading goals.
 
 The application supports multiple users with individual book collections, admin-controlled registration, and flexible user management. Perfect for organizations, book clubs, families, or communities.
 
@@ -12,22 +12,25 @@ The application supports multiple users with individual book collections, admin-
 
 ### Docker Development
 ```bash
+# Note: This project uses docker-compose.yaml (not docker-compose.yml)
+# Use 'docker compose' (v2) or 'docker-compose' (v1)
+
 # Start app service
-docker-compose up -d
+docker compose up -d
 
 # Execute commands in app container
-docker-compose exec app <command>
+docker compose exec app <command>
 
 # View logs
-docker-compose logs -f app
+docker compose logs -f app
 
 # Stop services
-docker-compose down
+docker compose down
 ```
 
 ### Laravel Artisan Commands
 ```bash
-# Run inside container with: docker-compose exec app <command>
+# Run inside container with: docker compose exec app <command>
 
 # Generate application key
 php artisan key:generate
@@ -54,29 +57,29 @@ php artisan db:seed
 ### Testing
 ```bash
 # Run all tests
-docker-compose exec app vendor/bin/phpunit
+docker compose exec app vendor/bin/phpunit
 
 # Run specific test suite
-docker-compose exec app vendor/bin/phpunit --testsuite=Feature
-docker-compose exec app vendor/bin/phpunit --testsuite=Unit
+docker compose exec app vendor/bin/phpunit --testsuite=Feature
+docker compose exec app vendor/bin/phpunit --testsuite=Unit
 
 # Run specific test file
-docker-compose exec app vendor/bin/phpunit tests/Feature/ExampleTest.php
+docker compose exec app vendor/bin/phpunit tests/Feature/ExampleTest.php
 
 # Run with coverage (requires xdebug)
-docker-compose exec app vendor/bin/phpunit --coverage-html coverage
+docker compose exec app vendor/bin/phpunit --coverage-html coverage
 ```
 
 ### Composer
 ```bash
 # Install dependencies
-docker-compose exec app composer install
+docker compose exec app composer install
 
 # Update dependencies
-docker-compose exec app composer update
+docker compose exec app composer update
 
 # Add package
-docker-compose exec app composer require vendor/package
+docker compose exec app composer require vendor/package
 ```
 
 ## Architecture
@@ -190,6 +193,69 @@ Books can be imported from external sources via Service classes:
 - Language-aware search with fallback to language-neutral results (Google Books, Open Library, BookBrainz)
 - Note: Big Book API does not support language filtering
 
+### CSV Import System
+
+Books can be imported from Goodreads CSV exports:
+
+**ImportController** handles:
+- `index()` - Display import interface and instructions
+- `upload()` - Upload and parse CSV file, show preview
+- `execute()` - Process the import with selected options
+- `cancel()` - Cancel pending import
+- `history()` - View past import history
+- `result()` - View detailed results of a specific import
+
+**GoodreadsImportService** provides:
+- CSV parsing with header normalization (case-insensitive)
+- Preview of first 100 rows before import
+- Mapping of Goodreads fields to Book model
+- Duplicate detection based on ISBN/title/author
+- Automatic tag creation from Goodreads shelves
+- Optional "imported from Goodreads" tag
+
+**ImportHistory model:**
+- Tracks all import operations per user
+- Records success/skip/failure counts
+- Stores error details for troubleshooting
+- Statuses: pending, processing, completed, failed
+
+**Import workflow:**
+1. User uploads Goodreads CSV export
+2. System parses and shows preview with statistics
+3. User selects options (skip duplicates, create import tag)
+4. System processes each row, creating books and tags
+5. Results stored in ImportHistory for review
+
+**Routes:**
+- `/import` - Import interface
+- `/import/upload` - POST to upload CSV
+- `/import/execute` - POST to start import
+- `/import/history` - View import history
+- `/import/result/{importHistory}` - View detailed import results
+
+### Book View Preferences
+
+Users can customize their book list view per status/shelf:
+
+**BookViewPreference model:**
+- Per-user, per-shelf view settings
+- `view_mode` - 'grid' or 'table'
+- `visible_columns` - JSON array of visible table columns
+- `per_page` - Items per page (10, 25, 50, 100)
+
+**Available columns:**
+- Core: cover, title, author, series, tags
+- Progress: status, current_page, rating
+- Metadata: publisher, published_date, language, page_count
+- Purchase: format, purchase_date, purchase_price
+- Timestamps: added_at, started_at, finished_at
+
+View preferences persist across sessions and are shelf-specific (e.g., different columns for "Currently Reading" vs "Read").
+
+**Routes:**
+- `/books/toggle-view-mode` - POST to switch between grid/table view
+- `/books/update-column-settings` - POST to update visible columns
+
 ### Authentication & Authorization
 
 **Basic Authentication:**
@@ -208,6 +274,20 @@ Books can be imported from external sources via Service classes:
 - `RegisterController` checks `SystemSetting` for registration rules
 - Three registration modes: open, domain, code
 - Registration can be completely disabled via admin settings
+
+**Email Verification:**
+- Laravel's built-in email verification system
+- `VerificationController` handles verification and resend
+- New users receive verification email after registration
+- Email contains signed URL with expiration
+- Unverified users can still access the application
+- Email verification is optional but can be enforced via middleware
+
+**Email System:**
+- SMTP settings configured in Admin → System Settings
+- `EmailLog` model tracks all sent emails (verification, password reset)
+- Admin can view email logs at `/admin/email-logs` for debugging
+- Test email functionality available in admin settings
 
 ### Internationalization
 
@@ -249,6 +329,13 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `/family/join` - GET/POST to join a family using join code
 - `/family/leave` - POST to leave current family
 - `/family/regenerate-code` - POST to generate new join code (owner only)
+- `/import` - GET to display import interface
+- `/import/upload` - POST to upload and preview CSV
+- `/import/execute` - POST to execute import
+- `/import/cancel` - POST to cancel pending import
+- `/import/history` - GET to view import history
+- `/import/result/{importHistory}` - GET to view import results
+- `/import/{importHistory}` - DELETE to remove import history
 
 **Admin routes (requires auth + admin):**
 - `/admin` - Admin dashboard with user statistics
@@ -319,6 +406,34 @@ Routes are defined in [routes/web.php](routes/web.php):
 - Users link to families via `family_id` on users table
 - Cascade delete: removing family sets users' `family_id` to null
 
+**import_history table:**
+- Tracks CSV import operations per user
+- `source` - Import source (e.g., 'goodreads')
+- `filename` - Original uploaded filename
+- `total_rows`, `imported_count`, `skipped_count`, `failed_count` - Statistics
+- `errors` - JSON array of error messages
+- `import_tag` - Optional tag applied to imported books
+- `status` - pending, processing, completed, failed
+- `started_at`, `completed_at` - Timestamps
+
+**book_view_preferences table:**
+- Per-user, per-shelf view customization
+- `user_id` - Foreign key to users
+- `shelf` - Shelf name (e.g., 'all', 'currently_reading', 'read')
+- `view_mode` - 'grid' or 'table'
+- `visible_columns` - JSON array of column names
+- `per_page` - Items per page
+
+**email_logs table:**
+- Tracks all sent emails for debugging
+- `user_id` - Recipient user
+- `type` - Email type (verification, password_reset, etc.)
+- `recipient` - Email address
+- `subject` - Email subject line
+- `status` - sent, failed
+- `error_message` - Error details if failed
+- `sent_at` - Timestamp
+
 ### Controller Patterns
 
 **BookController** handles:
@@ -366,6 +481,15 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `leave()` - Leave current family (owners cannot leave)
 - `destroy()` - Disband family (owner only)
 - `regenerateCode()` - Generate new join code (owner only)
+
+**ImportController** handles:
+- `index()` - Display import interface
+- `upload()` - Upload and parse CSV, show preview
+- `execute()` - Process import with user-selected options
+- `cancel()` - Cancel pending import
+- `history()` - View import history
+- `result()` - View detailed import results
+- `destroy()` - Delete import history record
 
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`
@@ -701,4 +825,34 @@ The application now supports multi-user environments with admin controls:
 - **NO CACHING** - direct database queries to avoid cache table dependency
 - Common settings: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
 - Helper methods: `isRegistrationEnabled()`, `getRegistrationMode()`, `isEmailDomainAllowed()`
+
+### Security Considerations
+
+**User Data Isolation:**
+- All user queries MUST scope to `auth()->user()` for security
+- Book route binding automatically scopes to current user via `resolveRouteBinding()`
+- Tags, reading challenges, and covers are user-scoped
+- Family membership does NOT share book collections
+- Each user can only access their own books, tags, and reading data
+
+**Admin Privileges:**
+- Admins can see all users but NOT their books
+- Admins cannot delete themselves (prevented in controller)
+- Admins cannot toggle their own admin status (prevented in controller)
+- At least one admin should always exist in the system
+- Admin status stored as boolean in `users.is_admin`
+
+**Route Protection:**
+- Cover routes ordered before destroy to prevent path conflicts
+- Numeric constraints on routes prevent parameter pollution
+- Book timestamps used as route keys (harder to enumerate than sequential IDs)
+- All book/tag routes protected with `auth` middleware
+- Admin routes protected with both `auth` and `admin` middleware
+
+**Important Route Ordering:**
+```php
+// CRITICAL: Cover routes MUST come BEFORE destroy route
+Route::delete('/books/{book}/covers/{cover}', ...);
+Route::delete('/books/{book}', ...); // This must be last
+```
 

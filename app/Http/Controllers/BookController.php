@@ -808,6 +808,8 @@ class BookController extends Controller
             $identifier = $book->isbn13 ?: $book->isbn;
         } elseif ($source === 'openlibrary') {
             $identifier = $book->external_id ?? ($book->isbn13 ?: $book->isbn);
+        } elseif ($source === 'bookbrainz') {
+            $identifier = $book->external_id ?? ($book->isbn13 ?: $book->isbn);
         }
 
         if (!$identifier) {
@@ -821,16 +823,28 @@ class BookController extends Controller
                 if ($book->external_id) {
                     $bookData = $googleBooks->getBook($book->external_id);
                 } else {
-                    $results = $googleBooks->searchByISBN($identifier);
+                    $results = $googleBooks->search($identifier);
                     $bookData = !empty($results) ? $results[0] : null;
                 }
             } elseif ($source === 'bigbook') {
-                $bookData = $bigBook->getBookByISBN($identifier);
+                if ($book->external_id) {
+                    $bookData = $bigBook->getBook($book->external_id);
+                } else {
+                    $results = $bigBook->search($identifier);
+                    $bookData = !empty($results) ? $results[0] : null;
+                }
             } elseif ($source === 'openlibrary') {
                 if ($book->external_id) {
                     $bookData = $openLibrary->getBook($book->external_id);
                 } else {
-                    $results = $openLibrary->searchByISBN($identifier);
+                    $results = $openLibrary->search($identifier);
+                    $bookData = !empty($results) ? $results[0] : null;
+                }
+            } elseif ($source === 'bookbrainz') {
+                if ($book->external_id) {
+                    $bookData = $bookBrainz->getBook($book->external_id);
+                } else {
+                    $results = $bookBrainz->search($identifier);
                     $bookData = !empty($results) ? $results[0] : null;
                 }
             }
@@ -849,7 +863,7 @@ class BookController extends Controller
                     'page_count' => $book->page_count,
                     'publisher' => $book->publisher,
                     'published_date' => $book->published_date?->format('Y-m-d'),
-                    'cover_url' => $book->cover_image,
+                    'cover_url' => $book->cover_url,
                     'isbn' => $book->isbn,
                     'isbn13' => $book->isbn13,
                 ],
@@ -884,7 +898,7 @@ class BookController extends Controller
 
         $validated = $request->validate([
             'fields' => 'required|array',
-            'fields.*' => 'in:title,author,description,page_count,publisher,published_date,cover,isbn,isbn13',
+            'fields.*' => 'in:title,author,description,page_count,publisher,published_date,cover_url,isbn,isbn13',
             'data' => 'required|array',
             'source' => 'required|string',
         ]);
@@ -893,25 +907,43 @@ class BookController extends Controller
         $fieldsUpdated = [];
 
         foreach ($validated['fields'] as $field) {
-            if ($field === 'cover' && isset($validated['data']['cover_url'])) {
+            if ($field === 'cover_url' && isset($validated['data']['cover_url'])) {
                 // Download and update cover
                 $coverUrl = $validated['data']['cover_url'];
-                $identifier = $book->isbn13 ?? $book->isbn ?? $book->id;
-                $localCoverPath = $coverService->downloadAndStore($coverUrl, $identifier);
 
-                if ($localCoverPath) {
-                    $updateData['local_cover_path'] = $localCoverPath;
-                    $updateData['cover_url'] = $coverUrl;
-                    $updateData['thumbnail'] = $coverUrl;
+                // Skip if cover URL is empty or same as current
+                if (!$coverUrl || $coverUrl === $book->cover_url) {
+                    continue;
+                }
 
-                    // Create new BookCover entry
-                    $book->covers()->create([
-                        'path' => $localCoverPath,
-                        'is_primary' => true,
-                        'sort_order' => 0,
+                try {
+                    // Download cover from URL
+                    $identifier = $book->isbn13 ?? $book->isbn ?? $book->id;
+                    $localCoverPath = $coverService->downloadAndStore($coverUrl, $identifier);
+
+                    if ($localCoverPath) {
+                        // Update book's cover_url reference
+                        $updateData['cover_url'] = $coverUrl;
+                        $updateData['thumbnail'] = $coverUrl;
+
+                        // Mark all existing covers as non-primary
+                        $book->covers()->update(['is_primary' => false]);
+
+                        // Create new BookCover entry as primary
+                        $book->covers()->create([
+                            'path' => $localCoverPath,
+                            'is_primary' => true,
+                            'sort_order' => 0,
+                        ]);
+
+                        $fieldsUpdated[] = 'cover';
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to download cover from API', [
+                        'url' => $coverUrl,
+                        'error' => $e->getMessage()
                     ]);
-
-                    $fieldsUpdated[] = 'cover';
+                    // Continue with other fields even if cover download fails
                 }
             } elseif (isset($validated['data'][$field])) {
                 $updateData[$field] = $validated['data'][$field];

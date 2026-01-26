@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" x-data="welcomePage()" :lang="currentLang">
+<html lang="{{ $locale ?? 'en' }}" x-data="welcomePage('{{ $locale ?? 'en' }}')" :lang="currentLang">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,16 +10,16 @@
     <meta name="description" x-bind:content="t('meta_description')">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="{{ config('app.url') }}">
+    <link rel="canonical" :href="canonicalUrl()">
 
     <!-- Hreflang Tags -->
-    <link rel="alternate" hreflang="en" href="{{ config('app.url') }}" />
-    <link rel="alternate" hreflang="de" href="{{ config('app.url') }}" />
-    <link rel="alternate" hreflang="es" href="{{ config('app.url') }}" />
-    <link rel="alternate" hreflang="fr" href="{{ config('app.url') }}" />
-    <link rel="alternate" hreflang="it" href="{{ config('app.url') }}" />
-    <link rel="alternate" hreflang="pl" href="{{ config('app.url') }}" />
-    <link rel="alternate" hreflang="x-default" href="{{ config('app.url') }}" />
+    <link rel="alternate" hreflang="en" href="{{ rtrim(config('app.url'), '/') }}" />
+    <link rel="alternate" hreflang="de" href="{{ rtrim(config('app.url'), '/') }}/de" />
+    <link rel="alternate" hreflang="es" href="{{ rtrim(config('app.url'), '/') }}/es" />
+    <link rel="alternate" hreflang="fr" href="{{ rtrim(config('app.url'), '/') }}/fr" />
+    <link rel="alternate" hreflang="it" href="{{ rtrim(config('app.url'), '/') }}/it" />
+    <link rel="alternate" hreflang="pl" href="{{ rtrim(config('app.url'), '/') }}/pl" />
+    <link rel="alternate" hreflang="x-default" href="{{ rtrim(config('app.url'), '/') }}" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -183,9 +183,10 @@
     </div>
 
     <script>
-        function welcomePage() {
+        function welcomePage(initialLang = 'en') {
             return {
-                currentLang: 'en',
+                currentLang: initialLang,
+                baseUrl: '{{ rtrim(config('app.url'), '/') }}',
                 translations: {
                     en: {
                         title: 'Leafmark - Track Your Reading Journey',
@@ -393,28 +394,26 @@
                     }
                 },
                 init() {
-                    // Detect browser language
-                    const browserLang = navigator.language || navigator.userLanguage;
-                    const langCode = browserLang.split('-')[0];  // Get 'de' from 'de-DE'
-
-                    // Check if we support this language
-                    if (this.translations[langCode]) {
-                        this.currentLang = langCode;
-                    } else {
-                        this.currentLang = 'en';  // fallback to English
-                    }
-
-                    // Update document title and meta description
+                    // Update document title and meta description with current language
                     document.title = this.t('meta_title');
                     document.querySelector('meta[name="description"]').setAttribute('content', this.t('meta_description'));
                 },
                 t(key) {
                     return this.translations[this.currentLang][key] || this.translations.en[key] || key;
                 },
+                canonicalUrl() {
+                    if (this.currentLang === 'en') {
+                        return this.baseUrl;
+                    }
+                    return this.baseUrl + '/' + this.currentLang;
+                },
                 changeLang(lang) {
-                    this.currentLang = lang;
-                    document.title = this.t('meta_title');
-                    document.querySelector('meta[name="description"]').setAttribute('content', this.t('meta_description'));
+                    // Redirect to the correct language URL
+                    if (lang === 'en') {
+                        window.location.href = this.baseUrl;
+                    } else {
+                        window.location.href = this.baseUrl + '/' + lang;
+                    }
                 }
             }
         }
