@@ -520,24 +520,9 @@ When implementing controllers:
 - `family/create.blade.php` - Form to create a new family
 - `family/join.blade.php` - Form to join a family with a code
 
-## Development Environment
+## Production Deployment
 
-### GitHub Codespaces Setup
-
-This project runs in GitHub Codespaces using Docker Compose.
-
-**Environment Configuration:**
-
-The Docker entrypoint ([docker-entrypoint.sh](docker-entrypoint.sh)) automatically:
-1. Creates `.env` from environment variables
-2. Runs migrations with `--force`
-3. Caches configuration
-4. Starts Apache
-
-**Required environment variables:**
-- `APP_KEY` - Laravel encryption key (generate with `php artisan key:generate`)
-- `APP_ENV` - Use `local` for development
-- `GOOGLE_BOOKS_API_KEY` - (Optional) Google Books API key
+**Important:** This application runs in production using Docker Compose. All development and changes are made directly on the production system using code-server.
 
 **Docker Services:**
 - `app` - Laravel 11 + PHP 8.2 + Apache (exposed on port 8000)
@@ -556,7 +541,13 @@ The Docker entrypoint ([docker-entrypoint.sh](docker-entrypoint.sh)) automatical
 - `storage_data` - Uploaded book covers
 - `vendor` - Composer dependencies
 
-## Production Deployment
+**Environment Configuration:**
+
+The Docker entrypoint ([docker-entrypoint.sh](docker-entrypoint.sh)) automatically:
+1. Creates `.env` from environment variables
+2. Runs migrations with `--force`
+3. Caches configuration
+4. Starts Apache
 
 ### Initial Server Setup
 
@@ -575,7 +566,7 @@ nano .env
 ```env
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://your-domain.com
+APP_URL=https://www.leafmark.app
 APP_KEY=  # Will be generated
 DB_CONNECTION=mysql
 DB_HOST=db
@@ -585,6 +576,7 @@ DB_USERNAME=leafmark
 DB_PASSWORD=  # Use secure password
 MYSQL_ROOT_PASSWORD=  # Use secure password
 GOOGLE_BOOKS_API_KEY=  # Optional
+BIGBOOK_API_KEY=  # Optional
 ```
 
 **Start the application:**
