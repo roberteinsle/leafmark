@@ -5,7 +5,7 @@
 @section('content')
 <div class="px-4 max-w-2xl mx-auto">
     <div class="mb-6">
-        <a href="{{ route('books.show', $book) }}" class="text-indigo-600 hover:text-indigo-700 flex items-center">
+        <a href="{{ localeRoute('books.show', $book) }}" class="text-indigo-600 hover:text-indigo-700 flex items-center">
             <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
@@ -26,7 +26,7 @@
             async fetchData(source) {
                 this.loading = true;
                 try {
-                    const response = await fetch('{{ route('books.fetch-api-data', $book) }}?source=' + source, {
+                    const response = await fetch('{{ localeRoute('books.fetch-api-data', $book) }}?source=' + source, {
                         method: 'GET',
                         credentials: 'same-origin',
                         headers: {
@@ -55,7 +55,7 @@
             async applyChanges() {
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '{{ route('books.refresh-from-api', $book) }}';
+                form.action = '{{ localeRoute('books.refresh-from-api', $book) }}';
 
                 // Add CSRF token
                 const csrfInput = document.createElement('input');
@@ -147,13 +147,13 @@
 
         <!-- Separate form for deleting cover (must be outside main form) -->
         @if($book->local_cover_path)
-        <form id="delete-cover-form" action="{{ route('books.delete-cover', $book) }}" method="POST" style="display: none;">
+        <form id="delete-cover-form" action="{{ localeRoute('books.delete-cover', $book) }}" method="POST" style="display: none;">
             @csrf
             @method('DELETE')
         </form>
         @endif
 
-        <form method="POST" action="{{ route('books.update', $book) }}" enctype="multipart/form-data" class="space-y-6">
+        <form method="POST" action="{{ localeRoute('books.update', $book) }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
 
@@ -390,7 +390,7 @@
             </div>
 
             <div class="flex justify-end space-x-4">
-                <a href="{{ route('books.show', $book) }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg">
+                <a href="{{ localeRoute('books.show', $book) }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg">
                     Cancel
                 </a>
                 <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg">
@@ -445,7 +445,7 @@
 
             <!-- Upload New Cover Form (completely separate) -->
             <div class="bg-gray-50 rounded-lg p-6">
-                <form action="{{ route('books.covers.upload', $book) }}" method="POST" enctype="multipart/form-data" id="cover-upload-form">
+                <form action="{{ localeRoute('books.covers.upload', $book) }}" method="POST" enctype="multipart/form-data" id="cover-upload-form">
                     @csrf
                     <label class="block text-sm font-medium text-gray-700 mb-2">Upload New Cover</label>
 

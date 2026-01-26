@@ -8,7 +8,7 @@
         <h1 class="text-3xl font-bold text-gray-900">{{ __('app.challenge.title') }} {{ $selectedYear }}</h1>
 
         <!-- Year Selector -->
-        <form method="GET" action="{{ route('challenge.index') }}" class="flex items-center gap-2">
+        <form method="GET" action="{{ localeRoute('challenge.index') }}" class="flex items-center gap-2">
             <label for="year-select" class="text-sm font-medium text-gray-700">Jahr:</label>
             <select name="year" id="year-select" onchange="this.form.submit()"
                     class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
@@ -35,7 +35,7 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-gray-900">{{ __('app.challenge.your_goal') }} {{ $selectedYear }}</h2>
                     <div class="flex items-center gap-3" x-data="{ editing: false }">
-                        <form method="POST" action="{{ route('challenge.update', $challenge) }}" class="flex items-center gap-2">
+                        <form method="POST" action="{{ localeRoute('challenge.update', $challenge) }}" class="flex items-center gap-2">
                             @csrf
                             @method('PATCH')
                             <div x-show="editing" class="flex items-center gap-2">
@@ -48,7 +48,7 @@
                                 {{ __('app.challenge.edit_goal') }}
                             </button>
                         </form>
-                        <form method="POST" action="{{ route('challenge.destroy', $challenge) }}" onsubmit="return confirm('{{ __('app.challenge.delete_confirm') }}')">
+                        <form method="POST" action="{{ localeRoute('challenge.destroy', $challenge) }}" onsubmit="return confirm('{{ __('app.challenge.delete_confirm') }}')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-600 hover:text-red-700 text-sm">
@@ -82,7 +82,7 @@
         @else
             <div class="text-center py-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">{{ __('app.challenge.your_goal') }} {{ $selectedYear }}</h2>
-                <form method="POST" action="{{ route('challenge.store') }}" class="inline-flex items-center gap-3">
+                <form method="POST" action="{{ localeRoute('challenge.store') }}" class="inline-flex items-center gap-3">
                     @csrf
                     <input type="hidden" name="year" value="{{ $selectedYear }}">
                     <input type="number" name="goal" placeholder="z.B. 24" min="1" max="1000" required
@@ -138,7 +138,7 @@
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
                 @foreach($booksReadThisYear as $book)
                 <div class="bg-white rounded-lg hover:shadow-lg transition">
-                    <a href="{{ route('books.show', $book) }}" class="block">
+                    <a href="{{ localeRoute('books.show', $book) }}" class="block">
                         @if($book->cover_image)
                             <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" class="w-full aspect-[2/3] object-cover rounded-t-lg">
                         @else

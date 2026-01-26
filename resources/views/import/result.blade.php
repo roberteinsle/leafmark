@@ -62,7 +62,7 @@
             <p class="text-sm text-indigo-800 mb-3">{{ __('app.import.import_tag_description') }}</p>
             <div class="flex gap-2">
                 <code class="bg-white px-3 py-1 rounded text-indigo-600 font-mono text-sm">{{ $importHistory->import_tag }}</code>
-                <a href="{{ route('books.index', ['tag' => $importHistory->import_tag]) }}" 
+                <a href="{{ localeRoute('books.index', ['tag' => $importHistory->import_tag]) }}" 
                    class="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
                     {{ __('app.import.view_imported_books') }} →
                 </a>
@@ -86,10 +86,10 @@
 
         <!-- Actions -->
         <div class="flex gap-4">
-            <a href="{{ route('books.index') }}" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg text-center">
+            <a href="{{ localeRoute('books.index') }}" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg text-center">
                 {{ __('app.import.view_library') }}
             </a>
-            <a href="{{ route('import.index') }}" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg text-center">
+            <a href="{{ localeRoute('import.index') }}" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg text-center">
                 {{ __('app.import.import_another') }}
             </a>
         </div>

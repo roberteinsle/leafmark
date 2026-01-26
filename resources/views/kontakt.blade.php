@@ -30,7 +30,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('kontakt.submit') }}" class="space-y-6">
+        <form method="POST" action="{{ localeRoute('kontakt.submit') }}" class="space-y-6">
             @csrf
 
             <!-- Category -->

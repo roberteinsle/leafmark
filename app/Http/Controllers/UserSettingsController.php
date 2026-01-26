@@ -64,7 +64,7 @@ class UserSettingsController extends Controller
 
         auth()->user()->update($validated);
 
-        return redirect()->route('settings.edit')
+        return redirect()->route('settings.edit.' . app()->getLocale())
             ->with('success', 'Settings updated successfully!');
     }
 }

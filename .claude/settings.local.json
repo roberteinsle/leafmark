@@ -80,7 +80,8 @@
       "Bash(sudo mkdir:*)",
       "Bash(sudo docker ps:*)",
       "Bash(sudo docker exec:*)",
-      "Bash(do echo \"Testing /$lang:\")"
+      "Bash(do echo \"Testing /$lang:\")",
+      "Bash(sudo chown:*)"
     ]
   }
 }

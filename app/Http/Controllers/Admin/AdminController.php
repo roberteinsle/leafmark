@@ -99,7 +99,7 @@ class AdminController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('admin.users.edit', $user)->with('success', 'User updated successfully.');
+        return redirect()->route('admin.users.edit.' . app()->getLocale(), $user)->with('success', 'User updated successfully.');
     }
 
     /**

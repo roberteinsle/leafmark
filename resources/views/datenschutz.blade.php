@@ -70,7 +70,7 @@
 
             <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Hinweis zur verantwortlichen Stelle</h3>
             <p class="text-gray-700 mb-4">
-                Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist im <a href="{{ route('impressum') }}" class="text-blue-600 hover:text-blue-800 font-medium">Impressum</a> zu finden.
+                Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist im <a href="{{ localeRoute('impressum') }}" class="text-blue-600 hover:text-blue-800 font-medium">Impressum</a> zu finden.
             </p>
 
             <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Widerruf deiner Einwilligung zur Datenverarbeitung</h3>

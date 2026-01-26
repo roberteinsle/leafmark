@@ -20,30 +20,30 @@ class VerificationController extends Controller
     {
         // Validate the signed URL
         if (!$request->hasValidSignature()) {
-            return redirect()->route('login')->withErrors(['email' => __('app.email_verification.invalid_link')]);
+            return redirect()->route('login.' . app()->getLocale())->withErrors(['email' => __('app.email_verification.invalid_link')]);
         }
 
         $user = User::find($request->route('id'));
 
         if (!$user) {
-            return redirect()->route('login')->withErrors(['email' => __('app.email_verification.invalid_link')]);
+            return redirect()->route('login.' . app()->getLocale())->withErrors(['email' => __('app.email_verification.invalid_link')]);
         }
 
         // Check if already verified
         if ($user->email_verified_at) {
-            return redirect()->route('login')->with('status', __('app.email_verification.already_verified'));
+            return redirect()->route('login.' . app()->getLocale())->with('status', __('app.email_verification.already_verified'));
         }
 
         // Verify the email hash
         if (!hash_equals((string) $request->route('hash'), sha1($user->email))) {
-            return redirect()->route('login')->withErrors(['email' => __('app.email_verification.invalid_link')]);
+            return redirect()->route('login.' . app()->getLocale())->withErrors(['email' => __('app.email_verification.invalid_link')]);
         }
 
         // Mark email as verified
         $user->email_verified_at = now();
         $user->save();
 
-        return redirect()->route('login')->with('status', __('app.email_verification.verified'));
+        return redirect()->route('login.' . app()->getLocale())->with('status', __('app.email_verification.verified'));
     }
 
     /**
@@ -71,7 +71,7 @@ class VerificationController extends Controller
 
         // Check if already verified
         if ($user->email_verified_at) {
-            return redirect()->route('login')->with('status', __('app.email_verification.already_verified'));
+            return redirect()->route('login.' . app()->getLocale())->with('status', __('app.email_verification.already_verified'));
         }
 
         // Generate verification URL

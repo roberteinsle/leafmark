@@ -43,7 +43,7 @@
                 <div class="mt-2 max-w-xl text-sm text-gray-500">
                     <p>{{ __('app.email_verification.resend_intro') }}</p>
                 </div>
-                <form class="mt-5" method="POST" action="{{ route('verification.resend') }}">
+                <form class="mt-5" method="POST" action="{{ localeRoute('verification.resend') }}">
                     @csrf
                     <div class="space-y-4">
                         <div>
@@ -75,7 +75,7 @@
         </div>
 
         <div class="text-center">
-            <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+            <a href="{{ localeRoute('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
                 {{ __('app.password_reset.back_to_login') }}
             </a>
         </div>

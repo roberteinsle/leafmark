@@ -65,13 +65,13 @@
     <div class="bg-white shadow rounded-lg p-6">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a href="{{ route('books.create') }}" class="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 transition">
+            <a href="{{ localeRoute('books.create') }}" class="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 transition">
                 <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 <span class="ml-3 text-gray-700">Add New Book</span>
             </a>
-            <a href="{{ route('shelves.create') }}" class="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 transition">
+            <a href="{{ localeRoute('shelves.create') }}" class="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 transition">
                 <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>

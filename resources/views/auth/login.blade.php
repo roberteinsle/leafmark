@@ -28,14 +28,14 @@
                     <div class="ml-3">
                         <p class="text-sm font-medium text-yellow-800">
                             Your email is not verified.
-                            <a href="{{ route('verify.notice') }}" class="underline font-semibold">Click here to resend verification email</a>
+                            <a href="{{ localeRoute('verify.notice') }}" class="underline font-semibold">Click here to resend verification email</a>
                         </p>
                     </div>
                 </div>
             </div>
         @endif
 
-        <form class="mt-8 space-y-6" method="POST" action="{{ route('login') }}">
+        <form class="mt-8 space-y-6" method="POST" action="{{ localeRoute('login') }}">
             @csrf
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="text-sm">
-                    <a href="{{ route('password.request') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                    <a href="{{ localeRoute('password.request') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
                         Forgot your password?
                     </a>
                 </div>
@@ -91,7 +91,7 @@
             </div>
 
             <div class="text-center">
-                <a href="{{ route('register') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="{{ localeRoute('register') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
                     Don't have an account? Register
                 </a>
             </div>

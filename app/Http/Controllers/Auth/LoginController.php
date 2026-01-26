@@ -47,7 +47,7 @@ class LoginController extends Controller
 
             $request->session()->regenerate();
 
-            return redirect()->intended(route('books.index'));
+            return redirect()->intended(route('books.index.' . app()->getLocale()));
         }
 
         throw ValidationException::withMessages([

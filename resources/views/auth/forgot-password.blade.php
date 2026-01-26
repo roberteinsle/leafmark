@@ -35,7 +35,7 @@
             </div>
         @endif
 
-        <form class="mt-8 space-y-6" method="POST" action="{{ route('password.email') }}">
+        <form class="mt-8 space-y-6" method="POST" action="{{ localeRoute('password.email') }}">
             @csrf
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
@@ -66,7 +66,7 @@
             </div>
 
             <div class="text-center">
-                <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="{{ localeRoute('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
                     {{ __('app.password_reset.back_to_login') }}
                 </a>
             </div>

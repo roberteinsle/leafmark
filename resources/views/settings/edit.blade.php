@@ -37,7 +37,7 @@
             </nav>
         </div>
 
-        <form action="{{ route('settings.update') }}" method="POST" class="p-6">
+        <form action="{{ localeRoute('settings.update') }}" method="POST" class="p-6">
             @csrf
             @method('PATCH')
 
@@ -113,7 +113,7 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-4" x-show="activeTab === 'account' || activeTab === 'security'">
-                <a href="{{ route('books.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                <a href="{{ localeRoute('books.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                     {{ __('app.settings.cancel') }}
                 </a>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
@@ -166,7 +166,7 @@
 
                 @if(auth()->user()->is_admin)
                     <div class="mt-4 text-center">
-                        <a href="{{ route('admin.email-logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                        <a href="{{ localeRoute('admin.email-logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
                             {{ __('app.settings.view_all_email_logs') }} →
                         </a>
                     </div>

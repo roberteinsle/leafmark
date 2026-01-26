@@ -84,7 +84,7 @@ class ContactController extends Controller
             });
 
             return redirect()
-                ->route('kontakt')
+                ->route('kontakt.' . app()->getLocale())
                 ->with('success', __('app.contact.success_message'));
 
         } catch (\Exception $e) {

@@ -121,6 +121,6 @@ class RegisterController extends Controller
         }
 
         // Do NOT log in the user - they must verify email first
-        return redirect()->route('verify.notice')->with('status', __('app.email_verification.check_email'));
+        return redirect()->route('verify.notice.' . app()->getLocale())->with('status', __('app.email_verification.check_email'));
     }
 }

@@ -315,7 +315,7 @@ class BookController extends Controller
             $book->markAsFinished();
         }
 
-        return redirect()->route('books.show', $book)
+        return redirect()->route('books.show.' . app()->getLocale(), $book)
             ->with('success', 'Book added successfully!');
     }
 
@@ -339,7 +339,7 @@ class BookController extends Controller
         $validated['added_at'] = now();
         $book = auth()->user()->books()->create($validated);
 
-        return redirect()->route('books.show', $book)
+        return redirect()->route('books.show.' . app()->getLocale(), $book)
             ->with('success', 'Book added successfully!');
     }
 
@@ -419,7 +419,7 @@ class BookController extends Controller
 
         $book->update($validated);
 
-        return redirect()->route('books.show', $book)
+        return redirect()->route('books.show.' . app()->getLocale(), $book)
             ->with('success', 'Book updated successfully!');
     }
 
@@ -468,7 +468,7 @@ class BookController extends Controller
 
         $book->delete();
 
-        return redirect()->route('books.index')
+        return redirect()->route('books.index.' . app()->getLocale())
             ->with('success', 'Book deleted successfully!');
     }
 
@@ -545,7 +545,7 @@ class BookController extends Controller
             ->whereIn('id', $validated['book_ids'])
             ->delete();
 
-        return redirect()->route('books.index')
+        return redirect()->route('books.index.' . app()->getLocale())
             ->with('success', "{$deletedCount} book(s) deleted successfully!");
     }
 
@@ -567,12 +567,12 @@ class BookController extends Controller
         $tags = $user->tags()->whereIn('id', $validated['tag_ids'])->get();
 
         if ($books->count() !== count($validated['book_ids'])) {
-            return redirect()->route('books.index')
+            return redirect()->route('books.index.' . app()->getLocale())
                 ->with('error', 'Some books do not belong to you.');
         }
 
         if ($tags->count() !== count($validated['tag_ids'])) {
-            return redirect()->route('books.index')
+            return redirect()->route('books.index.' . app()->getLocale())
                 ->with('error', 'Some tags do not belong to you.');
         }
 
@@ -589,7 +589,7 @@ class BookController extends Controller
         }
 
         $tagNames = $tags->pluck('name')->implode(', ');
-        return redirect()->route('books.index')
+        return redirect()->route('books.index.' . app()->getLocale())
             ->with('success', "Added tag(s) '{$tagNames}' to {$books->count()} book(s) ({$totalAdded} new tag associations).");
     }
 
@@ -610,12 +610,12 @@ class BookController extends Controller
         $tag = $user->tags()->find($validated['tag_id']);
 
         if ($books->count() !== count($validated['book_ids'])) {
-            return redirect()->route('books.index')
+            return redirect()->route('books.index.' . app()->getLocale())
                 ->with('error', 'Some books do not belong to you.');
         }
 
         if (!$tag) {
-            return redirect()->route('books.index')
+            return redirect()->route('books.index.' . app()->getLocale())
                 ->with('error', 'Tag does not belong to you.');
         }
 
@@ -628,7 +628,7 @@ class BookController extends Controller
             }
         }
 
-        return redirect()->route('books.index')
+        return redirect()->route('books.index.' . app()->getLocale())
             ->with('success', "Removed tag '{$tag->name}' from {$totalRemoved} book(s).");
     }
 
@@ -751,7 +751,7 @@ class BookController extends Controller
         $viewPref = BookViewPreference::getForUser(auth()->id(), $shelf);
         $viewPref->update(['view_mode' => $viewMode]);
 
-        return redirect()->route('books.index', array_filter([
+        return redirect()->route('books.index.' . app()->getLocale(), array_filter([
             'status' => $shelf !== 'all' ? $shelf : null,
         ]));
     }
@@ -778,7 +778,7 @@ class BookController extends Controller
         $viewPref = BookViewPreference::getForUser(auth()->id(), $shelf);
         $viewPref->update(['visible_columns' => $visibleColumns]);
 
-        return redirect()->route('books.index', array_filter([
+        return redirect()->route('books.index.' . app()->getLocale(), array_filter([
             'status' => $shelf !== 'all' ? $shelf : null,
         ]))->with('success', __('app.books.column_settings_saved'));
     }
@@ -958,7 +958,7 @@ class BookController extends Controller
         }
 
         $count = count($fieldsUpdated);
-        return redirect()->route('books.edit', $book)
+        return redirect()->route('books.edit.' . app()->getLocale(), $book)
             ->with('success', __('app.books.refreshed_fields', ['count' => $count]));
     }
 

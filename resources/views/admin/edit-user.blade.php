@@ -7,7 +7,7 @@
     <nav class="flex mb-4" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
             <li class="inline-flex items-center">
-                <a href="{{ route('admin.index') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                <a href="{{ localeRoute('admin.index') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
                     <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
                     Admin Dashboard
                 </a>
@@ -15,7 +15,7 @@
             <li>
                 <div class="flex items-center">
                     <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                    <a href="{{ route('admin.users') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600">Users</a>
+                    <a href="{{ localeRoute('admin.users') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600">Users</a>
                 </div>
             </li>
             <li>
@@ -171,7 +171,7 @@
                     </div>
 
                     <div class="mt-4 text-center">
-                        <a href="{{ route('admin.email-logs') }}?user={{ $user->id }}" class="text-sm text-blue-600 hover:text-blue-800">
+                        <a href="{{ localeRoute('admin.email-logs') }}?user={{ $user->id }}" class="text-sm text-blue-600 hover:text-blue-800">
                             View all email logs for this user →
                         </a>
                     </div>
@@ -183,7 +183,7 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-6">Edit User Details</h2>
 
-                <form method="POST" action="{{ route('admin.users.update', $user) }}">
+                <form method="POST" action="{{ localeRoute('admin.users.update', $user) }}">
                     @csrf
                     @method('PATCH')
 
@@ -223,7 +223,7 @@
                     @endif
 
                     <div class="flex items-center justify-between pt-4 border-t">
-                        <a href="{{ route('admin.users') }}" class="text-gray-600 hover:text-gray-900">← Back to Users</a>
+                        <a href="{{ localeRoute('admin.users') }}" class="text-gray-600 hover:text-gray-900">← Back to Users</a>
                         <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium">Save Changes</button>
                     </div>
                 </form>
@@ -238,7 +238,7 @@
                                 <h4 class="text-sm font-medium text-red-900">Delete this user</h4>
                                 <p class="text-sm text-red-700 mt-1">Once you delete a user, there is no going back. All their books and data will be permanently deleted.</p>
                             </div>
-                            <form method="POST" action="{{ route('admin.users.delete', $user) }}" class="ml-4" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone!')">
+                            <form method="POST" action="{{ localeRoute('admin.users.delete', $user) }}" class="ml-4" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone!')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">

@@ -23,7 +23,7 @@
     <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">{{ __('app.import.upload_csv') }}</h2>
         
-        <form action="{{ route('import.upload') }}" method="POST" enctype="multipart/form-data" 
+        <form action="{{ localeRoute('import.upload') }}" method="POST" enctype="multipart/form-data" 
               x-data="{ fileName: '', dragging: false }"
               @drop.prevent="dragging = false; handleDrop($event)"
               @dragover.prevent="dragging = true"
@@ -79,7 +79,7 @@
     <div class="bg-white rounded-lg shadow-lg p-8">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold text-gray-900">{{ __('app.import.recent_imports') }}</h2>
-            <a href="{{ route('import.history') }}" class="text-indigo-600 hover:text-indigo-700 text-sm">
+            <a href="{{ localeRoute('import.history') }}" class="text-indigo-600 hover:text-indigo-700 text-sm">
                 {{ __('app.import.view_all') }} →
             </a>
         </div>
@@ -114,7 +114,7 @@
                         @endif
                     </div>
                     @if($import->status === 'completed')
-                    <a href="{{ route('import.result', $import) }}" 
+                    <a href="{{ localeRoute('import.result', $import) }}" 
                        class="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
                         {{ __('app.import.view_details') }}
                     </a>
