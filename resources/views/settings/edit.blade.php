@@ -29,11 +29,6 @@
                         class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
                     {{ __('app.settings.security') }}
                 </button>
-                <button @click="activeTab = 'email'"
-                        :class="activeTab === 'email' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
-                    {{ __('app.settings.email_events') }}
-                </button>
             </nav>
         </div>
 
@@ -113,7 +108,7 @@
                 </p>
             </div>
 
-            <div class="flex justify-end gap-3 pt-4" x-show="activeTab === 'account' || activeTab === 'security'">
+            <div class="flex justify-end gap-3 pt-4">
                 <a href="{{ route('books.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                     {{ __('app.settings.cancel') }}
                 </a>
@@ -122,58 +117,6 @@
                 </button>
             </div>
         </form>
-
-        <!-- Email Events Tab (Read-only) -->
-        <div x-show="activeTab === 'email'" class="p-6" style="display: none;">
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">{{ __('app.settings.recent_email_events') }}</h3>
-                <p class="mt-1 text-sm text-gray-500">{{ __('app.settings.email_events_description') }}</p>
-            </div>
-
-            @if($recentEmailEvents->isEmpty())
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                    <p class="mt-2 text-sm text-gray-600">{{ __('app.settings.no_email_events') }}</p>
-                </div>
-            @else
-                <div class="space-y-3">
-                    @foreach($recentEmailEvents as $event)
-                        <div class="bg-white border border-gray-200 rounded-lg p-4">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            {{ $event->status === 'sent' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                            {{ $event->status === 'sent' ? __('app.settings.email_sent') : __('app.settings.email_failed') }}
-                                        </span>
-                                        <span class="text-xs text-gray-500">{{ $event->type }}</span>
-                                    </div>
-                                    <p class="mt-1 text-sm font-medium text-gray-900">{{ $event->subject }}</p>
-                                    <p class="mt-1 text-sm text-gray-500">{{ __('app.settings.to') }}: {{ $event->recipient }}</p>
-                                    @if($event->status === 'failed' && $event->error_message)
-                                        <p class="mt-2 text-sm text-red-600">{{ __('app.settings.error') }}: {{ Str::limit($event->error_message, 100) }}</p>
-                                    @endif
-                                </div>
-                                <div class="ml-4 flex-shrink-0 text-right">
-                                    <p class="text-xs text-gray-500">{{ $event->created_at->diffForHumans() }}</p>
-                                    <p class="text-xs text-gray-400">{{ $event->created_at->format('Y-m-d H:i') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-
-                @if(auth()->user()->is_admin)
-                    <div class="mt-4 text-center">
-                        <a href="{{ route('admin.email-logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
-                            {{ __('app.settings.view_all_email_logs') }} →
-                        </a>
-                    </div>
-                @endif
-            @endif
-        </div>
     </div>
 </div>
 @endsection

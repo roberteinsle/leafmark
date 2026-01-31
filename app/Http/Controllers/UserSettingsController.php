@@ -15,17 +15,9 @@ class UserSettingsController extends Controller
 
     public function edit(): View
     {
-        // Get the last 5 email events for the current user
-        $recentEmailEvents = auth()->user()
-            ->emailLogs()
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-
         return view('settings.edit', [
             'user' => auth()->user(),
             'availableLanguages' => $this->languageService->getLanguageNames(),
-            'recentEmailEvents' => $recentEmailEvents,
         ]);
     }
 
