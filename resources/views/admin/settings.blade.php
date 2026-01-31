@@ -195,32 +195,6 @@
                 </button>
             </div>
         </form>
-
-        <!-- Test Email Form (separate form outside main form) -->
-        <form method="POST" action="{{ route('admin.settings.test-email') }}" class="mt-4 border-t pt-4">
-            @csrf
-            <div class="flex items-end gap-4">
-                <div class="flex-1">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        {{ __('app.admin.test_email_recipient') }}
-                    </label>
-                    <input type="email" name="test_email" required
-                           value="{{ auth()->user()->email }}"
-                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                           placeholder="email@example.com">
-                    @error('test_email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                    </svg>
-                    {{ __('app.admin.send_test_email') }}
-                </button>
-            </div>
-        </form>
     </div>
 
     <!-- Turnstile Settings -->
