@@ -79,6 +79,7 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
             'email_verified_at' => now(), // Auto-verify email
             'is_admin' => $isAdmin,
+            'preferred_language' => config('app.locale', 'en'), // Set default language from APP_LOCALE
         ]);
 
         event(new Registered($user));

@@ -61,6 +61,22 @@
                     @enderror
                 </div>
 
+                <div>
+                    <label for="preferred_language" class="block text-sm font-medium text-gray-700">{{ __('app.settings.preferred_language') }}</label>
+                    <select name="preferred_language" id="preferred_language" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('preferred_language') border-red-500 @enderror">
+                        @foreach($availableLanguages as $code => $name)
+                            <option value="{{ $code }}" {{ old('preferred_language', $user->preferred_language) === $code ? 'selected' : '' }}>
+                                {{ $name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('preferred_language')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-sm text-gray-500">{{ __('app.settings.preferred_language_help') }}</p>
+                </div>
+
             </div>
 
             <!-- Security Tab -->

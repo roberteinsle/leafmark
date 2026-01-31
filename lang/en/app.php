@@ -361,6 +361,7 @@ return [
         'name' => 'Name',
         'email' => 'Email',
         'preferred_language' => 'Preferred Language',
+        'preferred_language_help' => 'Choose your preferred language for the application interface',
         'language_help' => 'This will be used as the default language for book searches and UI',
         'google_books_api_key' => 'Google Books API Key',
         'api_key_placeholder' => 'Enter your Google Books API key (optional)',

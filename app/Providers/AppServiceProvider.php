@@ -20,6 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Set locale based on authenticated user's preference or default from .env
+        if (auth()->check() && auth()->user()->preferred_language) {
+            app()->setLocale(auth()->user()->preferred_language);
+        } else {
+            app()->setLocale(config('app.locale', 'en'));
+        }
     }
 }
