@@ -201,10 +201,11 @@ The application has core models with the following relationships:
 - Admin users can access `/admin` routes
 - Regular users can only access their own data
 
-**First User Auto-Admin:**
+**Auto-Admin Assignment:**
 - The **first user to register automatically becomes an admin**
+- Users with email matching `ADMIN_EMAIL` in .env automatically become admins
 - No seeder required
-- Implemented in RegisterController.php:76-84
+- Implemented in RegisterController.php
 
 **System Settings:**
 - `SystemSetting` model stores application-wide configuration
@@ -495,6 +496,7 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `email_verified_at` - Email verification timestamp
 - Admins can access `/admin` routes and manage users
 - First user to register automatically becomes admin
+- Users with email matching ADMIN_EMAIL in .env automatically become admins
 
 **system_settings table:**
 - Key-value storage for application configuration
