@@ -64,11 +64,6 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('app.admin.system_settings') }}</h3>
             <p class="text-gray-600">{{ __('app.admin.registration_settings') }}</p>
         </a>
-
-        <a href="{{ route('admin.email-logs') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('app.admin.email_logs') }}</h3>
-            <p class="text-gray-600">{{ __('app.admin.email_logs_link_description') }}</p>
-        </a>
     </div>
 
     <!-- Recent Users -->
