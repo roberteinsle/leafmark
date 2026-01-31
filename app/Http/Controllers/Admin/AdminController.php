@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\SystemSetting;
-use App\Models\EmailLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -54,13 +53,7 @@ class AdminController extends Controller
             }
         ]);
 
-        // Get the last 5 email events for this user
-        $recentEmailEvents = $user->emailLogs()
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-
-        return view('admin.edit-user', compact('user', 'recentEmailEvents'));
+        return view('admin.edit-user', compact('user'));
     }
 
     /**
@@ -140,40 +133,11 @@ class AdminController extends Controller
         $allowedDomains = SystemSetting::get('allowed_email_domains', '');
         $registrationCode = SystemSetting::get('registration_code', '');
 
-        $smtpEnabled = SystemSetting::get('smtp_enabled', 'false') === 'true';
-        $smtpHost = SystemSetting::get('smtp_host', '');
-        $smtpPort = SystemSetting::get('smtp_port', '587');
-        $smtpEncryption = SystemSetting::get('smtp_encryption', 'tls');
-        $smtpUsername = SystemSetting::get('smtp_username', '');
-        $smtpPassword = SystemSetting::get('smtp_password', '');
-        $smtpFromAddress = SystemSetting::get('smtp_from_address', '');
-        $smtpFromName = SystemSetting::get('smtp_from_name', 'Leafmark');
-
-        $turnstileEnabled = SystemSetting::get('turnstile_enabled', 'false') === 'true';
-        $turnstileSiteKey = SystemSetting::get('turnstile_site_key', '');
-        $turnstileSecretKey = SystemSetting::get('turnstile_secret_key', '');
-
-        $googleBooksApiKey = SystemSetting::get('google_books_api_key', '');
-        $bigBookApiKey = SystemSetting::get('bigbook_api_key', '');
-
         return view('admin.settings', compact(
             'registrationEnabled',
             'registrationMode',
             'allowedDomains',
-            'registrationCode',
-            'smtpEnabled',
-            'smtpHost',
-            'smtpPort',
-            'smtpEncryption',
-            'smtpUsername',
-            'smtpPassword',
-            'smtpFromAddress',
-            'smtpFromName',
-            'turnstileEnabled',
-            'turnstileSiteKey',
-            'turnstileSecretKey',
-            'googleBooksApiKey',
-            'bigBookApiKey'
+            'registrationCode'
         ));
     }
 
@@ -182,59 +146,7 @@ class AdminController extends Controller
      */
     public function updateSettings(Request $request): RedirectResponse
     {
-        $section = $request->input('section');
-
-        if ($section === 'smtp') {
-            $validated = $request->validate([
-                'smtp_enabled' => 'nullable|boolean',
-                'smtp_host' => 'nullable|string|max:255',
-                'smtp_port' => 'nullable|integer|min:1|max:65535',
-                'smtp_encryption' => 'nullable|string|in:tls,ssl,',
-                'smtp_username' => 'nullable|string|max:255',
-                'smtp_password' => 'nullable|string|max:255',
-                'smtp_from_address' => 'nullable|email|max:255',
-                'smtp_from_name' => 'nullable|string|max:255',
-            ]);
-
-            SystemSetting::set('smtp_enabled', $request->has('smtp_enabled') ? 'true' : 'false');
-            SystemSetting::set('smtp_host', $validated['smtp_host'] ?? '');
-            SystemSetting::set('smtp_port', $validated['smtp_port'] ?? '587');
-            SystemSetting::set('smtp_encryption', $validated['smtp_encryption'] ?? 'tls');
-            SystemSetting::set('smtp_username', $validated['smtp_username'] ?? '');
-            SystemSetting::set('smtp_password', $validated['smtp_password'] ?? '');
-            SystemSetting::set('smtp_from_address', $validated['smtp_from_address'] ?? '');
-            SystemSetting::set('smtp_from_name', $validated['smtp_from_name'] ?? 'Leafmark');
-
-            return back()->with('success', 'SMTP settings updated successfully.');
-        }
-
-        if ($section === 'turnstile') {
-            $validated = $request->validate([
-                'turnstile_enabled' => 'nullable|boolean',
-                'turnstile_site_key' => 'nullable|string|max:255',
-                'turnstile_secret_key' => 'nullable|string|max:255',
-            ]);
-
-            SystemSetting::set('turnstile_enabled', $request->has('turnstile_enabled') ? 'true' : 'false');
-            SystemSetting::set('turnstile_site_key', $validated['turnstile_site_key'] ?? '');
-            SystemSetting::set('turnstile_secret_key', $validated['turnstile_secret_key'] ?? '');
-
-            return back()->with('success', 'Turnstile settings updated successfully.');
-        }
-
-        if ($section === 'api') {
-            $validated = $request->validate([
-                'google_books_api_key' => 'nullable|string|max:255',
-                'bigbook_api_key' => 'nullable|string|max:255',
-            ]);
-
-            SystemSetting::set('google_books_api_key', $validated['google_books_api_key'] ?? '');
-            SystemSetting::set('bigbook_api_key', $validated['bigbook_api_key'] ?? '');
-
-            return back()->with('success', 'API settings updated successfully.');
-        }
-
-        // Default: registration settings
+        // Registration settings
         $validated = $request->validate([
             'registration_enabled' => 'required|boolean',
             'registration_mode' => 'required|in:open,domain,code',
@@ -248,131 +160,5 @@ class AdminController extends Controller
         SystemSetting::set('registration_code', $validated['registration_code'] ?? '');
 
         return back()->with('success', 'Registration settings updated successfully.');
-    }
-
-    /**
-     * Send test email to specified recipient
-     */
-    public function sendTestEmail(Request $request): RedirectResponse
-    {
-        // Validate recipient email
-        $validated = $request->validate([
-            'test_email' => 'required|email',
-        ]);
-
-        $recipient = $validated['test_email'];
-        $subject = 'Leafmark SMTP Test Email';
-
-        // Check if SMTP is enabled
-        if (!SystemSetting::isSmtpEnabled()) {
-            \App\Models\EmailLog::logFailure(
-                $recipient,
-                $subject,
-                'SMTP is not enabled',
-                'test',
-                auth()->id(),
-                null,
-                null
-            );
-            return back()->withErrors(['error' => 'SMTP is not enabled. Please enable and configure SMTP settings first.']);
-        }
-
-        // Check if required SMTP settings are configured
-        $smtp = SystemSetting::getSmtpConfig();
-        if (empty($smtp['host']) || empty($smtp['from_address'])) {
-            \App\Models\EmailLog::logFailure(
-                $recipient,
-                $subject,
-                'SMTP settings incomplete: missing host or from_address',
-                'test',
-                auth()->id(),
-                $smtp,
-                null
-            );
-            return back()->withErrors(['error' => 'SMTP settings are incomplete. Please configure SMTP host and from address.']);
-        }
-
-        // Log detailed SMTP configuration (sanitize password)
-        $smtpConfigForLog = $smtp;
-        $smtpConfigForLog['password'] = $smtp['password'] ? '***HIDDEN***' : '';
-
-        \Log::info('Attempting to send test email', [
-            'recipient' => $recipient,
-            'smtp_host' => $smtp['host'],
-            'smtp_port' => $smtp['port'],
-            'smtp_encryption' => $smtp['encryption'],
-            'smtp_username' => $smtp['username'],
-            'smtp_from' => $smtp['from_address'],
-        ]);
-
-        try {
-            \Mail::to($recipient)->send(new \App\Mail\TestEmail());
-
-            // Log success
-            \App\Models\EmailLog::logSuccess(
-                $recipient,
-                $subject,
-                'test',
-                auth()->id(),
-                $smtpConfigForLog
-            );
-
-            \Log::info('Test email sent successfully', [
-                'recipient' => $recipient,
-            ]);
-
-            return back()->with('success', 'Test email sent successfully to ' . $recipient);
-        } catch (\Exception $e) {
-            // Log detailed error
-            $errorMessage = $e->getMessage();
-            $stackTrace = $e->getTraceAsString();
-
-            \Log::error('Test email failed', [
-                'recipient' => $recipient,
-                'error' => $errorMessage,
-                'exception_class' => get_class($e),
-                'smtp_host' => $smtp['host'],
-                'smtp_port' => $smtp['port'],
-                'stack_trace' => $stackTrace,
-            ]);
-
-            // Log to database
-            \App\Models\EmailLog::logFailure(
-                $recipient,
-                $subject,
-                $errorMessage,
-                'test',
-                auth()->id(),
-                $smtpConfigForLog,
-                $stackTrace
-            );
-
-            return back()->withErrors(['error' => 'Failed to send test email: ' . $errorMessage]);
-        }
-    }
-
-    /**
-     * Show email logs
-     */
-    public function emailLogs(Request $request): View
-    {
-        $query = EmailLog::with('user');
-
-        // Filter by user if user parameter is provided
-        if ($request->has('user') && $request->user) {
-            $query->where('user_id', $request->user);
-        }
-
-        $logs = $query->orderBy('created_at', 'desc')
-            ->paginate(50)
-            ->appends($request->only('user')); // Preserve filter in pagination
-
-        // Get the filtered user if applicable
-        $filteredUser = null;
-        if ($request->has('user') && $request->user) {
-            $filteredUser = User::find($request->user);
-        }
-
-        return view('admin.email-logs', compact('logs', 'filteredUser'));
     }
 }
