@@ -1,6 +1,8 @@
 {
   "name": "Leafmark - Laravel 11",
-  "image": "mcr.microsoft.com/devcontainers/php:1-8.2-bullseye",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
@@ -16,7 +18,7 @@
       "label": "MariaDB"
     }
   },
-  "postCreateCommand": "composer install && cp .env.example .env && php artisan key:generate && npm install -g @anthropic-ai/claude-code",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
   "customizations": {
     "vscode": {
       "extensions": [

@@ -9,6 +9,8 @@ services:
       - ../..:/workspaces:cached
     command: sleep infinity
     network_mode: service:db
+    depends_on:
+      - db
 
   db:
     image: mariadb:11
@@ -16,10 +18,15 @@ services:
     volumes:
       - mariadb-data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: leafmark
       MYSQL_USER: leafmark
-      MYSQL_PASSWORD: leafmark
+      MYSQL_PASSWORD: leafmark_password
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
 
 volumes:
   mariadb-data:
