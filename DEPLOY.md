@@ -1,130 +1,203 @@
-# Deployment Anleitung
+# Deployment Guide
 
-## Manuelle Deployment auf Hetzner Server
+This guide covers deploying Leafmark to production using Coolify on a self-hosted server.
 
-Da der Server durch eine Firewall geschützt ist und GitHub Actions keinen Zugriff hat, erfolgt das Deployment manuell über ein Shell-Script.
+## Prerequisites
 
-### Voraussetzungen
+- A server (VPS) with Docker installed
+- Coolify installed and configured
+- A domain name (e.g., `leafmark.app`)
+- Cloudflare account (optional, for CDN/SSL)
 
-- SSH-Zugriff auf den Hetzner-Server (65.108.241.237)
-- User: `deploy`
-- Docker und Docker Compose auf dem Server installiert
-- Repository in `~/leafmark/app-source` geklont
+## Architecture
 
-### Deployment durchführen
-
-1. **SSH-Verbindung zum Server herstellen:**
-   ```bash
-   ssh deploy@65.108.241.237
-   ```
-
-2. **Zum Projektverzeichnis wechseln:**
-   ```bash
-   cd ~/leafmark/app-source
-   ```
-
-3. **Deployment-Script ausführen:**
-   ```bash
-   ./deploy.sh
-   ```
-
-### Was macht das Script?
-
-Das `deploy.sh` Script führt automatisch folgende Schritte aus:
-
-1. ✅ Wechselt ins Anwendungsverzeichnis
-2. ✅ Pullt die neuesten Änderungen von GitHub (`main` Branch)
-3. ✅ Stoppt die laufenden Docker-Container
-4. ✅ Baut die Container neu und startet sie
-5. ✅ Führt Datenbank-Migrationen aus (`php artisan migrate --force`)
-6. ✅ Cached die Konfiguration (`php artisan config:cache`)
-7. ✅ Cached die Routen (`php artisan route:cache`)
-8. ✅ Zeigt den Container-Status an
-
-### Schnell-Deployment (One-Liner)
-
-Wenn Sie das Deployment in einem Befehl durchführen möchten:
-
-```bash
-ssh deploy@65.108.241.237 'cd ~/leafmark/app-source && ./deploy.sh'
+```
+User → Cloudflare (CDN/SSL) → Server → Coolify/Traefik → Leafmark Container
+                                              ↓
+                                         MariaDB Container
 ```
 
-### Troubleshooting
+## Deployment with Coolify
 
-**Problem: Script ist nicht ausführbar**
-```bash
-chmod +x ~/leafmark/app-source/deploy.sh
+### 1. Add Project in Coolify
+
+1. Go to **Projects** → **Add Project**
+2. Name: `Leafmark`
+3. Click **Add Resource** → **Public Repository**
+
+### 2. Configure Repository
+
+- **Repository URL:** `https://github.com/roberteinsle/leafmark`
+- **Branch:** `main`
+- **Build Pack:** `Dockerfile` (auto-detected)
+
+### 3. Environment Variables
+
+Add these environment variables in Coolify:
+
+```env
+APP_NAME=Leafmark
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://www.leafmark.app
+
+DB_CONNECTION=mysql
+DB_HOST=leafmark-db
+DB_PORT=3306
+DB_DATABASE=leafmark
+DB_USERNAME=leafmark
+DB_PASSWORD=<secure-password>
+
+# Optional API Keys
+GOOGLE_BOOKS_API_KEY=<your-key>
+ISBNDB_API_KEY=<your-key>
 ```
 
-**Problem: Git pull schlägt fehl**
+### 4. Database Service
+
+Add a MariaDB service in the same project:
+
+1. **Add Resource** → **Database** → **MariaDB**
+2. Name: `leafmark-db`
+3. Configure credentials to match your environment variables
+
+### 5. Domain Configuration
+
+- **Domain:** `www.leafmark.app`
+- **Proxy:** Select `Cloudflare` if using Cloudflare
+
+### 6. Deploy
+
+Click **Deploy** – Coolify will:
+1. Clone the repository
+2. Build the Docker image
+3. Start the container
+4. Configure the reverse proxy
+
+## DNS Configuration (Cloudflare)
+
+Add these DNS records:
+
+| Type | Name | Content | Proxy |
+|------|------|---------|-------|
+| A | @ | `<server-ip>` | Proxied (orange) |
+| CNAME | www | `leafmark.app` | Proxied (orange) |
+
+### Redirect apex to www
+
+In Cloudflare **Rules** → **Redirect Rules**:
+
+- **When:** Hostname equals `leafmark.app`
+- **Then:** Redirect to `https://www.leafmark.app` (301)
+
+## SSL Configuration
+
+### With Cloudflare (Recommended)
+
+1. In Coolify, select **Cloudflare** as proxy type
+2. In Cloudflare **SSL/TLS** settings, set to **Full (strict)**
+
+### Without Cloudflare
+
+Coolify will automatically generate Let's Encrypt certificates.
+
+## Post-Deployment
+
+### Run Migrations
+
+In Coolify, use the **Terminal** tab or SSH into the container:
+
 ```bash
-cd ~/leafmark/app-source
-git status
-git stash  # Falls lokale Änderungen vorhanden sind
-git pull origin main
+docker exec -it <container-id> php artisan migrate --force
 ```
 
-**Problem: Container starten nicht**
-```bash
-docker compose logs -f app
-```
-
-**Problem: Migrationen schlagen fehl**
-```bash
-docker compose exec app php artisan migrate:status
-docker compose exec app php artisan migrate --force
-```
-
-### Logs anzeigen
-
-**Anwendungs-Logs:**
-```bash
-docker compose logs -f app
-```
-
-**Alle Container-Logs:**
-```bash
-docker compose logs -f
-```
-
-**Laravel-Logs:**
-```bash
-docker compose exec app tail -f storage/logs/laravel.log
-```
-
-### Container-Status prüfen
+### Generate App Key (if not set)
 
 ```bash
-docker compose ps
+docker exec -it <container-id> php artisan key:generate
 ```
 
-### Notfall-Befehle
+### Clear Caches
 
-**Containers neu starten (ohne rebuild):**
 ```bash
-docker compose restart
+docker exec -it <container-id> php artisan config:cache
+docker exec -it <container-id> php artisan route:cache
+docker exec -it <container-id> php artisan view:cache
 ```
 
-**Containers komplett neu aufsetzen:**
+## Automatic Deployments
+
+Coolify automatically sets up a webhook. Every push to `main` triggers a new deployment.
+
+To disable auto-deploy:
+1. Go to your resource in Coolify
+2. **Settings** → Disable **Auto Deploy**
+
+## Monitoring
+
+### Logs
+
+In Coolify: **Resources** → **Leafmark** → **Logs**
+
+Or via SSH:
 ```bash
-docker compose down
-docker compose up -d --build --force-recreate
+docker logs -f <container-id>
 ```
 
-**Cache komplett löschen:**
+### Health Check
+
+The app exposes a health endpoint:
 ```bash
-docker compose exec app php artisan cache:clear
-docker compose exec app php artisan config:clear
-docker compose exec app php artisan route:clear
-docker compose exec app php artisan view:clear
+curl https://www.leafmark.app/health
 ```
 
-## Automatisches Deployment (Optional - wenn Firewall konfiguriert)
+## Backup
 
-Falls die Firewall später so konfiguriert wird, dass GitHub Actions Zugriff hat:
+### Database Backup
 
-1. GitHub Secrets einrichten (siehe README.md)
-2. Push auf `main` Branch
-3. GitHub Actions führt automatisch das Deployment durch
+```bash
+docker exec leafmark-db mysqldump -u leafmark -p leafmark > backup.sql
+```
 
-Der Workflow ist bereits vorbereitet in `.github/workflows/deploy.yml`
+### Automated Backups with Coolify
+
+1. Go to **S3 Storages** in Coolify
+2. Configure your S3-compatible storage
+3. Enable backups for your database service
+
+## Troubleshooting
+
+### Container won't start
+
+Check logs in Coolify or:
+```bash
+docker logs <container-id>
+```
+
+### 502 Bad Gateway
+
+- Check if the container is running
+- Verify the port configuration
+- Check Traefik logs: `docker logs coolify-proxy`
+
+### Database connection failed
+
+- Verify DB_HOST matches the database container name
+- Check if database container is running
+- Verify credentials match
+
+## Useful Commands
+
+```bash
+# Enter container shell
+docker exec -it <container-id> bash
+
+# Run artisan commands
+docker exec -it <container-id> php artisan <command>
+
+# View real-time logs
+docker logs -f <container-id>
+
+# Restart container
+docker restart <container-id>
+```

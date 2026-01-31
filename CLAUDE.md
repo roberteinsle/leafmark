@@ -8,14 +8,80 @@ Leafmark is a **multi-user** book tracking web application built with Laravel 11
 
 The application supports multiple users with individual book collections, admin-controlled registration, and flexible user management. Perfect for organizations, book clubs, families, or communities.
 
+## Infrastructure & Deployment
+
+### Production Setup
+
+```
+User → Cloudflare (CDN/SSL) → Hetzner VM → Coolify/Traefik → Leafmark Container
+                                                   ↓
+                                            MariaDB Container
+```
+
+**Components:**
+- **Hosting:** Hetzner VM
+- **Deployment Platform:** Coolify (self-hosted PaaS)
+- **Production URL:** https://www.leafmark.app
+- **Admin Panel:** https://coolify.leafmark.app
+- **CDN/DNS:** Cloudflare (proxied, orange cloud)
+- **Database:** MariaDB 11 in separate container
+
+### Development Environment
+
+**Primary:** GitHub Codespaces
+- Preconfigured dev environment
+- Auto-starts services on port 8000
+- See CODESPACES.md for details
+
+**Local:** Docker Compose (optional)
+- `docker-compose.yaml` for local development
+- MariaDB + Laravel app services
+
+### Deployment Workflow
+
+**Automatic deployments via Coolify:**
+1. Push to `main` branch on GitHub
+2. Coolify webhook triggers automatically
+3. Docker image builds from Dockerfile
+4. Migrations run via docker-entrypoint.sh
+5. Container deployed with zero-downtime
+
+**Manual deployment commands** (if needed):
+```bash
+# In Coolify terminal or SSH into container
+docker exec -it <container-id> php artisan migrate --force
+docker exec -it <container-id> php artisan config:cache
+docker exec -it <container-id> php artisan route:cache
+```
+
+See [DEPLOY.md](DEPLOY.md) for detailed deployment instructions.
+
 ## Development Commands
 
-### Docker Development
+### GitHub Codespaces
+
+Services start automatically. Access the app at the forwarded port 8000.
+
+```bash
+# Development server (if needed manually)
+php artisan serve
+
+# Run tests
+php artisan test
+
+# Clear caches
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+```
+
+### Docker Development (Local)
+
 ```bash
 # Note: This project uses docker-compose.yaml (not docker-compose.yml)
 # Use 'docker compose' (v2) or 'docker-compose' (v1)
 
-# Start app service
+# Start services
 docker compose up -d
 
 # Execute commands in app container
@@ -29,8 +95,10 @@ docker compose down
 ```
 
 ### Laravel Artisan Commands
+
 ```bash
 # Run inside container with: docker compose exec app <command>
+# Or directly in Codespaces
 
 # Generate application key
 php artisan key:generate
@@ -55,31 +123,37 @@ php artisan db:seed
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
+vendor/bin/phpunit
+# Or in Docker:
 docker compose exec app vendor/bin/phpunit
 
 # Run specific test suite
-docker compose exec app vendor/bin/phpunit --testsuite=Feature
-docker compose exec app vendor/bin/phpunit --testsuite=Unit
+vendor/bin/phpunit --testsuite=Feature
+vendor/bin/phpunit --testsuite=Unit
 
 # Run specific test file
-docker compose exec app vendor/bin/phpunit tests/Feature/ExampleTest.php
+vendor/bin/phpunit tests/Feature/ExampleTest.php
 
 # Run with coverage (requires xdebug)
-docker compose exec app vendor/bin/phpunit --coverage-html coverage
+vendor/bin/phpunit --coverage-html coverage
 ```
 
 ### Composer
+
 ```bash
 # Install dependencies
+composer install
+# Or in Docker:
 docker compose exec app composer install
 
 # Update dependencies
-docker compose exec app composer update
+composer update
 
 # Add package
-docker compose exec app composer require vendor/package
+composer require vendor/package
 ```
 
 ## Architecture
@@ -102,7 +176,6 @@ The application has core models with the following relationships:
 - Each user can set yearly reading goals
 - Challenges track books finished within the year
 - Multiple challenges per user (one per year)
-
 
 **User → Family (many:1)**
 - Users can belong to a family group
@@ -135,11 +208,15 @@ The application has core models with the following relationships:
 - Admin users can access `/admin` routes
 - Regular users can only access their own data
 
+**First User Auto-Admin:**
+- The **first user to register automatically becomes an admin**
+- No seeder required
+- Implemented in RegisterController.php:76-84
+
 **System Settings:**
 - `SystemSetting` model stores application-wide configuration
 - Settings stored as key-value pairs in `system_settings` table
 - Used for registration control and system configuration
-
 
 **Family Accounts:**
 - `Family` model for grouping users
@@ -226,13 +303,6 @@ Books can be imported from Goodreads CSV exports:
 4. System processes each row, creating books and tags
 5. Results stored in ImportHistory for review
 
-**Routes:**
-- `/import` - Import interface
-- `/import/upload` - POST to upload CSV
-- `/import/execute` - POST to start import
-- `/import/history` - View import history
-- `/import/result/{importHistory}` - View detailed import results
-
 ### Book View Preferences
 
 Users can customize their book list view per status/shelf:
@@ -252,10 +322,6 @@ Users can customize their book list view per status/shelf:
 
 View preferences persist across sessions and are shelf-specific (e.g., different columns for "Currently Reading" vs "Read").
 
-**Routes:**
-- `/books/toggle-view-mode` - POST to switch between grid/table view
-- `/books/update-column-settings` - POST to update visible columns
-
 ### Authentication & Authorization
 
 **Basic Authentication:**
@@ -263,6 +329,14 @@ View preferences persist across sessions and are shelf-specific (e.g., different
 - Custom controllers: `LoginController`, `RegisterController`
 - All book/tag routes protected with `auth` middleware
 - Authorization through relationship checks: books/tags must belong to authenticated user
+
+**Email Verification:**
+- **Users must verify email before login** (not auto-logged in after registration)
+- Laravel's built-in email verification system
+- `VerificationController` handles verification and resend
+- New users receive verification email after registration
+- Email contains signed URL with expiration
+- Redirects to verification notice page after registration
 
 **Admin System:**
 - `IsAdmin` middleware protects admin routes
@@ -274,14 +348,7 @@ View preferences persist across sessions and are shelf-specific (e.g., different
 - `RegisterController` checks `SystemSetting` for registration rules
 - Three registration modes: open, domain, code
 - Registration can be completely disabled via admin settings
-
-**Email Verification:**
-- Laravel's built-in email verification system
-- `VerificationController` handles verification and resend
-- New users receive verification email after registration
-- Email contains signed URL with expiration
-- Unverified users can still access the application
-- Email verification is optional but can be enforced via middleware
+- **Cloudflare Turnstile integration** for CAPTCHA protection (optional)
 
 **Email System:**
 - SMTP settings configured in Admin → System Settings
@@ -289,63 +356,123 @@ View preferences persist across sessions and are shelf-specific (e.g., different
 - Admin can view email logs at `/admin/email-logs` for debugging
 - Test email functionality available in admin settings
 
+**Cloudflare Turnstile (CAPTCHA):**
+- Protects registration, login, password reset, and contact forms
+- Configured in Admin → System Settings
+- Settings: `turnstile_enabled`, `turnstile_site_key`, `turnstile_secret_key`
+- `TurnstileValid` validation rule in `app/Rules/TurnstileValid.php`
+- Optional - can be disabled
+
 ### Internationalization
 
-The application supports multiple languages:
-- Supported languages: English (en), German (de), French (fr), Italian (it), Spanish (es), Polish (pl)
-- Language files in `lang/{locale}/app.php`
-- Users can set `preferred_language` in their profile
-- `SetUserLocale` middleware automatically sets locale based on user preference
+The application supports multiple languages with **localized routing**:
+
+**Supported Languages:**
+- English (en), German (de), French (fr), Italian (it), Spanish (es), Polish (pl)
+
+**Localized Routing Architecture:**
+- All routes prefixed with locale: `/en/`, `/de/`, `/fr/`, `/it/`, `/es/`, `/pl/`
+- `SetLocaleFromUrl` middleware handles locale detection and setting
+- Named routes include locale suffix: `books.index.en`, `books.index.de`, etc.
+- Root URL (`/`) auto-redirects to detected locale
+
+**Locale Detection Priority:**
+1. User's `preferred_language` field (if authenticated)
+2. Browser `Accept-Language` header
+3. Default: English (`en`)
+
+**Localized Service Pages:**
+- Different URLs per language for static pages
+- Examples:
+  - Imprint: `/imprint` (en), `/impressum` (de), `/mentions-legales` (fr)
+  - Privacy: `/privacy` (en), `/datenschutz` (de), `/confidentialite` (fr)
+  - Contact: `/contact` (en/fr/it), `/kontakt` (de/pl), `/contacto` (es)
+
+**Backward Compatibility:**
+- Old non-prefixed URLs redirect to localized versions (301)
+- Example: `/login` → `/{locale}/login`
+- Authenticated users redirected to their preferred language
+- Guest users redirected to detected locale
+
+**Language Files:**
+- Translation files in `lang/{locale}/app.php`
 - `LanguageService` provides language name display and code conversion
+
+### Contact Form
+
+**ContactController** provides a public contact form:
+- Categories: support, feature, bug, privacy
+- Turnstile CAPTCHA protection (optional)
+- Sanitizes input (strips HTML tags)
+- Sends emails to configurable `contact_email` (default: ews@einsle.com)
+- Localized URLs per language
+
+**Routes:**
+- `/contact`, `/kontakt`, `/contacto`, `/contatto` (depending on locale)
+- POST to same route for submission
+
+**Email Configuration:**
+- Uses system SMTP settings
+- HTML email template in controller
+- Reply-To set to user's email
 
 ### Routing Structure
 
 Routes are defined in [routes/web.php](routes/web.php):
 
+**Important:** All routes are wrapped in locale prefixes. Examples below show the pattern without locale.
+
 **Public routes:**
-- `/` - Landing page (redirects to dashboard if authenticated)
+- `/{locale}` - Landing page (redirects to dashboard if authenticated)
+- `/{locale}/imprint`, `/{locale}/privacy`, `/{locale}/contact` - Service pages (localized URLs)
+- `/{locale}/changelog` - Changelog page
 
 **Guest-only routes:**
-- `/register`, `/login` - Authentication forms
+- `/{locale}/register`, `/{locale}/login` - Authentication forms
+- `/{locale}/forgot-password`, `/{locale}/reset-password/{token}` - Password reset
+- `/{locale}/verify-email` - Email verification notice
+
+**Email verification routes:**
+- `/{locale}/email/verify/{id}/{hash}` - Verify email (signed route)
+- `/{locale}/email/resend` - Resend verification email
 
 **Protected routes (requires auth):**
-- `/dashboard` - Redirects to `/books`
-- `/books` - Resource routes (index, create, store, show, edit, update, destroy)
-- `/books/store-from-api` - Store book imported from external API
-- `/books/bulk-delete` - Delete multiple books at once
-- `/books/{book}/progress` - PATCH to update reading progress
-- `/books/{book}/status` - PATCH to update reading status
-- `/books/{book}/rating` - PATCH to update book rating
-- `/books/{book}/covers` - POST to upload new cover
-- `/books/{book}/covers/{cover}` - DELETE to remove cover
-- `/books/{book}/covers/{cover}/primary` - PATCH to set primary cover
-- `/series/{series}` - View all books in a series
-- `/tags` - Resource routes for tag management
-- `/tags/{tag}/books/{book}` - POST/DELETE to add/remove books from tags
-- `/settings` - GET/PATCH for user settings
-- `/challenge` - Reading challenge routes (index, store, update, destroy)
-- `/family` - GET to view family, POST to create family, DELETE to disband family
-- `/family/create` - GET to show create family form
-- `/family/join` - GET/POST to join a family using join code
-- `/family/leave` - POST to leave current family
-- `/family/regenerate-code` - POST to generate new join code (owner only)
-- `/import` - GET to display import interface
-- `/import/upload` - POST to upload and preview CSV
-- `/import/execute` - POST to execute import
-- `/import/cancel` - POST to cancel pending import
-- `/import/history` - GET to view import history
-- `/import/result/{importHistory}` - GET to view import results
-- `/import/{importHistory}` - DELETE to remove import history
+- `/{locale}/books` - Resource routes (index, create, store, show, edit, update, destroy)
+- `/{locale}/books/store-from-api` - Store book imported from external API
+- `/{locale}/books/bulk-delete` - Delete multiple books at once
+- `/{locale}/books/bulk-add-tags` - Add tags to multiple books
+- `/{locale}/books/bulk-remove-tag` - Remove tag from multiple books
+- `/{locale}/books/{book}/progress` - PATCH to update reading progress
+- `/{locale}/books/{book}/status` - PATCH to update reading status
+- `/{locale}/books/{book}/rating` - PATCH to update book rating
+- `/{locale}/books/{book}/progress/{entry}` - DELETE to remove progress entry
+- `/{locale}/books/{book}/fetch-api-data` - GET to fetch API data
+- `/{locale}/books/{book}/refresh-from-api` - POST to refresh book from API
+- `/{locale}/books/{book}/covers` - POST to upload new cover
+- `/{locale}/books/{book}/covers/{cover}` - DELETE to remove cover
+- `/{locale}/books/{book}/covers/{cover}/primary` - PATCH to set primary cover
+- `/{locale}/series/{series}` - View all books in a series
+- `/{locale}/books/toggle-view-mode` - POST to toggle grid/table view
+- `/{locale}/books/update-column-settings` - POST to update visible columns
+- `/{locale}/tags` - Resource routes for tag management
+- `/{locale}/tags/{tag}/books/{book}` - POST/DELETE to add/remove books from tags
+- `/{locale}/settings` - GET/PATCH for user settings
+- `/{locale}/challenge` - Reading challenge routes (index, store, update, destroy)
+- `/{locale}/family` - Family management routes
+- `/{locale}/import` - CSV import routes
 
 **Admin routes (requires auth + admin):**
-- `/admin` - Admin dashboard with user statistics
-- `/admin/users` - User management (list, toggle admin, delete)
-- `/admin/users/{user}` - GET to edit user, PATCH to update user, DELETE to remove user
-- `/admin/users/{user}/toggle-admin` - PATCH to grant/revoke admin privileges
-- `/admin/settings` - System settings and registration control
-- `/admin/settings` - PATCH to update system settings
+- `/{locale}/admin` - Admin dashboard with user statistics
+- `/{locale}/admin/users` - User management (list, toggle admin, delete)
+- `/{locale}/admin/users/{user}` - Edit, update, delete user
+- `/{locale}/admin/users/{user}/toggle-admin` - PATCH to grant/revoke admin privileges
+- `/{locale}/admin/settings` - System settings (GET/PATCH)
+- `/{locale}/admin/settings/test-email` - POST to send test email
+- `/{locale}/admin/email-logs` - View email sending logs and history
 
-- `/admin/email-logs` - View email sending logs and history
+**Backward compatibility routes:**
+- Old non-prefixed URLs redirect to localized versions with 301 status
+- Examples: `/login` → `/{locale}/login`, `/books` → `/{locale}/books`
 
 **Important Routing Details:**
 - Book routes use **Unix timestamp** from `added_at` as route key (not numeric ID)
@@ -388,15 +515,19 @@ Routes are defined in [routes/web.php](routes/web.php):
 
 **users table (admin fields):**
 - `is_admin` - Boolean flag for admin privileges (default: false)
+- `preferred_language` - User's preferred interface language
+- `email_verified_at` - Email verification timestamp
 - Admins can access `/admin` routes and manage users
-- At least one admin required (robert@einsle.com)
+- First user to register automatically becomes admin
 
 **system_settings table:**
 - Key-value storage for application configuration
-- Stores registration settings, allowed domains, registration code
+- Stores registration, SMTP, Turnstile, and API settings
 - Keys: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
+- SMTP: `smtp_enabled`, `smtp_host`, `smtp_port`, `smtp_encryption`, `smtp_username`, `smtp_password`, `smtp_from_address`, `smtp_from_name`
+- Turnstile: `turnstile_enabled`, `turnstile_site_key`, `turnstile_secret_key`
+- Contact: `contact_email`
 - No caching in model (direct database queries)
-
 
 **families table:**
 - Family grouping for users
@@ -443,7 +574,14 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `updateRating()` - Update book rating and review
 - `storeFromApi()` - Import book from external API search
 - `bulkDelete()` - Delete multiple books
+- `bulkAddTags()` - Add tags to multiple books
+- `bulkRemoveTag()` - Remove tag from multiple books
 - `showSeries()` - Display all books in a series
+- `toggleViewMode()` - Switch between grid/table view
+- `updateColumnSettings()` - Update visible table columns
+- `deleteProgressEntry()` - Delete a reading progress entry
+- `fetchApiData()` - Fetch book data from original API source
+- `refreshFromApi()` - Refresh book metadata from API
 - Cover management: `uploadCover()`, `deleteCover()`, `deleteSingleCover()`, `setPrimaryCover()`
 - Multi-source API search integration
 
@@ -468,8 +606,9 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `updateUser()` - Update user details (name, email, admin status)
 - `toggleAdmin()` - Grant/revoke admin privileges for a user
 - `deleteUser()` - Delete a user (prevents self-deletion)
-- `settings()` - Display system settings
-- `updateSettings()` - Update registration mode and settings
+- `settings()` - Display system settings (registration, SMTP, Turnstile, API keys)
+- `updateSettings()` - Update system settings
+- `sendTestEmail()` - Send test email to verify SMTP configuration
 - `emailLogs()` - View email sending history and logs
 
 **FamilyController** handles:
@@ -491,6 +630,11 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `result()` - View detailed import results
 - `destroy()` - Delete import history record
 
+**ContactController** handles:
+- `show()` - Display contact form
+- `submit()` - Handle form submission with Turnstile verification
+- Email sending with category-based subject lines
+
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`
 - Use custom route binding for books (timestamp-based, see `Book::resolveRouteBinding()`)
@@ -511,7 +655,7 @@ When implementing controllers:
 - `admin/index.blade.php` - Dashboard with stats and quick links
 - `admin/users.blade.php` - User list with admin toggle and delete actions
 - `admin/edit-user.blade.php` - Edit individual user details
-- `admin/settings.blade.php` - System settings form
+- `admin/settings.blade.php` - System settings form (registration, SMTP, Turnstile, API keys)
 - `admin/email-logs.blade.php` - Email sending history and logs
 - Admin link in navigation dropdown (only visible to admins)
 
@@ -520,207 +664,26 @@ When implementing controllers:
 - `family/create.blade.php` - Form to create a new family
 - `family/join.blade.php` - Form to join a family with a code
 
-## Production Deployment
+**Auth views:**
+- `auth/register.blade.php` - Registration form with optional Turnstile
+- `auth/login.blade.php` - Login form with optional Turnstile
+- `auth/verify-email.blade.php` - Email verification notice
+- `auth/forgot-password.blade.php` - Password reset request with optional Turnstile
+- `auth/reset-password.blade.php` - Password reset form with optional Turnstile
 
-**Important:** This application runs in production using Docker Compose. All development and changes are made directly on the production system using code-server.
-
-**Docker Services:**
-- `app` - Laravel 11 + PHP 8.2 + Apache (exposed on port 8000)
-- `db` - MariaDB 11 (exposed on port 3306)
-
-**Container Details:**
-- Base image (app): `php:8.2-apache`
-- Base image (db): `mariadb:11`
-- Document root: `/var/www/html/public`
-- Apache mod_rewrite enabled
-- PHP extensions: pdo_mysql, mbstring, exif, pcntl, bcmath, gd, zip
-- Database health checks ensure app starts only after DB is ready
-
-**Docker Volumes:**
-- `mariadb_data` - MariaDB database persistence
-- `storage_data` - Uploaded book covers
-- `vendor` - Composer dependencies
-
-**Environment Configuration:**
-
-The Docker entrypoint ([docker-entrypoint.sh](docker-entrypoint.sh)) automatically:
-1. Creates `.env` from environment variables
-2. Runs migrations with `--force`
-3. Caches configuration
-4. Starts Apache
-
-### Initial Server Setup
-
-```bash
-# Create directory and clone repository
-cd ~/leafmark
-git clone https://github.com/roberteinsle/leafmark.git app-source
-cd app-source
-
-# Create and configure .env
-cp .env.example .env
-nano .env
-```
-
-**Environment variables are set via docker-compose.yaml:**
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://www.leafmark.app
-APP_KEY=  # Will be generated
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=leafmark
-DB_USERNAME=leafmark
-DB_PASSWORD=  # Use secure password
-MYSQL_ROOT_PASSWORD=  # Use secure password
-GOOGLE_BOOKS_API_KEY=  # Optional
-BIGBOOK_API_KEY=  # Optional
-```
-
-**Start the application:**
-```bash
-# Build and start containers
-docker compose up -d
-
-# Wait for containers to be ready
-sleep 10
-
-# Generate application key
-docker compose exec app php artisan key:generate
-
-# Run migrations
-docker compose exec app php artisan migrate --force
-
-# Create storage symlink for uploaded files (covers)
-docker compose exec app php artisan storage:link
-
-# Create admin user (REQUIRED for multi-user system)
-docker compose exec app php artisan db:seed --class=AdminUserSeeder
-
-# Verify everything is running
-docker compose ps
-curl http://localhost:8080
-```
-
-### Admin Setup
-
-After deployment, log in with the admin account:
-
-```
-Email: robert@einsle.com
-Password: password
-```
-
-**⚠️ CRITICAL: Change the admin password immediately after first login!**
-
-Then configure registration settings:
-1. Go to Admin → System Settings
-2. Choose registration mode (recommended: domain-restricted)
-3. Configure allowed domains or registration code as needed
-
-### Update Workflow
-
-To update the application:
-
-```bash
-cd ~/leafmark/app-source
-
-# Pull latest code from GitHub
-git pull origin main
-
-# Rebuild and restart containers (volumes are preserved - data is NOT deleted!)
-docker compose down
-docker compose up -d --build
-
-# Run database migrations
-docker compose exec app php artisan migrate --force
-
-# Ensure storage symlink exists
-docker compose exec app php artisan storage:link
-
-# Clear and rebuild caches
-docker compose exec app php artisan config:cache
-docker compose exec app php artisan route:cache
-```
-
-**⚠️ CRITICAL:**
-- **NEVER use `docker compose down -v`** - the `-v` flag deletes volumes and ALL DATA!
-- **NEVER delete Docker volumes manually** - they contain all user data and uploaded files
-- Data persists in Docker volumes across container rebuilds
-
-### Data Persistence
-
-All data is persisted in Docker volumes:
-
-- **`mariadb_data`** - MariaDB database at `/var/lib/mysql`
-- **`storage_data`** - Uploaded files (covers) at `/var/www/html/storage/app`
-- **`vendor`** - Composer dependencies
-
-These volumes persist across container restarts and rebuilds.
-
-### Backup & Restore
-
-**Creating a Backup:**
-
-```bash
-# Create backup directory
-BACKUP_DIR=~/leafmark/backups
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-mkdir -p $BACKUP_DIR
-
-# Backup MariaDB database
-docker run --rm \
-  -v leafmark_mariadb_data:/data \
-  -v $BACKUP_DIR:/backup \
-  alpine tar czf /backup/db-backup-${TIMESTAMP}.tar.gz -C /data .
-
-# Backup uploaded files (covers)
-docker run --rm \
-  -v leafmark_storage_data:/data \
-  -v $BACKUP_DIR:/backup \
-  alpine tar czf /backup/storage-backup-${TIMESTAMP}.tar.gz -C /data .
-
-echo "Backup created: $TIMESTAMP"
-```
-
-This creates:
-- `db-backup-YYYYMMDD_HHMMSS.tar.gz` - MariaDB database backup
-- `storage-backup-YYYYMMDD_HHMMSS.tar.gz` - Uploaded files backup
-
-**Restoring from a Backup:**
-
-```bash
-# Stop application
-cd ~/leafmark/app-source
-docker compose down
-
-# Set the backup timestamp to restore
-TIMESTAMP=20260110_120000
-
-# Restore database
-docker run --rm \
-  -v leafmark_mariadb_data:/data \
-  -v ~/leafmark/backups:/backup \
-  alpine sh -c "rm -rf /data/* && tar xzf /backup/db-backup-${TIMESTAMP}.tar.gz -C /data"
-
-# Restore uploaded files
-docker run --rm \
-  -v leafmark_storage_data:/data \
-  -v ~/leafmark/backups:/backup \
-  alpine sh -c "rm -rf /data/* && tar xzf /backup/storage-backup-${TIMESTAMP}.tar.gz -C /data"
-
-# Restart application
-docker compose up -d
-```
-
-**⚠️ WARNING:** Restore will permanently replace current data with backup data!
+**Public views:**
+- `welcome.blade.php` - Landing page (localized)
+- `kontakt.blade.php` - Contact form (localized URLs)
+- `impressum.blade.php` - Imprint/legal notice
+- `datenschutz.blade.php` - Privacy policy
+- `changelog.blade.php` - Version history
 
 ## Important Notes for Development
 
 ### Model Scopes Usage
+
 All models define query scopes - use them for cleaner queries:
+
 ```php
 // Books
 $user->books()->currentlyReading()->get();
@@ -755,6 +718,24 @@ public function resolveRouteBinding($value, $field = null) {
 ```
 
 This means book URLs use timestamps instead of sequential IDs, making them harder to enumerate.
+
+### Localized Routes in Code
+
+When generating URLs in controllers or views, always include the locale:
+
+```php
+// In controllers
+return redirect()->route('books.index.' . app()->getLocale());
+
+// In Blade templates
+<a href="{{ route('books.show.' . app()->getLocale(), $book) }}">View Book</a>
+
+// Or use helper
+@php $locale = app()->getLocale() @endphp
+<a href="{{ route('books.show.' . $locale, $book) }}">View Book</a>
+```
+
+**Important:** All named routes include locale suffix (e.g., `books.index.en`, `login.de`).
 
 ### Database Migrations
 
@@ -796,6 +777,12 @@ The application now supports multi-user environments with admin controls:
 - Non-admin users get 403 Forbidden error
 - Admin link only visible in navigation if user is admin
 
+**First User Auto-Admin:**
+- The first user to register automatically becomes an admin
+- Implemented in `RegisterController::register()` (lines 76-84)
+- No seeder required
+- Check: `$isFirstUser = User::count() === 0;`
+
 **User Management Features:**
 - View all users with statistics (book count, join date)
 - Toggle admin privileges for any user (except yourself)
@@ -808,7 +795,7 @@ The application now supports multi-user environments with admin controls:
 2. **Domain-restricted (`registration_mode = 'domain'`)**: Only specific email domains allowed
    - Configured via `allowed_email_domains` (comma-separated)
    - Example: `example.com,company.org`
-4. **Code-required (`registration_mode = 'code'`)**: Users need registration code
+3. **Code-required (`registration_mode = 'code'`)**: Users need registration code
    - Single shared code configured in settings
    - Example use: family sharing
 
@@ -817,6 +804,8 @@ The application now supports multi-user environments with admin controls:
 - **NO CACHING** - direct database queries to avoid cache table dependency
 - Common settings: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
 - Helper methods: `isRegistrationEnabled()`, `getRegistrationMode()`, `isEmailDomainAllowed()`
+- SMTP methods: `isSmtpEnabled()`, `getSmtpConfig()`
+- Turnstile methods: `isTurnstileEnabled()`, `getTurnstileSiteKey()`, `getTurnstileSecretKey()`
 
 ### Security Considerations
 
@@ -834,12 +823,25 @@ The application now supports multi-user environments with admin controls:
 - At least one admin should always exist in the system
 - Admin status stored as boolean in `users.is_admin`
 
+**Email Verification:**
+- Users must verify email before accessing the application
+- Verification emails tracked in `email_logs` table
+- Admins can view email logs for debugging
+- SMTP must be configured for email verification to work
+
+**Cloudflare Turnstile:**
+- Optional CAPTCHA protection for registration and login
+- Configured in Admin → System Settings
+- Uses `TurnstileValid` validation rule
+- Verifies token via Cloudflare API
+
 **Route Protection:**
 - Cover routes ordered before destroy to prevent path conflicts
 - Numeric constraints on routes prevent parameter pollution
 - Book timestamps used as route keys (harder to enumerate than sequential IDs)
 - All book/tag routes protected with `auth` middleware
 - Admin routes protected with both `auth` and `admin` middleware
+- Locale middleware sets language for all routes
 
 **Important Route Ordering:**
 ```php
@@ -848,3 +850,115 @@ Route::delete('/books/{book}/covers/{cover}', ...);
 Route::delete('/books/{book}', ...); // This must be last
 ```
 
+### Cloudflare Configuration
+
+**DNS Settings:**
+- A record: `@` → Server IP (Proxied, orange cloud)
+- CNAME record: `www` → `leafmark.app` (Proxied, orange cloud)
+
+**Redirect Rules:**
+- Apex to www: `leafmark.app` → `https://www.leafmark.app` (301)
+
+**SSL/TLS:**
+- Mode: Full (strict)
+- Coolify generates Let's Encrypt certificates
+- Cloudflare provides edge SSL
+
+**Performance:**
+- Auto Minify: HTML, CSS, JS
+- Brotli compression enabled
+- Cache Level: Standard
+
+## Documentation Structure
+
+- **README.md** - User-facing documentation, quick start
+- **CLAUDE.md** - This file, technical context for Claude Code
+- **DEPLOY.md** - Coolify deployment guide
+- **CODESPACES.md** - GitHub Codespaces setup (if exists)
+- **.claude/context.md** - Short project context reference
+
+## Common Development Tasks
+
+### Adding a New Feature
+
+1. **Plan the database changes** (if needed)
+   - Create migration: `php artisan make:migration create_feature_table`
+   - Update models and relationships
+
+2. **Create routes** in `routes/web.php`
+   - Remember to add for ALL supported locales
+   - Include locale in named routes
+
+3. **Implement controller**
+   - Scope queries to `auth()->user()`
+   - Use localized redirects
+
+4. **Create Blade views**
+   - Use layout: `@extends('layouts.app')`
+   - Include locale in route helpers
+
+5. **Add translations** in `lang/{locale}/app.php`
+
+6. **Test the feature**
+   - Manual testing in Codespaces
+   - Create tests in `tests/Feature/`
+
+7. **Commit and push**
+   - Coolify auto-deploys to production
+
+### Updating System Settings
+
+New system settings can be added via Admin → System Settings UI or programmatically:
+
+```php
+use App\Models\SystemSetting;
+
+// Set a setting
+SystemSetting::set('new_feature_enabled', 'true');
+
+// Get a setting
+$value = SystemSetting::get('new_feature_enabled', 'false');
+
+// Add helper method to SystemSetting model
+public static function isNewFeatureEnabled(): bool
+{
+    return static::get('new_feature_enabled', 'false') === 'true';
+}
+```
+
+### Adding a New Language
+
+1. Create translation file: `lang/{locale}/app.php`
+2. Add locale to `SetLocaleFromUrl` middleware (line 15, 42)
+3. Add locale to `routes/web.php` `$supportedLocales` array (line 24)
+4. Add localized routes in foreach loop
+5. Update views with new locale option
+
+### Debugging Email Issues
+
+1. Check SMTP configuration in Admin → System Settings
+2. Send test email via Admin → System Settings → Test Email
+3. Check email logs in Admin → Email Logs
+4. Verify Laravel logs: `storage/logs/laravel.log`
+5. Check Coolify logs in production
+
+### Working with Docker Entrypoint
+
+The `docker-entrypoint.sh` script runs on container start:
+
+1. Creates `.env` from environment variables
+2. Runs migrations with `--force`
+3. Caches configuration
+4. Starts Apache
+
+**Important:** Migrations run automatically on deployment via Coolify.
+
+## References
+
+- **GitHub Repository:** https://github.com/roberteinsle/leafmark
+- **Production URL:** https://www.leafmark.app
+- **Coolify Admin:** https://coolify.leafmark.app
+- **Laravel Documentation:** https://laravel.com/docs/11.x
+- **Tailwind CSS:** https://tailwindcss.com/docs
+- **Alpine.js:** https://alpinejs.dev/
+- **Cloudflare Turnstile:** https://developers.cloudflare.com/turnstile/
