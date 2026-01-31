@@ -32,7 +32,7 @@ class TagController extends Controller
 
         auth()->user()->tags()->create($validated);
 
-        return redirect()->route('tags.index.' . app()->getLocale())
+        return redirect()->route('tags.index')
             ->with('success', 'Tag created successfully!');
     }
 
@@ -70,7 +70,7 @@ class TagController extends Controller
 
         $tag->update($validated);
 
-        return redirect()->route('tags.index.' . app()->getLocale())
+        return redirect()->route('tags.index')
             ->with('success', 'Tag updated successfully!');
     }
 
@@ -86,7 +86,7 @@ class TagController extends Controller
 
         $tag->delete();
 
-        return redirect()->route('tags.index.' . app()->getLocale())
+        return redirect()->route('tags.index')
             ->with('success', 'Tag deleted successfully!');
     }
 

@@ -9,14 +9,18 @@ A Laravel-based web application for tracking your personal book collection and r
 - User Authentication
 - Book Management (Add, Edit, Delete)
 - Reading Status (Want to Read, Currently Reading, Read)
-- Custom Shelves
-- Book Search Integration (Google Books, Open Library, ISBNdb)
-- Multi-language Support (English & German)
+- Custom Tags for Organization
+- Book Search Integration (Google Books, Open Library, BookBrainz, Big Book API)
+- CSV Import (Goodreads)
+- Reading Challenges & Progress Tracking
+- Multi-user Support with Admin Controls
+- Family Accounts
+- Configurable Language (de, en, fr, it, es, pl)
 
 ## Tech Stack
 
 - **Backend:** Laravel 11 + PHP 8.2
-- **Database:** MariaDB 11
+- **Database:** SQLite
 - **Frontend:** Blade Templates + Tailwind CSS
 - **Deployment:** Docker / Coolify
 
@@ -40,17 +44,20 @@ cd leafmark
 # Copy environment file
 cp .env.example .env
 
-# Start services
-docker-compose up -d
-
 # Generate app key
-docker-compose exec app php artisan key:generate
+php artisan key:generate
+
+# Create SQLite database
+touch database/database.sqlite
 
 # Run migrations
-docker-compose exec app php artisan migrate
+php artisan migrate
+
+# Start development server
+php artisan serve
 
 # Access the app
-open http://localhost
+open http://localhost:8000
 ```
 
 ### Option 3: Self-Hosted with Coolify
@@ -62,10 +69,11 @@ See [DEPLOY.md](DEPLOY.md) for detailed deployment instructions.
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `APP_KEY` | Laravel application key | Yes |
-| `DB_PASSWORD` | Database password | Yes |
-| `MYSQL_ROOT_PASSWORD` | MySQL root password | Yes |
+| `APP_LOCALE` | Application language (de, en, fr, it, es, pl) | Yes |
 | `GOOGLE_BOOKS_API_KEY` | Google Books API key | No |
-| `ISBNDB_API_KEY` | ISBNdb API key | No |
+| `BIGBOOK_API_KEY` | Big Book API key | No |
+| `MAIL_*` | SMTP configuration for email | No |
+| `TURNSTILE_*` | Cloudflare Turnstile CAPTCHA | No |
 
 ## Development with Claude Code
 

@@ -11,31 +11,30 @@ This guide explains how to develop Leafmark using GitHub Codespaces.
    - Installs Composer dependencies
    - Creates `.env` file from `.env.example`
    - Generates application key
-   - Waits for MariaDB to be ready
+   - Creates SQLite database file
    - Runs database migrations
    - Creates storage symlink
    - Installs Claude Code CLI
 
 ## Architecture
 
-The Codespace uses Docker Compose with two services:
+The Codespace uses a simple setup:
 
 ```
 ┌─────────────────────────────────────┐
 │  GitHub Codespaces Container        │
 │                                     │
-│  ┌──────────────┐  ┌─────────────┐ │
-│  │  App Service │  │  MariaDB 11 │ │
-│  │  PHP 8.2     │──│  Database   │ │
-│  │  Laravel 11  │  │             │ │
-│  └──────────────┘  └─────────────┘ │
+│  ┌──────────────────────────────┐  │
+│  │  App Service                 │  │
+│  │  PHP 8.2 + Laravel 11        │  │
+│  │  SQLite Database (file)      │  │
+│  └──────────────────────────────┘  │
 │                                     │
 │  Port 8000 (App)                    │
-│  Port 3306 (Database)               │
 └─────────────────────────────────────┘
 ```
 
-**Database:** MariaDB 11 (same as production for consistency)
+**Database:** SQLite (file-based, same as production)
 
 ## Development Workflow
 
@@ -68,7 +67,7 @@ php artisan migrate:fresh
 php artisan migrate:rollback
 
 # Open database CLI
-mysql -h db -u leafmark -pleafmark_password leafmark
+sqlite3 database/database.sqlite
 ```
 
 ### Clearing Caches
@@ -98,26 +97,26 @@ The `.env` file is automatically created from `.env.example` on first setup:
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost
+APP_LOCALE=en
 
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=leafmark
-DB_USERNAME=leafmark
-DB_PASSWORD=leafmark_password
+DB_CONNECTION=sqlite
+
+# API Keys
+GOOGLE_BOOKS_API_KEY=
+BIGBOOK_API_KEY=
 ```
 
-**Important:** The database credentials match the MariaDB service in `.devcontainer/docker-compose.yml`.
+**Important:** SQLite uses a file-based database at `database/database.sqlite`.
 
-## Database Parity
+## Database Simplicity
 
-Codespaces uses **MariaDB 11**, matching the production database exactly:
-- Same SQL dialect
-- Same foreign key behavior
-- Same date/time handling
+Codespaces uses **SQLite**, matching the production database:
+- No separate database server needed
+- File-based storage in `database/database.sqlite`
+- Same SQL features for this application
 - Migrations work identically
 
-This prevents "works in dev, breaks in production" issues.
+This keeps the development environment simple and fast.
 
 ## Troubleshooting
 
@@ -125,17 +124,14 @@ This prevents "works in dev, breaks in production" issues.
 
 If you see database connection errors:
 
-1. Check if MariaDB is running:
+1. Check if the database file exists:
    ```bash
-   docker ps
+   ls -la database/database.sqlite
    ```
 
-2. Wait for database to be ready:
+2. Create database file if missing:
    ```bash
-   until mysql -h db -u leafmark -pleafmark_password -e "SELECT 1" > /dev/null 2>&1; do
-       echo "Waiting for database..."
-       sleep 2
-   done
+   touch database/database.sqlite
    ```
 
 3. Run migrations:
@@ -199,13 +195,12 @@ Forwarded ports:
 | Port | Service | Access |
 |------|---------|--------|
 | 8000 | Laravel App | Public (with notification) |
-| 3306 | MariaDB | Private |
 
 ## Persistence
 
 **Important:** Data in Codespaces persists as long as the Codespace exists:
 
-- Database data is stored in a Docker volume
+- Database data is stored in `database/database.sqlite`
 - Uploaded files are stored in `storage/app`
 - When you stop the Codespace, data persists
 - When you **delete** the Codespace, all data is lost

@@ -9,40 +9,20 @@ services:
       - .:/var/www/html
       - vendor:/var/www/html/vendor
       - storage_data:/var/www/html/storage/app
+      - sqlite_data:/var/www/html/database
     environment:
       - APP_NAME=${APP_NAME:-Leafmark}
       - APP_ENV=${APP_ENV:-production}
       - APP_KEY=${APP_KEY}
       - APP_DEBUG=${APP_DEBUG:-false}
       - APP_URL=https://www.leafmark.app
-      - DB_CONNECTION=mysql
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-leafmark}
-      - DB_USERNAME=${DB_USERNAME:-leafmark}
-      - DB_PASSWORD=${DB_PASSWORD:-leafmark_password}
-    depends_on:
-      db:
-        condition: service_healthy
-
-  db:
-    image: mariadb:11
-    ports:
-      - "3306:3306"
-    volumes:
-      - mariadb_data:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_password}
-      - MYSQL_DATABASE=${DB_DATABASE:-leafmark}
-      - MYSQL_USER=${DB_USERNAME:-leafmark}
-      - MYSQL_PASSWORD=${DB_PASSWORD:-leafmark_password}
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - APP_LOCALE=${APP_LOCALE:-en}
+      - DB_CONNECTION=sqlite
+      - GOOGLE_BOOKS_API_KEY=${GOOGLE_BOOKS_API_KEY:-}
+      - BIGBOOK_API_KEY=${BIGBOOK_API_KEY:-}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-}
 
 volumes:
-  mariadb_data:
   vendor:
   storage_data:
+  sqlite_data:

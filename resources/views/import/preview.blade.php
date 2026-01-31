@@ -53,13 +53,13 @@
         </div>
 
         <div class="flex gap-4">
-            <form action="{{ localeRoute('import.execute') }}" method="POST" class="flex-1">
+            <form action="{{ route('import.execute') }}" method="POST" class="flex-1">
                 @csrf
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg">
                     {{ __('app.import.confirm_import') }}
                 </button>
             </form>
-            <form action="{{ localeRoute('import.cancel') }}" method="POST" class="flex-1">
+            <form action="{{ route('import.cancel') }}" method="POST" class="flex-1">
                 @csrf
                 <button type="submit" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg">
                     {{ __('app.import.cancel') }}

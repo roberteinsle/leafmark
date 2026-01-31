@@ -1,6 +1,37 @@
 <?php
 
 return [
+    // Welcome Page
+    'welcome' => [
+        'meta_title' => 'Your Personal Book Tracking Application',
+        'meta_description' => 'Track your reading progress, organize your book collection, and set yearly reading goals with Leafmark.',
+        'get_started' => 'Get Started',
+        'hero_title' => 'Track Your Reading Journey',
+        'hero_subtitle' => 'Your personal library, organized and accessible. Track what you\'re reading, what you want to read, and what you\'ve finished.',
+        'start_tracking' => 'Start Tracking',
+        'sign_in' => 'Sign In',
+        'features_title' => 'Everything You Need to Manage Your Books',
+        'feature1_title' => 'Track Your Reading',
+        'feature1_desc' => 'Monitor your progress through books with page tracking and reading statistics.',
+        'feature2_title' => 'Search Books',
+        'feature2_desc' => 'Find books from multiple sources including Google Books, Open Library, and BookBrainz.',
+        'feature3_title' => 'Organize with Tags',
+        'feature3_desc' => 'Create custom tags to organize your library exactly the way you want.',
+        'feature4_title' => 'Reading Challenges',
+        'feature4_desc' => 'Set yearly reading goals and track your progress throughout the year.',
+        'feature5_title' => 'Progress Tracking',
+        'feature5_desc' => 'Keep track of your current page and see your reading history over time.',
+        'feature6_title' => 'Family Sharing',
+        'feature6_desc' => 'Connect with family and friends to share your reading adventures.',
+        'feature7_title' => 'Multi-Source Import',
+        'feature7_desc' => 'Import books from Goodreads CSV or search multiple book databases.',
+        'feature8_title' => 'Series Management',
+        'feature8_desc' => 'Organize book series and track your progress through multi-book collections.',
+        'feature9_title' => 'Rate & Review',
+        'feature9_desc' => 'Rate books with a star system and write reviews to remember your thoughts.',
+        'footer' => '© ' . date('Y') . ' Leafmark. Made with ❤️ in Hamburg',
+    ],
+
     // Navigation
     'nav' => [
         'books' => 'Books',
@@ -212,6 +243,12 @@ return [
         'column_date_finished' => 'Date Finished',
         'column_tags' => 'Tags',
         'column_actions' => 'Actions',
+
+        // API Refresh
+        'refresh_from_api' => 'Re-import from API',
+        'refresh_hint' => 'Click a source to fetch updated book data from external APIs',
+        'apply_changes' => 'Apply Selected Changes',
+        'refreshed_fields' => ':count field(s) updated successfully',
     ],
 
     // Reading Challenge
@@ -691,11 +728,5 @@ return [
         'errors_occurred' => 'Errors Occurred',
         'view_library' => 'View Library',
         'import_another' => 'Import Another File',
-    ],
-];
-        'refresh_from_api' => 'Re-import from API',
-        'refresh_hint' => 'Click a source to fetch updated book data from external APIs',
-        'apply_changes' => 'Apply Selected Changes',
-        'refreshed_fields' => ':count field(s) updated successfully',
     ],
 ];

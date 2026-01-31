@@ -83,6 +83,6 @@ class ResetPasswordController extends Controller
             ->where('email', $request->email)
             ->delete();
 
-        return redirect()->route('login.' . app()->getLocale())->with('status', __('app.password_reset.success'));
+        return redirect()->route('login')->with('status', __('app.password_reset.success'));
     }
 }

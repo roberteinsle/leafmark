@@ -81,7 +81,12 @@
       "Bash(sudo docker ps:*)",
       "Bash(sudo docker exec:*)",
       "Bash(do echo \"Testing /$lang:\")",
-      "Bash(sudo chown:*)"
+      "Bash(sudo chown:*)",
+      "Bash(xargs -0 sed -i \"s/ \\\\. app\\(\\)->getLocale\\(\\)//g\")",
+      "Bash(xargs:*)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(grep:*)",
+      "Bash(tail:*)"
     ]
   }
 }

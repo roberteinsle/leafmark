@@ -16,22 +16,22 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ localeRoute('books.index') }}" class="text-xl font-bold text-gray-800">
+                        <a href="{{ route('books.index') }}" class="text-xl font-bold text-gray-800">
                             📚 {{ config('app.name', 'Leafmark') }}
                         </a>
                     </div>
                     @auth
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="{{ localeRoute('books.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="{{ route('books.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             {{ __('app.nav.books') }}
                         </a>
-                        <a href="{{ localeRoute('tags.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="{{ route('tags.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             {{ __('app.nav.tags') }}
                         </a>
-                        <a href="{{ localeRoute('challenge.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="{{ route('challenge.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             {{ __('app.nav.challenge') }}
                         </a>
-                        <a href="{{ localeRoute('family.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="{{ route('family.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             {{ __('app.nav.family') }}
                         </a>
                     </div>
@@ -40,7 +40,7 @@
                 <div class="flex items-center">
                     @auth
                     <div class="flex items-center space-x-4">
-                        <a href="{{ localeRoute('books.create') }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        <a href="{{ route('books.create') }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                             <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
@@ -66,18 +66,18 @@
                                  class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50"
                                  style="display: none;">
                                 @if(Auth::user()->is_admin)
-                                <a href="{{ localeRoute('admin.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-semibold">
+                                <a href="{{ route('admin.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-semibold">
                                     ⚙️ {{ __('app.admin.title') }}
                                 </a>
                                 <hr class="my-1">
                                 @endif
-                                <a href="{{ localeRoute('import.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <a href="{{ route('import.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     📥 {{ __('app.import.title') }}
                                 </a>
-                                <a href="{{ localeRoute('settings.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <a href="{{ route('settings.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     {{ __('app.nav.settings') }}
                                 </a>
-                                <form method="POST" action="{{ localeRoute('logout') }}">
+                                <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         {{ __('app.nav.logout') }}
@@ -88,8 +88,8 @@
                     </div>
                     @else
                     <div class="space-x-4">
-                        <a href="{{ localeRoute('login') }}" class="text-sm text-gray-700 hover:text-gray-900">{{ __('app.nav.login') }}</a>
-                        <a href="{{ localeRoute('register') }}" class="text-sm text-gray-700 hover:text-gray-900">{{ __('app.nav.register') }}</a>
+                        <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:text-gray-900">{{ __('app.nav.login') }}</a>
+                        <a href="{{ route('register') }}" class="text-sm text-gray-700 hover:text-gray-900">{{ __('app.nav.register') }}</a>
                     </div>
                     @endauth
                 </div>
@@ -117,16 +117,7 @@
 
     <footer class="bg-white border-t border-gray-200 mt-auto">
         <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col items-center space-y-4">
-                <div class="flex space-x-6 text-sm">
-                    <a href="{{ localeRoute('impressum') }}" class="text-gray-600 hover:text-gray-900">Impressum</a>
-                    <span class="text-gray-400">·</span>
-                    <a href="{{ localeRoute('datenschutz') }}" class="text-gray-600 hover:text-gray-900">Datenschutz</a>
-                    <span class="text-gray-400">·</span>
-                    <a href="{{ localeRoute('kontakt') }}" class="text-gray-600 hover:text-gray-900">Kontakt</a>
-                    <span class="text-gray-400">·</span>
-                    <a href="{{ localeRoute('changelog') }}" class="text-gray-600 hover:text-gray-900">Changelog</a>
-                </div>
+            <div class="flex flex-col items-center">
                 <p class="text-center text-gray-500 text-sm">
                     &copy; {{ date('Y') }} Leafmark. Made with ❤️ in Hamburg
                 </p>

@@ -17,7 +17,7 @@
             </h2>
         </div>
 
-        <form class="mt-8 space-y-6" method="POST" action="{{ localeRoute('password.update') }}">
+        <form class="mt-8 space-y-6" method="POST" action="{{ route('password.update') }}">
             @csrf
 
             <input type="hidden" name="token" value="{{ $token }}">

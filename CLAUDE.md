@@ -14,8 +14,6 @@ The application supports multiple users with individual book collections, admin-
 
 ```
 User → Cloudflare (CDN/SSL) → Hetzner VM → Coolify/Traefik → Leafmark Container
-                                                   ↓
-                                            MariaDB Container
 ```
 
 **Components:**
@@ -24,18 +22,20 @@ User → Cloudflare (CDN/SSL) → Hetzner VM → Coolify/Traefik → Leafmark Co
 - **Production URL:** https://www.leafmark.app
 - **Admin Panel:** https://coolify.leafmark.app
 - **CDN/DNS:** Cloudflare (proxied, orange cloud)
-- **Database:** MariaDB 11 in separate container
+- **Database:** SQLite (file-based, included in container)
 
 ### Development Environment
 
 **Primary:** GitHub Codespaces
 - Preconfigured dev environment
 - Auto-starts services on port 8000
+- SQLite database (file-based)
 - See CODESPACES.md for details
 
-**Local:** Docker Compose (optional)
-- `docker-compose.yaml` for local development
-- MariaDB + Laravel app services
+**Local:** Standard Laravel Development
+- SQLite database (no Docker required)
+- `php artisan serve` for local development
+- `database/database.sqlite` for data storage
 
 ### Deployment Workflow
 
@@ -75,30 +75,25 @@ php artisan config:clear
 php artisan route:clear
 ```
 
-### Docker Development (Local)
+### Local Development (SQLite)
 
 ```bash
-# Note: This project uses docker-compose.yaml (not docker-compose.yml)
-# Use 'docker compose' (v2) or 'docker-compose' (v1)
+# Create SQLite database
+touch database/database.sqlite
 
-# Start services
-docker compose up -d
+# Run migrations
+php artisan migrate
 
-# Execute commands in app container
-docker compose exec app <command>
+# Start development server
+php artisan serve
 
-# View logs
-docker compose logs -f app
-
-# Stop services
-docker compose down
+# Access at http://localhost:8000
 ```
 
 ### Laravel Artisan Commands
 
 ```bash
-# Run inside container with: docker compose exec app <command>
-# Or directly in Codespaces
+# Run directly in terminal (Codespaces or local)
 
 # Generate application key
 php artisan key:generate
@@ -127,8 +122,8 @@ php artisan db:seed
 ```bash
 # Run all tests
 vendor/bin/phpunit
-# Or in Docker:
-docker compose exec app vendor/bin/phpunit
+# Or using artisan:
+php artisan test
 
 # Run specific test suite
 vendor/bin/phpunit --testsuite=Feature
@@ -146,8 +141,6 @@ vendor/bin/phpunit --coverage-html coverage
 ```bash
 # Install dependencies
 composer install
-# Or in Docker:
-docker compose exec app composer install
 
 # Update dependencies
 composer update
@@ -329,14 +322,7 @@ View preferences persist across sessions and are shelf-specific (e.g., different
 - Custom controllers: `LoginController`, `RegisterController`
 - All book/tag routes protected with `auth` middleware
 - Authorization through relationship checks: books/tags must belong to authenticated user
-
-**Email Verification:**
-- **Users must verify email before login** (not auto-logged in after registration)
-- Laravel's built-in email verification system
-- `VerificationController` handles verification and resend
-- New users receive verification email after registration
-- Email contains signed URL with expiration
-- Redirects to verification notice page after registration
+- Users are automatically logged in after successful registration
 
 **Admin System:**
 - `IsAdmin` middleware protects admin routes
@@ -348,131 +334,121 @@ View preferences persist across sessions and are shelf-specific (e.g., different
 - `RegisterController` checks `SystemSetting` for registration rules
 - Three registration modes: open, domain, code
 - Registration can be completely disabled via admin settings
-- **Cloudflare Turnstile integration** for CAPTCHA protection (optional)
-
-**Email System:**
-- SMTP settings configured in Admin → System Settings
-- `EmailLog` model tracks all sent emails (verification, password reset)
-- Admin can view email logs at `/admin/email-logs` for debugging
-- Test email functionality available in admin settings
-
-**Cloudflare Turnstile (CAPTCHA):**
-- Protects registration, login, password reset, and contact forms
-- Configured in Admin → System Settings
-- Settings: `turnstile_enabled`, `turnstile_site_key`, `turnstile_secret_key`
-- `TurnstileValid` validation rule in `app/Rules/TurnstileValid.php`
-- Optional - can be disabled
+- No email verification or CAPTCHA required
 
 ### Internationalization
 
-The application supports multiple languages with **localized routing**:
+The application supports multiple languages through Laravel's translation system.
+
+**Development Language:**
+- **Primary development language: English (en)**
+- All new features, UI text, and documentation should be written in English first
+- English is the default language (`APP_LOCALE=en` in .env)
 
 **Supported Languages:**
-- English (en), German (de), French (fr), Italian (it), Spanish (es), Polish (pl)
+- English (en) - Default and development language
+- German (de)
+- French (fr)
+- Italian (it)
+- Polish (pl)
+- Spanish (es)
 
-**Localized Routing Architecture:**
-- All routes prefixed with locale: `/en/`, `/de/`, `/fr/`, `/it/`, `/es/`, `/pl/`
-- `SetLocaleFromUrl` middleware handles locale detection and setting
-- Named routes include locale suffix: `books.index.en`, `books.index.de`, etc.
-- Root URL (`/`) auto-redirects to detected locale
+**Important for Development:**
+- **Always consider translations when developing new features**
+- When adding new UI text, add translation keys to `lang/en/app.php` first
+- Structure translation keys logically in nested arrays (e.g., `app.books.title`, `app.settings.email`)
+- Use the `__()` helper in Blade templates: `{{ __('app.books.title') }}`
+- Use the `__()` helper in controllers: `return redirect()->back()->with('success', __('app.books.book_added'));`
 
-**Locale Detection Priority:**
-1. User's `preferred_language` field (if authenticated)
-2. Browser `Accept-Language` header
-3. Default: English (`en`)
+**Language Configuration:**
+- Application language set via `APP_LOCALE` in `.env` file
+- No URL prefixes (e.g., `/de/` or `/en/`)
+- Single language per deployment
+- Default: English (`en`)
 
-**Localized Service Pages:**
-- Different URLs per language for static pages
-- Examples:
-  - Imprint: `/imprint` (en), `/impressum` (de), `/mentions-legales` (fr)
-  - Privacy: `/privacy` (en), `/datenschutz` (de), `/confidentialite` (fr)
-  - Contact: `/contact` (en/fr/it), `/kontakt` (de/pl), `/contacto` (es)
+**Translation Files:**
+- All translations stored in `lang/{locale}/app.php`
+- Organized in logical sections: nav, books, settings, admin, etc.
+- Each language file returns an array with nested translation keys
+- `LanguageService` provides language code conversions and display names
 
-**Backward Compatibility:**
-- Old non-prefixed URLs redirect to localized versions (301)
-- Example: `/login` → `/{locale}/login`
-- Authenticated users redirected to their preferred language
-- Guest users redirected to detected locale
+**Translation Key Structure:**
+```php
+// lang/en/app.php
+return [
+    'nav' => [
+        'books' => 'Books',
+        'tags' => 'Tags',
+    ],
+    'books' => [
+        'title' => 'My Books',
+        'add_new' => 'Add a New Book',
+        'delete_confirm' => 'Are you sure you want to delete this book?',
+    ],
+];
+```
 
-**Language Files:**
-- Translation files in `lang/{locale}/app.php`
-- `LanguageService` provides language name display and code conversion
+**Using Translations in Code:**
+```php
+// In Blade templates
+{{ __('app.books.title') }}
+{{ __('app.books.delete_confirm') }}
 
-### Contact Form
+// In controllers
+return redirect()->back()->with('success', __('app.books.book_added'));
 
-**ContactController** provides a public contact form:
-- Categories: support, feature, bug, privacy
-- Turnstile CAPTCHA protection (optional)
-- Sanitizes input (strips HTML tags)
-- Sends emails to configurable `contact_email` (default: ews@einsle.com)
-- Localized URLs per language
-
-**Routes:**
-- `/contact`, `/kontakt`, `/contacto`, `/contatto` (depending on locale)
-- POST to same route for submission
-
-**Email Configuration:**
-- Uses system SMTP settings
-- HTML email template in controller
-- Reply-To set to user's email
+// With parameters
+{{ __('app.books.refreshed_fields', ['count' => 5]) }}
+```
 
 ### Routing Structure
 
 Routes are defined in [routes/web.php](routes/web.php):
 
-**Important:** All routes are wrapped in locale prefixes. Examples below show the pattern without locale.
-
 **Public routes:**
-- `/{locale}` - Landing page (redirects to dashboard if authenticated)
-- `/{locale}/imprint`, `/{locale}/privacy`, `/{locale}/contact` - Service pages (localized URLs)
-- `/{locale}/changelog` - Changelog page
+- `/` - Landing page (redirects to dashboard if authenticated)
+- `/changelog` - Changelog page
 
 **Guest-only routes:**
-- `/{locale}/register`, `/{locale}/login` - Authentication forms
-- `/{locale}/forgot-password`, `/{locale}/reset-password/{token}` - Password reset
-- `/{locale}/verify-email` - Email verification notice
+- `/register`, `/login` - Authentication forms
+- `/forgot-password`, `/reset-password/{token}` - Password reset
+- `/verify-email` - Email verification notice
 
 **Email verification routes:**
-- `/{locale}/email/verify/{id}/{hash}` - Verify email (signed route)
-- `/{locale}/email/resend` - Resend verification email
+- `/email/verify/{id}/{hash}` - Verify email (signed route)
+- `/email/resend` - Resend verification email
 
 **Protected routes (requires auth):**
-- `/{locale}/books` - Resource routes (index, create, store, show, edit, update, destroy)
-- `/{locale}/books/store-from-api` - Store book imported from external API
-- `/{locale}/books/bulk-delete` - Delete multiple books at once
-- `/{locale}/books/bulk-add-tags` - Add tags to multiple books
-- `/{locale}/books/bulk-remove-tag` - Remove tag from multiple books
-- `/{locale}/books/{book}/progress` - PATCH to update reading progress
-- `/{locale}/books/{book}/status` - PATCH to update reading status
-- `/{locale}/books/{book}/rating` - PATCH to update book rating
-- `/{locale}/books/{book}/progress/{entry}` - DELETE to remove progress entry
-- `/{locale}/books/{book}/fetch-api-data` - GET to fetch API data
-- `/{locale}/books/{book}/refresh-from-api` - POST to refresh book from API
-- `/{locale}/books/{book}/covers` - POST to upload new cover
-- `/{locale}/books/{book}/covers/{cover}` - DELETE to remove cover
-- `/{locale}/books/{book}/covers/{cover}/primary` - PATCH to set primary cover
-- `/{locale}/series/{series}` - View all books in a series
-- `/{locale}/books/toggle-view-mode` - POST to toggle grid/table view
-- `/{locale}/books/update-column-settings` - POST to update visible columns
-- `/{locale}/tags` - Resource routes for tag management
-- `/{locale}/tags/{tag}/books/{book}` - POST/DELETE to add/remove books from tags
-- `/{locale}/settings` - GET/PATCH for user settings
-- `/{locale}/challenge` - Reading challenge routes (index, store, update, destroy)
-- `/{locale}/family` - Family management routes
-- `/{locale}/import` - CSV import routes
+- `/books` - Resource routes (index, create, store, show, edit, update, destroy)
+- `/books/store-from-api` - Store book imported from external API
+- `/books/bulk-delete` - Delete multiple books at once
+- `/books/bulk-add-tags` - Add tags to multiple books
+- `/books/bulk-remove-tag` - Remove tag from multiple books
+- `/books/{book}/progress` - PATCH to update reading progress
+- `/books/{book}/status` - PATCH to update reading status
+- `/books/{book}/rating` - PATCH to update book rating
+- `/books/{book}/progress/{entry}` - DELETE to remove progress entry
+- `/books/{book}/fetch-api-data` - GET to fetch API data
+- `/books/{book}/refresh-from-api` - POST to refresh book from API
+- `/books/{book}/covers` - POST to upload new cover
+- `/books/{book}/covers/{cover}` - DELETE to remove cover
+- `/books/{book}/covers/{cover}/primary` - PATCH to set primary cover
+- `/series/{series}` - View all books in a series
+- `/books/toggle-view-mode` - POST to toggle grid/table view
+- `/books/update-column-settings` - POST to update visible columns
+- `/tags` - Resource routes for tag management
+- `/tags/{tag}/books/{book}` - POST/DELETE to add/remove books from tags
+- `/settings` - GET/PATCH for user settings
+- `/challenge` - Reading challenge routes (index, store, update, destroy)
+- `/family` - Family management routes
+- `/import` - CSV import routes
 
 **Admin routes (requires auth + admin):**
-- `/{locale}/admin` - Admin dashboard with user statistics
-- `/{locale}/admin/users` - User management (list, toggle admin, delete)
-- `/{locale}/admin/users/{user}` - Edit, update, delete user
-- `/{locale}/admin/users/{user}/toggle-admin` - PATCH to grant/revoke admin privileges
-- `/{locale}/admin/settings` - System settings (GET/PATCH)
-- `/{locale}/admin/settings/test-email` - POST to send test email
-- `/{locale}/admin/email-logs` - View email sending logs and history
-
-**Backward compatibility routes:**
-- Old non-prefixed URLs redirect to localized versions with 301 status
-- Examples: `/login` → `/{locale}/login`, `/books` → `/{locale}/books`
+- `/admin` - Admin dashboard with user statistics
+- `/admin/users` - User management (list, toggle admin, delete)
+- `/admin/users/{user}` - Edit, update, delete user
+- `/admin/users/{user}/toggle-admin` - PATCH to grant/revoke admin privileges
+- `/admin/settings` - System settings (GET/PATCH)
 
 **Important Routing Details:**
 - Book routes use **Unix timestamp** from `added_at` as route key (not numeric ID)
@@ -522,11 +498,8 @@ Routes are defined in [routes/web.php](routes/web.php):
 
 **system_settings table:**
 - Key-value storage for application configuration
-- Stores registration, SMTP, Turnstile, and API settings
+- Stores registration and API settings
 - Keys: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
-- SMTP: `smtp_enabled`, `smtp_host`, `smtp_port`, `smtp_encryption`, `smtp_username`, `smtp_password`, `smtp_from_address`, `smtp_from_name`
-- Turnstile: `turnstile_enabled`, `turnstile_site_key`, `turnstile_secret_key`
-- Contact: `contact_email`
 - No caching in model (direct database queries)
 
 **families table:**
@@ -554,16 +527,6 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `view_mode` - 'grid' or 'table'
 - `visible_columns` - JSON array of column names
 - `per_page` - Items per page
-
-**email_logs table:**
-- Tracks all sent emails for debugging
-- `user_id` - Recipient user
-- `type` - Email type (verification, password_reset, etc.)
-- `recipient` - Email address
-- `subject` - Email subject line
-- `status` - sent, failed
-- `error_message` - Error details if failed
-- `sent_at` - Timestamp
 
 ### Controller Patterns
 
@@ -606,10 +569,8 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `updateUser()` - Update user details (name, email, admin status)
 - `toggleAdmin()` - Grant/revoke admin privileges for a user
 - `deleteUser()` - Delete a user (prevents self-deletion)
-- `settings()` - Display system settings (registration, SMTP, Turnstile, API keys)
+- `settings()` - Display system settings (registration)
 - `updateSettings()` - Update system settings
-- `sendTestEmail()` - Send test email to verify SMTP configuration
-- `emailLogs()` - View email sending history and logs
 
 **FamilyController** handles:
 - `index()` - Display family overview and members
@@ -630,10 +591,7 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `result()` - View detailed import results
 - `destroy()` - Delete import history record
 
-**ContactController** handles:
-- `show()` - Display contact form
-- `submit()` - Handle form submission with Turnstile verification
-- Email sending with category-based subject lines
+**Note:** Contact form functionality has been removed as it required email functionality.
 
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`
@@ -655,8 +613,7 @@ When implementing controllers:
 - `admin/index.blade.php` - Dashboard with stats and quick links
 - `admin/users.blade.php` - User list with admin toggle and delete actions
 - `admin/edit-user.blade.php` - Edit individual user details
-- `admin/settings.blade.php` - System settings form (registration, SMTP, Turnstile, API keys)
-- `admin/email-logs.blade.php` - Email sending history and logs
+- `admin/settings.blade.php` - System settings form (registration)
 - Admin link in navigation dropdown (only visible to admins)
 
 **Family views:**
@@ -665,11 +622,8 @@ When implementing controllers:
 - `family/join.blade.php` - Form to join a family with a code
 
 **Auth views:**
-- `auth/register.blade.php` - Registration form with optional Turnstile
-- `auth/login.blade.php` - Login form with optional Turnstile
-- `auth/verify-email.blade.php` - Email verification notice
-- `auth/forgot-password.blade.php` - Password reset request with optional Turnstile
-- `auth/reset-password.blade.php` - Password reset form with optional Turnstile
+- `auth/register.blade.php` - Registration form
+- `auth/login.blade.php` - Login form
 
 **Public views:**
 - `welcome.blade.php` - Landing page (localized)
@@ -719,23 +673,21 @@ public function resolveRouteBinding($value, $field = null) {
 
 This means book URLs use timestamps instead of sequential IDs, making them harder to enumerate.
 
-### Localized Routes in Code
+### Route Generation in Code
 
-When generating URLs in controllers or views, always include the locale:
+When generating URLs in controllers or views, use standard Laravel route helpers:
 
 ```php
 // In controllers
-return redirect()->route('books.index.' . app()->getLocale());
+return redirect()->route('books.index');
+return redirect()->route('books.show', $book);
 
 // In Blade templates
-<a href="{{ route('books.show.' . app()->getLocale(), $book) }}">View Book</a>
-
-// Or use helper
-@php $locale = app()->getLocale() @endphp
-<a href="{{ route('books.show.' . $locale, $book) }}">View Book</a>
+<a href="{{ route('books.show', $book) }}">View Book</a>
+<a href="{{ route('settings.edit') }}">Settings</a>
 ```
 
-**Important:** All named routes include locale suffix (e.g., `books.index.en`, `login.de`).
+**Important:** Route names do NOT include locale suffixes. Use simple names like `books.index`, `login`, `settings.edit`.
 
 ### Database Migrations
 
@@ -804,8 +756,6 @@ The application now supports multi-user environments with admin controls:
 - **NO CACHING** - direct database queries to avoid cache table dependency
 - Common settings: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
 - Helper methods: `isRegistrationEnabled()`, `getRegistrationMode()`, `isEmailDomainAllowed()`
-- SMTP methods: `isSmtpEnabled()`, `getSmtpConfig()`
-- Turnstile methods: `isTurnstileEnabled()`, `getTurnstileSiteKey()`, `getTurnstileSecretKey()`
 
 ### Security Considerations
 
@@ -822,18 +772,6 @@ The application now supports multi-user environments with admin controls:
 - Admins cannot toggle their own admin status (prevented in controller)
 - At least one admin should always exist in the system
 - Admin status stored as boolean in `users.is_admin`
-
-**Email Verification:**
-- Users must verify email before accessing the application
-- Verification emails tracked in `email_logs` table
-- Admins can view email logs for debugging
-- SMTP must be configured for email verification to work
-
-**Cloudflare Turnstile:**
-- Optional CAPTCHA protection for registration and login
-- Configured in Admin → System Settings
-- Uses `TurnstileValid` validation rule
-- Verifies token via Cloudflare API
 
 **Route Protection:**
 - Cover routes ordered before destroy to prevent path conflicts
@@ -886,21 +824,27 @@ Route::delete('/books/{book}', ...); // This must be last
    - Update models and relationships
 
 2. **Create routes** in `routes/web.php`
-   - Remember to add for ALL supported locales
-   - Include locale in named routes
+   - Use clear, RESTful route names
+   - Apply appropriate middleware (`auth`, `admin`, etc.)
 
 3. **Implement controller**
-   - Scope queries to `auth()->user()`
-   - Use localized redirects
+   - Scope queries to `auth()->user()` for user-specific data
+   - Use standard redirects: `return redirect()->route('feature.index');`
+   - Return translated messages: `->with('success', __('app.feature.created'));`
 
 4. **Create Blade views**
    - Use layout: `@extends('layouts.app')`
-   - Include locale in route helpers
+   - Use translation helpers: `{{ __('app.feature.title') }}`
+   - Use route helpers: `{{ route('feature.show', $item) }}`
 
-5. **Add translations** in `lang/{locale}/app.php`
+5. **Add translations** in `lang/en/app.php` first
+   - Create a new section for your feature
+   - Add all UI text as translation keys
+   - Consider translating to other languages (de, fr, it, pl, es)
 
 6. **Test the feature**
    - Manual testing in Codespaces
+   - Test with different languages (change `APP_LOCALE` in `.env`)
    - Create tests in `tests/Feature/`
 
 7. **Commit and push**
@@ -928,19 +872,21 @@ public static function isNewFeatureEnabled(): bool
 
 ### Adding a New Language
 
-1. Create translation file: `lang/{locale}/app.php`
-2. Add locale to `SetLocaleFromUrl` middleware (line 15, 42)
-3. Add locale to `routes/web.php` `$supportedLocales` array (line 24)
-4. Add localized routes in foreach loop
-5. Update views with new locale option
+1. **Create translation file**: Copy `lang/en/app.php` to `lang/{locale}/app.php`
+2. **Translate all keys**: Maintain the exact same array structure, only translate the values
+3. **Update documentation**: Add the new language to README.md and CLAUDE.md
+4. **Test thoroughly**:
+   - Set `APP_LOCALE={locale}` in `.env`
+   - Restart server with `php artisan serve`
+   - Check all pages for missing translations
+   - Verify special characters and encoding
 
-### Debugging Email Issues
-
-1. Check SMTP configuration in Admin → System Settings
-2. Send test email via Admin → System Settings → Test Email
-3. Check email logs in Admin → Email Logs
-4. Verify Laravel logs: `storage/logs/laravel.log`
-5. Check Coolify logs in production
+**Translation Best Practices:**
+- Keep the same array structure as English
+- Don't remove or add keys - only translate values
+- Test with actual native speakers when possible
+- Pay attention to pluralization rules (Laravel supports this)
+- Consider context: "read" can mean "gelesen" or "lesen" depending on context
 
 ### Working with Docker Entrypoint
 
@@ -961,4 +907,3 @@ The `docker-entrypoint.sh` script runs on container start:
 - **Laravel Documentation:** https://laravel.com/docs/11.x
 - **Tailwind CSS:** https://tailwindcss.com/docs
 - **Alpine.js:** https://alpinejs.dev/
-- **Cloudflare Turnstile:** https://developers.cloudflare.com/turnstile/

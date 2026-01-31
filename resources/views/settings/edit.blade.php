@@ -37,7 +37,7 @@
             </nav>
         </div>
 
-        <form action="{{ localeRoute('settings.update') }}" method="POST" class="p-6">
+        <form action="{{ route('settings.update') }}" method="POST" class="p-6">
             @csrf
             @method('PATCH')
 
@@ -61,21 +61,6 @@
                     @enderror
                 </div>
 
-                <div>
-                    <label for="preferred_language" class="block text-sm font-medium text-gray-700">{{ __('app.settings.preferred_language') }}</label>
-                    <select name="preferred_language" id="preferred_language" required
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('preferred_language') border-red-500 @enderror">
-                        @foreach($availableLanguages as $code => $name)
-                            <option value="{{ $code }}" {{ old('preferred_language', $user->preferred_language ?? 'en') === $code ? 'selected' : '' }}>
-                                {{ $name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <p class="mt-1 text-sm text-gray-500">{{ __('app.settings.language_help') }}</p>
-                    @error('preferred_language')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
             </div>
 
             <!-- Security Tab -->
@@ -113,7 +98,7 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-4" x-show="activeTab === 'account' || activeTab === 'security'">
-                <a href="{{ localeRoute('books.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                <a href="{{ route('books.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                     {{ __('app.settings.cancel') }}
                 </a>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
@@ -166,7 +151,7 @@
 
                 @if(auth()->user()->is_admin)
                     <div class="mt-4 text-center">
-                        <a href="{{ localeRoute('admin.email-logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                        <a href="{{ route('admin.email-logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
                             {{ __('app.settings.view_all_email_logs') }} →
                         </a>
                     </div>

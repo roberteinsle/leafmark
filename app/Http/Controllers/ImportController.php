@@ -67,7 +67,7 @@ class ImportController extends Controller
         $filename = session('import_filename');
 
         if (!$filePath || !Storage::exists($filePath)) {
-            return redirect()->route('import.index.' . app()->getLocale())
+            return redirect()->route('import.index')
                 ->withErrors(['error' => 'Import session expired. Please upload the file again.']);
         }
 
@@ -79,7 +79,7 @@ class ImportController extends Controller
             Storage::delete($filePath);
             session()->forget(['import_file_path', 'import_filename']);
 
-            return redirect()->route('import.result.' . app()->getLocale(), $importHistory->id)
+            return redirect()->route('import.result', $importHistory->id)
                 ->with('success', 'Import completed successfully!');
 
         } catch (\Exception $e) {
@@ -113,7 +113,7 @@ class ImportController extends Controller
 
         session()->forget(['import_file_path', 'import_filename']);
 
-        return redirect()->route('import.index.' . app()->getLocale())
+        return redirect()->route('import.index')
             ->with('info', 'Import cancelled.');
     }
 
@@ -129,7 +129,7 @@ class ImportController extends Controller
 
         $importHistory->delete();
 
-        return redirect()->route('import.history.' . app()->getLocale())
+        return redirect()->route('import.history')
             ->with('success', 'Import history deleted.');
     }
 }

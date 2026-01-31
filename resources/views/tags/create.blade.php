@@ -5,7 +5,7 @@
 @section('content')
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6">
-        <a href="{{ localeRoute('tags.index') }}" class="text-indigo-600 hover:text-indigo-700 flex items-center">
+        <a href="{{ route('tags.index') }}" class="text-indigo-600 hover:text-indigo-700 flex items-center">
             <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
@@ -16,7 +16,7 @@
     <div class="bg-white rounded-lg shadow-lg p-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Create New Tag</h1>
 
-        <form method="POST" action="{{ localeRoute('tags.store') }}" class="space-y-6">
+        <form method="POST" action="{{ route('tags.store') }}" class="space-y-6">
             @csrf
 
             <div>
@@ -75,7 +75,7 @@
             </div>
 
             <div class="flex justify-end space-x-4 pt-6">
-                <a href="{{ localeRoute('tags.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg">
+                <a href="{{ route('tags.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg">
                     Cancel
                 </a>
                 <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg">

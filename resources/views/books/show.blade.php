@@ -5,7 +5,7 @@
 @section('content')
 <div class="px-4 max-w-4xl mx-auto">
     <div class="mb-6">
-        <a href="{{ localeRoute('books.index') }}" class="text-indigo-600 hover:text-indigo-700 flex items-center">
+        <a href="{{ route('books.index') }}" class="text-indigo-600 hover:text-indigo-700 flex items-center">
             <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
@@ -54,7 +54,7 @@
                         <h1 class="text-3xl font-bold text-gray-900">{{ $book->title }}</h1>
                         @if($book->series)
                         <p class="text-lg text-indigo-600 mt-1">
-                            <a href="{{ localeRoute('books.series', ['series' => $book->series]) }}" class="hover:underline">
+                            <a href="{{ route('books.series', ['series' => $book->series]) }}" class="hover:underline">
                                 {{ $book->series }}@if($book->series_position) #{{ $book->series_position }}@endif
                             </a>
                         </p>
@@ -62,7 +62,7 @@
                         @if($book->author)
                         <p class="text-xl text-gray-600 mt-2">
                             {{ __('app.books.by_author') }}
-                            <a href="{{ localeRoute('books.index', ['author' => $book->author]) }}"
+                            <a href="{{ route('books.index', ['author' => $book->author]) }}"
                                class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium transition-colors">
                                 {{ $book->author }}
                             </a>
@@ -70,10 +70,10 @@
                         @endif
                     </div>
                     <div class="flex space-x-2">
-                        <a href="{{ localeRoute('books.edit', $book) }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg">
+                        <a href="{{ route('books.edit', $book) }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg">
                             {{ __('app.books.edit') }}
                         </a>
-                        <form method="POST" action="{{ localeRoute('books.destroy', $book) }}" onsubmit="return confirm('{{ __('app.books.delete_confirm') }}')">
+                        <form method="POST" action="{{ route('books.destroy', $book) }}" onsubmit="return confirm('{{ __('app.books.delete_confirm') }}')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
@@ -84,7 +84,7 @@
                 </div>
 
                 <div class="mt-6">
-                    <form method="POST" action="{{ localeRoute('books.status', $book) }}">
+                    <form method="POST" action="{{ route('books.status', $book) }}">
                         @csrf
                         @method('PATCH')
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('app.books.reading_status') }}</label>
@@ -183,7 +183,7 @@
                         <!-- Rating and Review Section -->
                         <div class="mt-6">
                             <h2 class="text-lg font-semibold text-gray-900 mb-3">{{ __('app.books.your_rating') }}</h2>
-                            <form method="POST" action="{{ localeRoute('books.update-rating', $book) }}" x-data="{ rating: {{ $book->rating ?? 0 }} }">
+                            <form method="POST" action="{{ route('books.update-rating', $book) }}" x-data="{ rating: {{ $book->rating ?? 0 }} }">
                                 @csrf
                                 @method('PATCH')
 
@@ -295,8 +295,8 @@
                                     $colors = $colorMap[$tag->color] ?? ['bg' => '#e0e7ff', 'text' => '#3730a3'];
                                 @endphp
                                 <div class="flex items-center gap-2 px-3 py-1 rounded-full text-sm" style="background-color: {{ $colors['bg'] }}; color: {{ $colors['text'] }}">
-                                    <a href="{{ localeRoute('tags.show', $tag) }}" class="hover:underline" style="color: {{ $colors['text'] }}">{{ $tag->name }}</a>
-                                    <form action="{{ localeRoute('tags.remove-book', [$tag, $book]) }}" method="POST" class="inline">
+                                    <a href="{{ route('tags.show', $tag) }}" class="hover:underline" style="color: {{ $colors['text'] }}">{{ $tag->name }}</a>
+                                    <form action="{{ route('tags.remove-book', [$tag, $book]) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="hover:opacity-70 rounded-full p-0.5">
@@ -322,7 +322,7 @@
                                     <select id="tag-select" class="block px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                                         <option value="">{{ __('app.books.add_a_tag') }}</option>
                                         @foreach($availableTags as $availableTag)
-                                        <option value="{{ localeRoute('tags.add-book', [$availableTag, $book]) }}">{{ $availableTag->name }}</option>
+                                        <option value="{{ route('tags.add-book', [$availableTag, $book]) }}">{{ $availableTag->name }}</option>
                                         @endforeach
                                     </select>
                                     <button type="button" onclick="addTag()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm">
@@ -332,7 +332,7 @@
                             </form>
                             @endif
 
-                            <a href="{{ localeRoute('tags.index') }}" class="text-sm text-indigo-600 hover:text-indigo-700 mt-2 inline-block">
+                            <a href="{{ route('tags.index') }}" class="text-sm text-indigo-600 hover:text-indigo-700 mt-2 inline-block">
                                 {{ __('app.books.manage_tags') }} →
                             </a>
                         </div>
@@ -351,7 +351,7 @@
                     <!-- Progress Tab -->
                     @if($book->status === 'currently_reading' && $book->page_count)
                     <div x-show="activeTab === 'progress'" class="mt-6">
-                        <form method="POST" action="{{ localeRoute('books.progress', $book) }}" class="flex items-end space-x-4">
+                        <form method="POST" action="{{ route('books.progress', $book) }}" class="flex items-end space-x-4">
                             @csrf
                             @method('PATCH')
                             <div class="flex-1">
@@ -425,7 +425,7 @@
                                             <div class="bg-indigo-500 h-1.5 rounded-full" style="width: {{ ($entry->page_number / $book->page_count) * 100 }}%"></div>
                                         </div>
                                     </div>
-                                    <form method="POST" action="{{ localeRoute('books.progress.delete', [$book, $entry->id]) }}" class="inline">
+                                    <form method="POST" action="{{ route('books.progress.delete', [$book, $entry->id]) }}" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"

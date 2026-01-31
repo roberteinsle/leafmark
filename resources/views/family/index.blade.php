@@ -52,7 +52,7 @@
                         <p class="mt-3 text-sm text-gray-600">{{ __('app.family.share_code_info') }}</p>
 
                         <div class="mt-4">
-                            <form action="{{ localeRoute('family.regenerate-code') }}" method="POST" onsubmit="return confirm('{{ __('app.family.regenerate_confirm') }}')">
+                            <form action="{{ route('family.regenerate-code') }}" method="POST" onsubmit="return confirm('{{ __('app.family.regenerate_confirm') }}')">
                                 @csrf
                                 <button type="submit" class="text-sm text-blue-600 hover:text-blue-800">
                                     {{ __('app.family.regenerate_code') }}
@@ -96,7 +96,7 @@
 
                 <!-- Actions -->
                 <div class="mt-6 pt-6 border-t border-gray-200 flex items-center justify-between">
-                    <form action="{{ localeRoute('family.leave') }}" method="POST" onsubmit="return confirm('{{ __('app.family.leave_confirm') }}')">
+                    <form action="{{ route('family.leave') }}" method="POST" onsubmit="return confirm('{{ __('app.family.leave_confirm') }}')">
                         @csrf
                         <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium">
                             {{ __('app.family.leave_family_button') }}
@@ -104,7 +104,7 @@
                     </form>
 
                     @if($family->isOwner($user))
-                        <form action="{{ localeRoute('family.destroy') }}" method="POST" onsubmit="return confirm('{{ __('app.family.delete_confirm') }}')">
+                        <form action="{{ route('family.destroy') }}" method="POST" onsubmit="return confirm('{{ __('app.family.delete_confirm') }}')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium">
@@ -126,10 +126,10 @@
                 <p class="mt-2 text-sm text-gray-500">{{ __('app.family.no_family_description') }}</p>
 
                 <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ localeRoute('family.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <a href="{{ route('family.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                         {{ __('app.family.create_family') }}
                     </a>
-                    <a href="{{ localeRoute('family.join') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <a href="{{ route('family.join') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                         {{ __('app.family.join_existing') }}
                     </a>
                 </div>

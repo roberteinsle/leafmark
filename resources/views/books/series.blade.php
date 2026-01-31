@@ -5,7 +5,7 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-8">
     <div class="mb-6">
-        <a href="{{ localeRoute('books.index') }}" class="text-indigo-600 hover:text-indigo-700 flex items-center mb-4">
+        <a href="{{ route('books.index') }}" class="text-indigo-600 hover:text-indigo-700 flex items-center mb-4">
             <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
@@ -17,7 +17,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         @foreach($books as $book)
-        <a href="{{ localeRoute('books.show', $book) }}" class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+        <a href="{{ route('books.show', $book) }}" class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
             @if($book->cover_image)
                 <img src="{{ $book->cover_image }}" alt="{{ $book->title }}" class="w-full h-64 object-cover">
             @else

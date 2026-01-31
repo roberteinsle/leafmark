@@ -2,12 +2,6 @@
 
 @section('title', 'Register')
 
-@if(\App\Models\SystemSetting::isTurnstileEnabled())
-@section('head')
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-@endsection
-@endif
-
 @section('content')
 <div class="min-h-screen flex items-center justify-center">
     <div class="max-w-md w-full space-y-8">
@@ -16,7 +10,7 @@
                 Create your account
             </h2>
         </div>
-        <form class="mt-8 space-y-6" method="POST" action="{{ localeRoute('register') }}">
+        <form class="mt-8 space-y-6" method="POST" action="{{ route('register') }}">
             @csrf
             <div class="rounded-md shadow-sm space-y-4">
                 <div>
@@ -84,15 +78,6 @@
                 </div>
                 @endif
                 @endif
-
-                @if(\App\Models\SystemSetting::isTurnstileEnabled())
-                <div>
-                    <div class="cf-turnstile" data-sitekey="{{ \App\Models\SystemSetting::getTurnstileSiteKey() }}"></div>
-                    @error('cf-turnstile-response')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                @endif
             </div>
 
             <div>
@@ -103,7 +88,7 @@
             </div>
 
             <div class="text-center">
-                <a href="{{ localeRoute('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="{{ route('login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
                     Already have an account? Sign in
                 </a>
             </div>

@@ -55,17 +55,17 @@
 
     <!-- Quick Links -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <a href="{{ localeRoute('admin.users') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+        <a href="{{ route('admin.users') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('app.admin.users') }}</h3>
             <p class="text-gray-600">{{ __('app.admin.user_management') }}</p>
         </a>
 
-        <a href="{{ localeRoute('admin.settings') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+        <a href="{{ route('admin.settings') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('app.admin.system_settings') }}</h3>
             <p class="text-gray-600">{{ __('app.admin.registration_settings') }}</p>
         </a>
 
-        <a href="{{ localeRoute('admin.email-logs') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+        <a href="{{ route('admin.email-logs') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
             <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('app.admin.email_logs') }}</h3>
             <p class="text-gray-600">{{ __('app.admin.email_logs_link_description') }}</p>
         </a>
@@ -89,7 +89,7 @@
                     @foreach($recentUsers as $user)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ localeRoute('admin.users.edit', $user) }}" class="text-blue-600 hover:text-blue-900">
+                            <a href="{{ route('admin.users.edit', $user) }}" class="text-blue-600 hover:text-blue-900">
                                 {{ $user->name }}
                             </a>
                             @if($user->is_admin)

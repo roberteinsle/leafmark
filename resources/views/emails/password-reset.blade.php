@@ -17,7 +17,7 @@
         <p>{{ __('app.password_reset.email_intro') }}</p>
         
         <div style="text-align: center; margin: 30px 0;">
-            <a href="{{ localeRoute('password.reset', ['token' => $token, 'email' => $email]) }}" 
+            <a href="{{ route('password.reset', ['token' => $token, 'email' => $email]) }}" 
                style="display: inline-block; padding: 12px 30px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
                 {{ __('app.password_reset.email_button') }}
             </a>
@@ -28,7 +28,7 @@
         <div style="background-color: white; padding: 15px; border-left: 4px solid #4F46E5; margin: 20px 0;">
             <p style="margin: 0; font-size: 14px;"><strong>{{ __('app.password_reset.email_notice') }}</strong></p>
             <p style="margin: 10px 0 0 0; font-size: 12px; color: #6b7280; word-break: break-all;">
-                {{ localeRoute('password.reset', ['token' => $token, 'email' => $email]) }}
+                {{ route('password.reset', ['token' => $token, 'email' => $email]) }}
             </p>
         </div>
         

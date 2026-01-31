@@ -9,7 +9,7 @@
             <h1 class="text-3xl font-bold text-gray-900">Tags</h1>
             <p class="mt-2 text-gray-600">Organize your books with custom tags</p>
         </div>
-        <a href="{{ localeRoute('tags.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2">
+        <a href="{{ route('tags.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
@@ -25,7 +25,7 @@
         <h3 class="mt-2 text-lg font-medium text-gray-900">No tags yet</h3>
         <p class="mt-1 text-gray-500">Get started by creating your first tag.</p>
         <div class="mt-6">
-            <a href="{{ localeRoute('tags.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+            <a href="{{ route('tags.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -82,19 +82,19 @@
                     </div>
 
                     <div class="flex gap-2">
-                        <a href="{{ localeRoute('tags.show', $tag) }}" class="text-indigo-600 hover:text-indigo-700 p-2 rounded-lg hover:bg-indigo-50" title="View">
+                        <a href="{{ route('tags.show', $tag) }}" class="text-indigo-600 hover:text-indigo-700 p-2 rounded-lg hover:bg-indigo-50" title="View">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </a>
                         @if(!$tag->is_default)
-                        <a href="{{ localeRoute('tags.edit', $tag) }}" class="text-gray-600 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100" title="Edit">
+                        <a href="{{ route('tags.edit', $tag) }}" class="text-gray-600 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100" title="Edit">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </a>
-                        <form action="{{ localeRoute('tags.destroy', $tag) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure? All books will be removed from this tag.');">
+                        <form action="{{ route('tags.destroy', $tag) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure? All books will be removed from this tag.');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50" title="Delete">

@@ -18,36 +18,20 @@ class LoginController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $rules = [
+        $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-        ];
-
-        // Add Turnstile validation if enabled
-        if (\App\Models\SystemSetting::isTurnstileEnabled()) {
-            $rules['cf-turnstile-response'] = ['required', new \App\Rules\TurnstileValid()];
-        }
-
-        $credentials = $request->validate($rules);
+        ]);
 
         if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $request->boolean('remember'))) {
-            // Check if email is verified
             $user = Auth::user();
-
-            if (!$user->email_verified_at) {
-                Auth::logout();
-
-                return back()->withErrors([
-                    'email' => __('app.email_verification.not_verified'),
-                ])->with('email', $credentials['email'])->with('show_resend', true);
-            }
 
             // Update last login timestamp
             $user->update(['last_login_at' => now()]);
 
             $request->session()->regenerate();
 
-            return redirect()->intended(route('books.index.' . app()->getLocale()));
+            return redirect()->intended(route('books.index'));
         }
 
         throw ValidationException::withMessages([

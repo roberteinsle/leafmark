@@ -6,7 +6,7 @@
 <div class="px-4">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900">{{ __('app.books.title') }}</h1>
-        <a href="{{ localeRoute('books.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
+        <a href="{{ route('books.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
             {{ __('app.books.add_book') }}
         </a>
     </div>
@@ -56,7 +56,7 @@
             </div>
 
             <div class="ml-6">
-                <a href="{{ localeRoute('challenge.index') }}" class="inline-block bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-medium py-2 px-4 rounded-lg transition">
+                <a href="{{ route('challenge.index') }}" class="inline-block bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-medium py-2 px-4 rounded-lg transition">
                     {{ __('app.challenge.view_details') }}
                 </a>
             </div>
@@ -82,7 +82,7 @@
                     </p>
                 </div>
             </div>
-            <a href="{{ localeRoute('books.index', array_filter([
+            <a href="{{ route('books.index', array_filter([
                     'status' => request('status'),
                     'sort' => request('sort'),
                     'search' => request('search')
@@ -99,7 +99,7 @@
 
     <!-- Search and Bulk Actions -->
     <div class="mb-6 bg-white rounded-lg shadow p-4">
-        <form action="{{ localeRoute('books.index') }}" method="GET" class="flex gap-4">
+        <form action="{{ route('books.index') }}" method="GET" class="flex gap-4">
             <input type="text"
                    name="search"
                    value="{{ request('search') }}"
@@ -123,7 +123,7 @@
             </button>
 
             @if(request('search'))
-                <a href="{{ localeRoute('books.index', request()->only(['status', 'sort', 'author'])) }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
+                <a href="{{ route('books.index', request()->only(['status', 'sort', 'author'])) }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300">
                     {{ __('app.books.clear') }}
                 </a>
             @endif
@@ -165,23 +165,23 @@
     <div class="mb-6">
         <div class="flex justify-between items-center">
             <div class="flex space-x-4">
-                <a href="{{ localeRoute('books.index', request()->only(['search', 'sort'])) }}" class="px-4 py-2 rounded-lg {{ !request('status') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
+                <a href="{{ route('books.index', request()->only(['search', 'sort'])) }}" class="px-4 py-2 rounded-lg {{ !request('status') ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
                     {{ __('app.books.all_books') }} <span class="ml-2 text-sm opacity-75">({{ $counts['all'] }})</span>
                 </a>
-                <a href="{{ localeRoute('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'want_to_read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'want_to_read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
+                <a href="{{ route('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'want_to_read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'want_to_read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
                     {{ __('app.books.want_to_read') }} <span class="ml-2 text-sm opacity-75">({{ $counts['want_to_read'] }})</span>
                 </a>
-                <a href="{{ localeRoute('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'currently_reading'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'currently_reading' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
+                <a href="{{ route('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'currently_reading'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'currently_reading' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
                     {{ __('app.books.currently_reading') }} <span class="ml-2 text-sm opacity-75">({{ $counts['currently_reading'] }})</span>
                 </a>
-                <a href="{{ localeRoute('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
+                <a href="{{ route('books.index', array_merge(request()->only(['search', 'sort']), ['status' => 'read'])) }}" class="px-4 py-2 rounded-lg {{ request('status') === 'read' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700' }}">
                     {{ __('app.books.read') }} <span class="ml-2 text-sm opacity-75">({{ $counts['read'] }})</span>
                 </a>
             </div>
 
             <!-- View Mode Toggle -->
             <div class="flex gap-1 border border-gray-300 rounded-lg p-1 bg-white">
-                <form action="{{ localeRoute('books.toggle-view-mode') }}" method="POST" class="inline">
+                <form action="{{ route('books.toggle-view-mode') }}" method="POST" class="inline">
                     @csrf
                     <input type="hidden" name="shelf" value="{{ request('status', 'all') }}">
                     <input type="hidden" name="view_mode" value="card">
@@ -193,7 +193,7 @@
                         </svg>
                     </button>
                 </form>
-                <form action="{{ localeRoute('books.toggle-view-mode') }}" method="POST" class="inline">
+                <form action="{{ route('books.toggle-view-mode') }}" method="POST" class="inline">
                     @csrf
                     <input type="hidden" name="shelf" value="{{ request('status', 'all') }}">
                     <input type="hidden" name="view_mode" value="table">
@@ -246,7 +246,7 @@
                             </div>
                         </div>
 
-                        <form id="column-settings-form" action="{{ localeRoute('books.update-column-settings') }}" method="POST">
+                        <form id="column-settings-form" action="{{ route('books.update-column-settings') }}" method="POST">
                             @csrf
                             <input type="hidden" name="shelf" value="{{ request('status', 'all') }}">
 
@@ -292,7 +292,7 @@
             @endif
 
             <!-- Sort Dropdown -->
-            <form action="{{ localeRoute('books.index') }}" method="GET" class="inline-block">
+            <form action="{{ route('books.index') }}" method="GET" class="inline-block">
                 @if(request('status'))
                     <input type="hidden" name="status" value="{{ request('status') }}">
                 @endif
@@ -318,7 +318,7 @@
     @if($books->isEmpty())
     <div class="bg-white rounded-lg shadow p-8 text-center">
         <p class="text-gray-500 mb-4">{{ __('app.books.no_books_found') }}</p>
-        <a href="{{ localeRoute('books.create') }}" class="text-indigo-600 hover:text-indigo-700 font-medium">
+        <a href="{{ route('books.create') }}" class="text-indigo-600 hover:text-indigo-700 font-medium">
             {{ __('app.books.add_first_book') }}
         </a>
     </div>
@@ -376,7 +376,7 @@
 
                             <th scope="col" class="px-3 py-3 {{ $column === 'actions' ? 'text-right' : 'text-left' }} text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 @if($isSortable)
-                                <a href="{{ localeRoute('books.index', array_filter([
+                                <a href="{{ route('books.index', array_filter([
                                     'status' => request('status'),
                                     'search' => request('search'),
                                     'author' => request('author'),
@@ -413,7 +413,7 @@
                                 @if($column === 'cover')
                                     <!-- Cover -->
                                     <td class="px-3 py-4 whitespace-nowrap">
-                                        <a href="{{ localeRoute('books.show', $book) }}">
+                                        <a href="{{ route('books.show', $book) }}">
                                             @if($book->thumbnail_image)
                                             <img src="{{ $book->thumbnail_image }}" alt="{{ $book->title }}" class="h-16 w-12 object-cover rounded">
                                             @else
@@ -428,7 +428,7 @@
                                 @elseif($column === 'title')
                                     <!-- Title -->
                                     <td class="px-3 py-4">
-                                        <a href="{{ localeRoute('books.show', $book) }}" class="text-sm font-medium text-gray-900 hover:text-indigo-600">
+                                        <a href="{{ route('books.show', $book) }}" class="text-sm font-medium text-gray-900 hover:text-indigo-600">
                                             {{ $book->title }}
                                         </a>
                                     </td>
@@ -436,7 +436,7 @@
                                     <!-- Author -->
                                     <td class="px-3 py-4 whitespace-nowrap">
                                         @if($book->author)
-                                        <a href="{{ localeRoute('books.index', ['author' => $book->author]) }}" class="text-sm text-gray-700 hover:text-indigo-600">
+                                        <a href="{{ route('books.index', ['author' => $book->author]) }}" class="text-sm text-gray-700 hover:text-indigo-600">
                                             {{ $book->author }}
                                         </a>
                                         @else
@@ -447,7 +447,7 @@
                                     <!-- Series -->
                                     <td class="px-3 py-4 whitespace-nowrap">
                                         @if($book->series)
-                                        <a href="{{ localeRoute('books.series', ['series' => $book->series]) }}" class="text-sm text-indigo-600 hover:text-indigo-800">
+                                        <a href="{{ route('books.series', ['series' => $book->series]) }}" class="text-sm text-indigo-600 hover:text-indigo-800">
                                             {{ $book->series }}@if($book->series_position) #{{ $book->series_position }}@endif
                                         </a>
                                         @else
@@ -461,7 +461,7 @@
                                             {{ $book->status === 'read' ? 'bg-green-100 text-green-800' : '' }}
                                             {{ $book->status === 'currently_reading' ? 'bg-blue-100 text-blue-800' : '' }}
                                             {{ $book->status === 'want_to_read' ? 'bg-gray-100 text-gray-800' : '' }}">
-                                            {{ __('app.books.' . $book->status) }}
+                                            {{ __('app.books' . $book->status) }}
                                         </span>
                                     </td>
                                 @elseif($column === 'rating')
@@ -564,13 +564,13 @@
                                     <!-- Actions -->
                                     <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end gap-2">
-                                            <a href="{{ localeRoute('books.show', $book) }}" class="text-blue-600 hover:text-blue-900" title="{{ __('app.books.view') }}">
+                                            <a href="{{ route('books.show', $book) }}" class="text-blue-600 hover:text-blue-900" title="{{ __('app.books.view') }}">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                                 </svg>
                                             </a>
-                                            <a href="{{ localeRoute('books.edit', $book) }}" class="text-gray-600 hover:text-gray-900" title="{{ __('app.books.edit') }}">
+                                            <a href="{{ route('books.edit', $book) }}" class="text-gray-600 hover:text-gray-900" title="{{ __('app.books.edit') }}">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                 </svg>
@@ -597,7 +597,7 @@
 
             <!-- Action buttons overlay -->
             <div class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                <a href="{{ localeRoute('books.show', $book) }}"
+                <a href="{{ route('books.show', $book) }}"
                    class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg"
                    title="{{ __('app.books.view') }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -605,14 +605,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                 </a>
-                <a href="{{ localeRoute('books.edit', $book) }}"
+                <a href="{{ route('books.edit', $book) }}"
                    class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded-full shadow-lg"
                    title="{{ __('app.books.edit') }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                 </a>
-                <form action="{{ localeRoute('books.destroy', $book) }}" method="POST" class="inline">
+                <form action="{{ route('books.destroy', $book) }}" method="POST" class="inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit"
@@ -626,7 +626,7 @@
                 </form>
             </div>
 
-            <a href="{{ localeRoute('books.show', $book) }}" class="block">
+            <a href="{{ route('books.show', $book) }}" class="block">
                 @if($book->thumbnail_image)
                 <img src="{{ $book->thumbnail_image }}" alt="{{ $book->title }}" class="w-full h-56 object-cover rounded-t-lg">
                 @else
@@ -640,19 +640,19 @@
             <div class="p-3">
                 <h3 class="font-semibold text-gray-900 text-sm line-clamp-2 h-10">{{ $book->title }}</h3>
                 @if($book->series)
-                <a href="{{ localeRoute('books.series', ['series' => $book->series]) }}"
+                <a href="{{ route('books.series', ['series' => $book->series]) }}"
                    class="text-xs text-purple-600 hover:text-purple-800 hover:underline truncate mt-1 block">
                     {{ $book->series }}@if($book->series_position) #{{ $book->series_position }}@endif
                 </a>
                 @endif
                 @if($book->author)
-                <a href="{{ localeRoute('books.index', ['author' => $book->author]) }}"
+                <a href="{{ route('books.index', ['author' => $book->author]) }}"
                    class="text-xs text-indigo-600 hover:text-indigo-800 hover:underline truncate mt-1 block">
                     {{ $book->author }}
                 </a>
                 @endif
 
-                <form action="{{ localeRoute('books.status', $book) }}" method="POST" class="mt-2">
+                <form action="{{ route('books.status', $book) }}" method="POST" class="mt-2">
                     @csrf
                     @method('PATCH')
                     <select name="status"
@@ -686,7 +686,7 @@
                         ];
                         $colors = $colorMap[$tag->color] ?? ['bg' => '#e0e7ff', 'text' => '#3730a3'];
                     @endphp
-                    <a href="{{ localeRoute('tags.show', $tag) }}"
+                    <a href="{{ route('tags.show', $tag) }}"
                        class="px-2 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity"
                        style="background-color: {{ $colors['bg'] }}; color: {{ $colors['text'] }}">
                         {{ $tag->name }}
@@ -719,7 +719,7 @@
         </div>
 
         @if($viewPref->view_mode === 'table')
-        <form action="{{ localeRoute('books.index') }}" method="GET" class="inline-block">
+        <form action="{{ route('books.index') }}" method="GET" class="inline-block">
             @if(request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif

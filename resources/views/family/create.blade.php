@@ -6,7 +6,7 @@
 <div class="px-4 sm:px-6 lg:px-8">
     <div class="max-w-2xl mx-auto">
         <div class="mb-8">
-            <a href="{{ localeRoute('family.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+            <a href="{{ route('family.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                 ← {{ __('app.family.back_to_family') }}
             </a>
         </div>
@@ -16,7 +16,7 @@
                 <h1 class="text-2xl font-semibold text-gray-900 mb-2">{{ __('app.family.create_family') }}</h1>
                 <p class="text-sm text-gray-600 mb-6">{{ __('app.family.create_description') }}</p>
 
-                <form action="{{ localeRoute('family.store') }}" method="POST">
+                <form action="{{ route('family.store') }}" method="POST">
                     @csrf
 
                     <div class="mb-6">
@@ -59,7 +59,7 @@
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <a href="{{ localeRoute('family.index') }}" class="text-sm text-gray-600 hover:text-gray-900">
+                        <a href="{{ route('family.index') }}" class="text-sm text-gray-600 hover:text-gray-900">
                             {{ __('app.forms.cancel') }}
                         </a>
                         <button

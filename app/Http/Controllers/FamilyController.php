@@ -26,11 +26,11 @@ class FamilyController extends Controller
     {
         // Check if user already has a family or owns a family
         if (Auth::user()->hasFamily()) {
-            return redirect()->route('family.index.' . app()->getLocale())->with('error', __('app.family.already_in_family'));
+            return redirect()->route('family.index')->with('error', __('app.family.already_in_family'));
         }
 
         if (Auth::user()->ownsFamily()) {
-            return redirect()->route('family.index.' . app()->getLocale())->with('error', __('app.family.already_owns_family'));
+            return redirect()->route('family.index')->with('error', __('app.family.already_owns_family'));
         }
 
         return view('family.create');
@@ -63,7 +63,7 @@ class FamilyController extends Controller
         // Add user to family
         Auth::user()->update(['family_id' => $family->id]);
 
-        return redirect()->route('family.index.' . app()->getLocale())->with('success', __('app.family.family_created'));
+        return redirect()->route('family.index')->with('success', __('app.family.family_created'));
     }
 
     /**
@@ -73,7 +73,7 @@ class FamilyController extends Controller
     {
         // Check if user already has a family
         if (Auth::user()->hasFamily()) {
-            return redirect()->route('family.index.' . app()->getLocale())->with('error', __('app.family.already_in_family'));
+            return redirect()->route('family.index')->with('error', __('app.family.already_in_family'));
         }
 
         return view('family.join');
@@ -103,7 +103,7 @@ class FamilyController extends Controller
         // Add user to family
         Auth::user()->update(['family_id' => $family->id]);
 
-        return redirect()->route('family.index.' . app()->getLocale())->with('success', __('app.family.joined_family', ['name' => $family->name]));
+        return redirect()->route('family.index')->with('success', __('app.family.joined_family', ['name' => $family->name]));
     }
 
     /**
@@ -114,7 +114,7 @@ class FamilyController extends Controller
         $user = Auth::user();
 
         if (!$user->hasFamily()) {
-            return redirect()->route('family.index.' . app()->getLocale())->with('error', __('app.family.not_in_family'));
+            return redirect()->route('family.index')->with('error', __('app.family.not_in_family'));
         }
 
         $family = $user->family;
@@ -133,7 +133,7 @@ class FamilyController extends Controller
             $user->leaveFamily();
         }
 
-        return redirect()->route('family.index.' . app()->getLocale())->with('success', __('app.family.left_family'));
+        return redirect()->route('family.index')->with('success', __('app.family.left_family'));
     }
 
     /**
@@ -145,16 +145,16 @@ class FamilyController extends Controller
         $family = $user->family;
 
         if (!$family) {
-            return redirect()->route('family.index.' . app()->getLocale())->with('error', __('app.family.not_in_family'));
+            return redirect()->route('family.index')->with('error', __('app.family.not_in_family'));
         }
 
         if (!$family->isOwner($user)) {
-            return redirect()->route('family.index.' . app()->getLocale())->with('error', __('app.family.only_owner_can_delete'));
+            return redirect()->route('family.index')->with('error', __('app.family.only_owner_can_delete'));
         }
 
         $family->delete();
 
-        return redirect()->route('family.index.' . app()->getLocale())->with('success', __('app.family.family_deleted'));
+        return redirect()->route('family.index')->with('success', __('app.family.family_deleted'));
     }
 
     /**
@@ -166,15 +166,15 @@ class FamilyController extends Controller
         $family = $user->family;
 
         if (!$family) {
-            return redirect()->route('family.index.' . app()->getLocale())->with('error', __('app.family.not_in_family'));
+            return redirect()->route('family.index')->with('error', __('app.family.not_in_family'));
         }
 
         if (!$family->isOwner($user)) {
-            return redirect()->route('family.index.' . app()->getLocale())->with('error', __('app.family.only_owner_can_regenerate'));
+            return redirect()->route('family.index')->with('error', __('app.family.only_owner_can_regenerate'));
         }
 
         $family->update(['join_code' => Family::generateUniqueJoinCode()]);
 
-        return redirect()->route('family.index.' . app()->getLocale())->with('success', __('app.family.code_regenerated'));
+        return redirect()->route('family.index')->with('success', __('app.family.code_regenerated'));
     }
 }
