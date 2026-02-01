@@ -265,8 +265,8 @@ class BookController extends Controller
             return back()->with('error', 'Could not fetch book data from API.');
         }
 
-        // Get the cover URL from the API
-        $coverUrl = $bookData['cover_url'];
+        // Get the cover URL from the API (with thumbnail fallback)
+        $coverUrl = $bookData['cover_url'] ?? $bookData['thumbnail'] ?? null;
 
         // If no cover from API, try OpenLibrary fallback
         if (!$coverUrl && ($bookData['isbn13'] || $bookData['isbn'])) {

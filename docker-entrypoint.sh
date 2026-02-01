@@ -56,6 +56,10 @@ chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/d
 # Clear config cache to ensure new .env is loaded
 php artisan config:clear || echo "Config clear failed, continuing..."
 
+# Create storage link
+echo "Creating storage link..."
+php artisan storage:link --force || echo "Storage link already exists or failed..."
+
 # Run migrations
 echo "Running database migrations..."
 php artisan migrate --force || echo "Migration failed, continuing..."

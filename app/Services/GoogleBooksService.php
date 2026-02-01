@@ -246,8 +246,11 @@ class GoogleBooksService
             'page_count' => $volumeInfo['pageCount'] ?? null,
             'categories' => $volumeInfo['categories'] ?? [],
             'language' => $volumeInfo['language'] ?? 'en',
-            'thumbnail' => $volumeInfo['imageLinks']['thumbnail'] ?? null, // Renamed for compatibility
-            'cover_url' => $volumeInfo['imageLinks']['medium'] ?? $volumeInfo['imageLinks']['large'] ?? null,
+            'thumbnail' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
+            'cover_url' => $volumeInfo['imageLinks']['medium']
+                ?? $volumeInfo['imageLinks']['large']
+                ?? $volumeInfo['imageLinks']['thumbnail']
+                ?? null,
             'preview_link' => $volumeInfo['previewLink'] ?? null,
             'info_link' => $volumeInfo['infoLink'] ?? null,
         ];
