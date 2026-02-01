@@ -7,7 +7,7 @@ This file provides context for Claude Code sessions.
 - **Name:** Leafmark
 - **Type:** Personal Book Tracking Web App
 - **Framework:** Laravel 11 + PHP 8.2
-- **Database:** MariaDB 11
+- **Database:** SQLite (development), MariaDB/MySQL (optional for production)
 - **Frontend:** Blade Templates + Tailwind CSS
 
 ## Repository

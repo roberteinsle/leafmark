@@ -8,6 +8,8 @@ Leafmark is a **multi-user** book tracking web application built with Laravel 11
 
 The application supports multiple users with individual book collections, admin-controlled registration, and flexible user management. Perfect for organizations, book clubs, families, or communities.
 
+**⚠️ Critical Pattern:** Books use Unix timestamps (from `added_at`) as route keys instead of sequential IDs. See [Book Route Key Binding](#book-route-key-binding) for details.
+
 ## Infrastructure & Deployment
 
 ### Production Setup
@@ -121,19 +123,20 @@ php artisan db:seed
 
 ```bash
 # Run all tests
-vendor/bin/phpunit
-# Or using artisan:
 php artisan test
 
 # Run specific test suite
-vendor/bin/phpunit --testsuite=Feature
-vendor/bin/phpunit --testsuite=Unit
+php artisan test --testsuite=Feature
+php artisan test --testsuite=Unit
 
 # Run specific test file
-vendor/bin/phpunit tests/Feature/ExampleTest.php
+php artisan test tests/Feature/ExampleTest.php
+
+# Run specific test method
+php artisan test --filter=test_example
 
 # Run with coverage (requires xdebug)
-vendor/bin/phpunit --coverage-html coverage
+php artisan test --coverage-html coverage
 ```
 
 ### Composer
@@ -564,7 +567,7 @@ Routes are defined in [routes/web.php](routes/web.php):
 - Language preference
 - Google Books API key configuration
 
-**AdminController** handles:
+**AdminController** (`App\Http\Controllers\Admin\AdminController`) handles:
 - `index()` - Admin dashboard with statistics (total users, admins, books)
 - `users()` - List all users with pagination
 - `editUser()` - Display edit form for a user
@@ -593,7 +596,7 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `result()` - View detailed import results
 - `destroy()` - Delete import history record
 
-**Note:** Contact form functionality has been removed as it required email functionality.
+**Note:** Email functionality (contact form, SMTP settings) has been removed. The `EmailLog` model exists but is deprecated and unused.
 
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`
