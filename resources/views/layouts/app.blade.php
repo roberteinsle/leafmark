@@ -7,6 +7,7 @@
     <meta name="google-site-verification" content="P83A54mzktESaX8bAfsLcUk9Ex-jUq5TNtUMmO59gaQ" />
     <title>{{ config('app.name', 'Leafmark') }} - @yield('title')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @yield('head')
 </head>

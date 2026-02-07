@@ -89,6 +89,18 @@ return [
         'search_results' => 'Search Results',
         'add_to_library' => 'Add to Library',
         'add_book_manually' => 'Add Book Manually',
+
+        // URL Import (Amazon & Thalia)
+        'import_from_url' => 'Import from URL',
+        'url_import_instructions' => 'Paste a book URL from a supported shop. The book data will be scraped and imported automatically.',
+        'import_from_amazon_url' => 'Import from Amazon URL',
+        'amazon_url_instructions' => 'Paste an Amazon book URL. The book data will be scraped and imported automatically.',
+        'amazon_url_example' => 'Example',
+        'import' => 'Import',
+        'amazon_scrape_failed' => 'Could not fetch book data from Amazon. Please try again or add the book manually.',
+        'thalia_scrape_failed' => 'Could not fetch book data from Thalia. Please try again or add the book manually.',
+        'thalia_blocked' => 'Thalia has blocked the automated request. Please try again later or add the book manually.',
+
         'edit' => 'Edit',
         'delete' => 'Delete',
         'view' => 'View',

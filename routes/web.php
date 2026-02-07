@@ -40,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/books/{book}/covers/{cover}/primary', [BookController::class, 'setPrimaryCover'])->name('books.covers.primary')->where(['book' => '[0-9]+', 'cover' => '[0-9]+']);
 
     // Books routes - specific routes MUST come before resource routes
+    Route::post('/books/scrape-amazon', [BookController::class, 'scrapeAmazon'])->name('books.scrape-amazon');
+    Route::post('/books/scrape-thalia', [BookController::class, 'scrapeThalia'])->name('books.scrape-thalia');
     Route::post('/books/store-from-api', [BookController::class, 'storeFromApi'])->name('books.store-from-api');
     Route::post('/books/bulk-delete', [BookController::class, 'bulkDelete'])->name('books.bulk-delete');
     Route::post('/books/bulk-add-tags', [BookController::class, 'bulkAddTags'])->name('books.bulk-add-tags');

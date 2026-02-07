@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\BookViewPreference;
+use App\Services\AmazonScraperService;
 use App\Services\BigBookApiService;
 use App\Services\BookBrainzService;
 use App\Services\CoverImageService;
 use App\Services\GoogleBooksService;
 use App\Services\OpenLibraryService;
+use App\Services\ThaliaScraperService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -233,6 +235,116 @@ class BookController extends Controller
         }
 
         return $merged;
+    }
+
+    /**
+     * Scrape book data from Amazon URL
+     */
+    public function scrapeAmazon(Request $request, AmazonScraperService $amazonScraper, CoverImageService $coverService): RedirectResponse
+    {
+        $validated = $request->validate([
+            'amazon_url' => 'required|url',
+            'status' => 'required|in:want_to_read,currently_reading,read',
+        ]);
+
+        $bookData = $amazonScraper->scrapeFromUrl($validated['amazon_url']);
+
+        if (!$bookData || empty($bookData['title'])) {
+            return back()->with('error', __('app.books.amazon_scrape_failed'));
+        }
+
+        // Download and store cover image locally
+        $localCoverPath = null;
+        $coverUrl = $bookData['thumbnail'] ?? null;
+
+        if ($coverUrl) {
+            $identifier = $bookData['isbn13'] ?? $bookData['isbn'] ?? 'amazon_' . time();
+            $localCoverPath = $coverService->downloadAndStore($coverUrl, $identifier);
+        }
+
+        $book = auth()->user()->books()->create([
+            'title' => $bookData['title'],
+            'author' => $bookData['author'] ?? null,
+            'isbn' => $bookData['isbn'] ?? null,
+            'isbn13' => $bookData['isbn13'] ?? null,
+            'publisher' => $bookData['publisher'] ?? null,
+            'published_date' => $bookData['published_date'] ?? null,
+            'description' => $bookData['description'] ?? null,
+            'page_count' => $bookData['page_count'] ?? null,
+            'language' => $bookData['language'] ?? null,
+            'status' => $validated['status'],
+            'added_at' => now(),
+            'api_source' => 'amazon',
+            'external_id' => $amazonScraper->extractIsbnFromUrl($validated['amazon_url']),
+            'local_cover_path' => $localCoverPath,
+        ]);
+
+        // If we have a local cover, create a BookCover entry
+        if ($localCoverPath) {
+            $book->covers()->create([
+                'path' => $localCoverPath,
+                'is_primary' => true,
+                'sort_order' => 0,
+            ]);
+        }
+
+        return redirect()->route('books.show', $book)->with('success', __('app.books.book_added'));
+    }
+
+    public function scrapeThalia(Request $request, ThaliaScraperService $thaliaScraper, CoverImageService $coverService): RedirectResponse
+    {
+        $validated = $request->validate([
+            'thalia_url' => 'required|url',
+            'status' => 'required|in:want_to_read,currently_reading,read',
+        ]);
+
+        $bookData = $thaliaScraper->scrapeFromUrl($validated['thalia_url']);
+
+        // Check for Cloudflare block
+        if ($bookData && isset($bookData['error']) && $bookData['error'] === 'cloudflare') {
+            return back()->with('error', __('app.books.thalia_blocked'));
+        }
+
+        if (!$bookData || empty($bookData['title'])) {
+            return back()->with('error', __('app.books.thalia_scrape_failed'));
+        }
+
+        // Download and store cover image locally
+        $localCoverPath = null;
+        $coverUrl = $bookData['thumbnail'] ?? null;
+
+        if ($coverUrl) {
+            $identifier = $bookData['isbn13'] ?? $bookData['isbn'] ?? 'thalia_' . time();
+            $localCoverPath = $coverService->downloadAndStore($coverUrl, $identifier);
+        }
+
+        $book = auth()->user()->books()->create([
+            'title' => $bookData['title'],
+            'author' => $bookData['author'] ?? null,
+            'isbn' => $bookData['isbn'] ?? null,
+            'isbn13' => $bookData['isbn13'] ?? null,
+            'publisher' => $bookData['publisher'] ?? null,
+            'published_date' => $bookData['published_date'] ?? null,
+            'description' => $bookData['description'] ?? null,
+            'page_count' => $bookData['page_count'] ?? null,
+            'language' => $bookData['language'] ?? 'de',
+            'status' => $validated['status'],
+            'added_at' => now(),
+            'api_source' => 'thalia',
+            'external_id' => $thaliaScraper->extractArticleIdFromUrl($validated['thalia_url']),
+            'local_cover_path' => $localCoverPath,
+        ]);
+
+        // If we have a local cover, create a BookCover entry
+        if ($localCoverPath) {
+            $book->covers()->create([
+                'path' => $localCoverPath,
+                'is_primary' => true,
+                'sort_order' => 0,
+            ]);
+        }
+
+        return redirect()->route('books.show', $book)->with('success', __('app.books.book_added'));
     }
 
     public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook, CoverImageService $coverService): RedirectResponse
