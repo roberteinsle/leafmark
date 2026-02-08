@@ -67,79 +67,29 @@
         </form>
     </div>
 
-    <!-- URL Import (Amazon & Thalia) -->
-    <div x-data="{ open: false }" class="bg-white rounded-lg shadow-sm p-6 mb-8">
-        <button @click="open = !open" type="button" class="flex items-center justify-between w-full text-left">
-            <div class="flex items-center gap-2">
-                <span class="text-xl">🔗</span>
-                <span class="text-lg font-medium text-gray-900">{{ __('app.books.import_from_url') }}</span>
-            </div>
-            <svg class="w-5 h-5 text-gray-500 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-        </button>
-
-        <div x-show="open" x-collapse class="mt-4 space-y-4">
-            <p class="text-sm text-gray-600">{{ __('app.books.url_import_instructions') }}</p>
-
-            <!-- Amazon Import -->
-            <div class="border border-gray-200 rounded-lg p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="font-medium text-gray-900">Amazon</span>
-                    <span class="text-xs text-gray-500">(amazon.de, amazon.com)</span>
-                </div>
-                <form action="{{ route('books.scrape-amazon') }}" method="POST">
-                    @csrf
-                    <div class="flex gap-2 items-end flex-wrap">
-                        <div class="flex-1 min-w-[250px]">
-                            <input type="url"
-                                   name="amazon_url"
-                                   required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                   placeholder="https://www.amazon.de/dp/3406824480">
-                        </div>
-                        <select name="status" required class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500">
-                            <option value="want_to_read">{{ __('app.books.want_to_read') }}</option>
-                            <option value="currently_reading">{{ __('app.books.currently_reading') }}</option>
-                            <option value="read">{{ __('app.books.read') }}</option>
-                        </select>
-                        <button type="submit"
-                                class="px-4 py-2 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-                            {{ __('app.books.import') }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Thalia Import -->
-            <div class="border border-gray-200 rounded-lg p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="font-medium text-gray-900">Thalia</span>
-                    <span class="text-xs text-gray-500">(thalia.de)</span>
-                </div>
-                <form action="{{ route('books.scrape-thalia') }}" method="POST">
-                    @csrf
-                    <div class="flex gap-2 items-end flex-wrap">
-                        <div class="flex-1 min-w-[250px]">
-                            <input type="url"
-                                   name="thalia_url"
-                                   required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                   placeholder="https://www.thalia.de/shop/home/artikeldetails/A1057857474">
-                        </div>
-                        <select name="status" required class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
-                            <option value="want_to_read">{{ __('app.books.want_to_read') }}</option>
-                            <option value="currently_reading">{{ __('app.books.currently_reading') }}</option>
-                            <option value="read">{{ __('app.books.read') }}</option>
-                        </select>
-                        <button type="submit"
-                                class="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                            {{ __('app.books.import') }}
-                        </button>
-                    </div>
-                </form>
-            </div>
+    <!-- URL Import (Amazon) -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="text-xl">🔗</span>
+            <span class="text-lg font-medium text-gray-900">{{ __('app.books.import_from_url') }}</span>
+            <span class="text-xs text-gray-500">(amazon.de, amazon.com)</span>
         </div>
+        <form action="{{ route('books.scrape-amazon') }}" method="POST">
+            @csrf
+            <div class="flex gap-2 items-end flex-wrap">
+                <div class="flex-1 min-w-[250px]">
+                    <input type="url"
+                           name="amazon_url"
+                           required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                           placeholder="https://www.amazon.de/dp/3406824480">
+                </div>
+                <button type="submit"
+                        class="px-4 py-2 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                    {{ __('app.books.import') }}
+                </button>
+            </div>
+        </form>
     </div>
 
     @if(isset($searchQuery) && $searchQuery)

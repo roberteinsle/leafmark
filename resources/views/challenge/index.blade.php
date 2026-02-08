@@ -120,7 +120,7 @@
                             <span class="text-gray-300"></span>
                         @endif
                     </div>
-                    <div class="text-xs font-medium text-gray-600">{{ __('app.challenge' . $monthKey) }}</div>
+                    <div class="text-xs font-medium text-gray-600">{{ __('app.challenge.' . $monthKey) }}</div>
                     <div class="text-lg font-bold {{ $monthlyStats[$monthNum] > 0 ? 'text-indigo-600' : 'text-gray-400' }}">
                         {{ $monthlyStats[$monthNum] }}
                     </div>

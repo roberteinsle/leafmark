@@ -7,6 +7,7 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserSettingsController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\StatsController;
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,7 +42,6 @@ Route::middleware('auth')->group(function () {
 
     // Books routes - specific routes MUST come before resource routes
     Route::post('/books/scrape-amazon', [BookController::class, 'scrapeAmazon'])->name('books.scrape-amazon');
-    Route::post('/books/scrape-thalia', [BookController::class, 'scrapeThalia'])->name('books.scrape-thalia');
     Route::post('/books/store-from-api', [BookController::class, 'storeFromApi'])->name('books.store-from-api');
     Route::post('/books/bulk-delete', [BookController::class, 'bulkDelete'])->name('books.bulk-delete');
     Route::post('/books/bulk-add-tags', [BookController::class, 'bulkAddTags'])->name('books.bulk-add-tags');
@@ -89,6 +89,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/challenge', [App\Http\Controllers\ReadingChallengeController::class, 'store'])->name('challenge.store');
     Route::patch('/challenge/{challenge}', [App\Http\Controllers\ReadingChallengeController::class, 'update'])->name('challenge.update');
     Route::delete('/challenge/{challenge}', [App\Http\Controllers\ReadingChallengeController::class, 'destroy'])->name('challenge.destroy');
+
+    // Statistics route
+    Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
 
     // Family routes
     Route::get('/family', [FamilyController::class, 'index'])->name('family.index');

@@ -10,7 +10,6 @@ use App\Services\BookBrainzService;
 use App\Services\CoverImageService;
 use App\Services\GoogleBooksService;
 use App\Services\OpenLibraryService;
-use App\Services\ThaliaScraperService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -47,8 +46,9 @@ class BookController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Sorting
-        $sort = $request->get('sort', 'added_at_desc');
+        // Sorting - default to finished_at for "read" tab
+        $defaultSort = ($request->get('status') === 'read') ? 'finished_at_desc' : 'added_at_desc';
+        $sort = $request->get('sort', $defaultSort);
 
         // Parse sort field and direction
         $sortParts = explode('_', $sort);
@@ -95,7 +95,7 @@ class BookController extends Controller
         $perPage = $request->get('per_page', $viewPref->per_page ?? 25);
         $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 25;
 
-        $books = $query->with('tags')
+        $books = $query->with('tags', 'covers')
             ->paginate($perPage)
             ->withQueryString();
 
@@ -244,7 +244,6 @@ class BookController extends Controller
     {
         $validated = $request->validate([
             'amazon_url' => 'required|url',
-            'status' => 'required|in:want_to_read,currently_reading,read',
         ]);
 
         $bookData = $amazonScraper->scrapeFromUrl($validated['amazon_url']);
@@ -272,66 +271,10 @@ class BookController extends Controller
             'description' => $bookData['description'] ?? null,
             'page_count' => $bookData['page_count'] ?? null,
             'language' => $bookData['language'] ?? null,
-            'status' => $validated['status'],
+            'status' => 'want_to_read',
             'added_at' => now(),
             'api_source' => 'amazon',
             'external_id' => $amazonScraper->extractIsbnFromUrl($validated['amazon_url']),
-            'local_cover_path' => $localCoverPath,
-        ]);
-
-        // If we have a local cover, create a BookCover entry
-        if ($localCoverPath) {
-            $book->covers()->create([
-                'path' => $localCoverPath,
-                'is_primary' => true,
-                'sort_order' => 0,
-            ]);
-        }
-
-        return redirect()->route('books.show', $book)->with('success', __('app.books.book_added'));
-    }
-
-    public function scrapeThalia(Request $request, ThaliaScraperService $thaliaScraper, CoverImageService $coverService): RedirectResponse
-    {
-        $validated = $request->validate([
-            'thalia_url' => 'required|url',
-            'status' => 'required|in:want_to_read,currently_reading,read',
-        ]);
-
-        $bookData = $thaliaScraper->scrapeFromUrl($validated['thalia_url']);
-
-        // Check for Cloudflare block
-        if ($bookData && isset($bookData['error']) && $bookData['error'] === 'cloudflare') {
-            return back()->with('error', __('app.books.thalia_blocked'));
-        }
-
-        if (!$bookData || empty($bookData['title'])) {
-            return back()->with('error', __('app.books.thalia_scrape_failed'));
-        }
-
-        // Download and store cover image locally
-        $localCoverPath = null;
-        $coverUrl = $bookData['thumbnail'] ?? null;
-
-        if ($coverUrl) {
-            $identifier = $bookData['isbn13'] ?? $bookData['isbn'] ?? 'thalia_' . time();
-            $localCoverPath = $coverService->downloadAndStore($coverUrl, $identifier);
-        }
-
-        $book = auth()->user()->books()->create([
-            'title' => $bookData['title'],
-            'author' => $bookData['author'] ?? null,
-            'isbn' => $bookData['isbn'] ?? null,
-            'isbn13' => $bookData['isbn13'] ?? null,
-            'publisher' => $bookData['publisher'] ?? null,
-            'published_date' => $bookData['published_date'] ?? null,
-            'description' => $bookData['description'] ?? null,
-            'page_count' => $bookData['page_count'] ?? null,
-            'language' => $bookData['language'] ?? 'de',
-            'status' => $validated['status'],
-            'added_at' => now(),
-            'api_source' => 'thalia',
-            'external_id' => $thaliaScraper->extractArticleIdFromUrl($validated['thalia_url']),
             'local_cover_path' => $localCoverPath,
         ]);
 

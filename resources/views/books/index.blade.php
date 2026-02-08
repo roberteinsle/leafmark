@@ -299,17 +299,23 @@
                 @if(request('search'))
                     <input type="hidden" name="search" value="{{ request('search') }}">
                 @endif
+                @php
+                    $defaultSort = (request('status') === 'read') ? 'finished_at_desc' : 'added_at_desc';
+                    $currentSort = request('sort', $defaultSort);
+                @endphp
                 <select name="sort"
                         onchange="this.form.submit()"
                         class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                    <option value="added_at_desc" {{ request('sort', 'added_at_desc') === 'added_at_desc' ? 'selected' : '' }}>{{ __('app.books.sort_added_newest') }}</option>
-                    <option value="added_at_asc" {{ request('sort') === 'added_at_asc' ? 'selected' : '' }}>{{ __('app.books.sort_added_oldest') }}</option>
-                    <option value="title_asc" {{ request('sort') === 'title_asc' ? 'selected' : '' }}>{{ __('app.books.sort_title_az') }}</option>
-                    <option value="title_desc" {{ request('sort') === 'title_desc' ? 'selected' : '' }}>{{ __('app.books.sort_title_za') }}</option>
-                    <option value="author_asc" {{ request('sort') === 'author_asc' ? 'selected' : '' }}>{{ __('app.books.sort_author_az') }}</option>
-                    <option value="author_desc" {{ request('sort') === 'author_desc' ? 'selected' : '' }}>{{ __('app.books.sort_author_za') }}</option>
-                    <option value="published_date_desc" {{ request('sort') === 'published_date_desc' ? 'selected' : '' }}>{{ __('app.books.sort_date_newest') }}</option>
-                    <option value="published_date_asc" {{ request('sort') === 'published_date_asc' ? 'selected' : '' }}>{{ __('app.books.sort_date_oldest') }}</option>
+                    <option value="added_at_desc" {{ $currentSort === 'added_at_desc' ? 'selected' : '' }}>{{ __('app.books.sort_added_newest') }}</option>
+                    <option value="added_at_asc" {{ $currentSort === 'added_at_asc' ? 'selected' : '' }}>{{ __('app.books.sort_added_oldest') }}</option>
+                    <option value="title_asc" {{ $currentSort === 'title_asc' ? 'selected' : '' }}>{{ __('app.books.sort_title_az') }}</option>
+                    <option value="title_desc" {{ $currentSort === 'title_desc' ? 'selected' : '' }}>{{ __('app.books.sort_title_za') }}</option>
+                    <option value="author_asc" {{ $currentSort === 'author_asc' ? 'selected' : '' }}>{{ __('app.books.sort_author_az') }}</option>
+                    <option value="author_desc" {{ $currentSort === 'author_desc' ? 'selected' : '' }}>{{ __('app.books.sort_author_za') }}</option>
+                    <option value="published_date_desc" {{ $currentSort === 'published_date_desc' ? 'selected' : '' }}>{{ __('app.books.sort_date_newest') }}</option>
+                    <option value="published_date_asc" {{ $currentSort === 'published_date_asc' ? 'selected' : '' }}>{{ __('app.books.sort_date_oldest') }}</option>
+                    <option value="finished_at_desc" {{ $currentSort === 'finished_at_desc' ? 'selected' : '' }}>{{ __('app.books.sort_finished_newest') }}</option>
+                    <option value="finished_at_asc" {{ $currentSort === 'finished_at_asc' ? 'selected' : '' }}>{{ __('app.books.sort_finished_oldest') }}</option>
                 </select>
             </form>
         </div>
