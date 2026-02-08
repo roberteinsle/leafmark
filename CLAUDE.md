@@ -596,7 +596,7 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `result()` - View detailed import results
 - `destroy()` - Delete import history record
 
-**Note:** Email functionality (contact form, SMTP settings) has been removed. The `EmailLog` model exists but is deprecated and unused.
+**Note:** Email functionality (contact form, SMTP settings) and the `EmailLog` model have been removed.
 
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`

@@ -396,7 +396,6 @@ return [
         'email_failed' => 'Failed',
         'to' => 'To',
         'error' => 'Error',
-        'view_all_email_logs' => 'View all email logs (Admin)',
     ],
 
     // Forms
@@ -510,27 +509,6 @@ return [
         'turnstile_site_key' => 'Site Key',
         'turnstile_secret_key' => 'Secret Key',
 
-        // Email Logs
-        'email_logs' => 'Email Logs',
-        'email_logs_description' => 'View all email sending attempts and error logs',
-        'email_logs_link_description' => 'View email sending history and errors',
-        'no_email_logs' => 'No email logs yet',
-        'email_log_time' => 'Time',
-        'email_log_status' => 'Status',
-        'email_log_recipient' => 'Recipient',
-        'email_log_subject' => 'Subject',
-        'email_log_user' => 'Triggered By',
-        'email_log_details' => 'Details',
-        'email_log_sent' => 'Sent',
-        'email_log_failed' => 'Failed',
-        'email_log_type_test' => 'Test Email',
-        'email_log_type_password_reset' => 'Password Reset',
-        'email_log_type_verification' => 'Email Verification',
-        'email_log_show_error' => 'Show Error Details',
-        'email_log_show_config' => 'Show SMTP Config',
-        'email_log_error_message' => 'Error Message',
-        'email_log_smtp_config' => 'SMTP Configuration',
-        'email_log_stack_trace' => 'Stack Trace',
     ],
 
     // Password Reset

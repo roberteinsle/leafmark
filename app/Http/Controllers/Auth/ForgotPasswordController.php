@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordResetMail;
-use App\Models\EmailLog;
 use App\Models\SystemSetting;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -56,27 +55,9 @@ class ForgotPasswordController extends Controller
         try {
             if (SystemSetting::isSmtpEnabled()) {
                 \Mail::to($user->email)->send(new PasswordResetMail($token, $user->email));
-
-                EmailLog::logSuccess(
-                    $user->email,
-                    __('app.password_reset.email_subject'),
-                    'password_reset',
-                    null,
-                    SystemSetting::getSmtpConfig()
-                );
             }
         } catch (\Exception $e) {
             \Log::error('Password reset email failed: ' . $e->getMessage());
-
-            EmailLog::logFailure(
-                $user->email,
-                __('app.password_reset.email_subject'),
-                $e->getMessage(),
-                'password_reset',
-                null,
-                SystemSetting::getSmtpConfig(),
-                $e->getTraceAsString()
-            );
         }
 
         return back()->with('status', __('app.password_reset.link_sent'));

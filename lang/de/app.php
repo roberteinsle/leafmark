@@ -301,7 +301,6 @@ return [
         'email_failed' => 'Fehlgeschlagen',
         'to' => 'An',
         'error' => 'Fehler',
-        'view_all_email_logs' => 'Alle E-Mail-Protokolle anzeigen (Admin)',
     ],
 
     // Forms
@@ -415,10 +414,6 @@ return [
         'turnstile_site_key' => 'Site Key',
         'turnstile_secret_key' => 'Secret Key',
 
-        // Email Logs
-        'email_logs' => 'E-Mail-Protokoll',
-        'email_logs_description' => 'Alle E-Mail-Versandversuche und Fehlerprotokolle anzeigen',
-        'email_logs_link_description' => 'E-Mail-Versandverlauf und Fehler anzeigen',
 
         // Invitations Page
         'invitation_management_description' => 'Erstelle und verwalte Einladungen für neue Benutzer',
@@ -428,23 +423,6 @@ return [
         'delete_invitation_confirm' => 'Möchtest du diese Einladung wirklich löschen?',
         'invitation_link_copied' => 'Einladungslink in die Zwischenablage kopiert!',
         'copy_failed' => 'Fehler beim Kopieren. Bitte kopiere den Link manuell.',
-        'no_email_logs' => 'Noch keine E-Mail-Protokolle',
-        'email_log_time' => 'Zeit',
-        'email_log_status' => 'Status',
-        'email_log_recipient' => 'Empfänger',
-        'email_log_subject' => 'Betreff',
-        'email_log_user' => 'Ausgelöst von',
-        'email_log_details' => 'Details',
-        'email_log_sent' => 'Gesendet',
-        'email_log_failed' => 'Fehlgeschlagen',
-        'email_log_type_test' => 'Test-E-Mail',
-        'email_log_type_password_reset' => 'Passwort zurücksetzen',
-        'email_log_type_verification' => 'E-Mail-Verifizierung',
-        'email_log_show_error' => 'Fehlerdetails anzeigen',
-        'email_log_show_config' => 'SMTP-Konfiguration anzeigen',
-        'email_log_error_message' => 'Fehlermeldung',
-        'email_log_smtp_config' => 'SMTP-Konfiguration',
-        'email_log_stack_trace' => 'Stack Trace',
     ],
 
     // Password Reset

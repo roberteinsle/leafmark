@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\VerifyEmailMail;
-use App\Models\EmailLog;
 use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -85,27 +84,9 @@ class VerificationController extends Controller
         try {
             if (SystemSetting::isSmtpEnabled()) {
                 \Mail::to($user->email)->send(new VerifyEmailMail($user, $verificationUrl));
-
-                EmailLog::logSuccess(
-                    $user->email,
-                    __('app.email_verification.email_subject'),
-                    'email_verification',
-                    $user->id,
-                    SystemSetting::getSmtpConfig()
-                );
             }
         } catch (\Exception $e) {
             \Log::error('Email verification failed: ' . $e->getMessage());
-
-            EmailLog::logFailure(
-                $user->email,
-                __('app.email_verification.email_subject'),
-                $e->getMessage(),
-                'email_verification',
-                $user->id,
-                SystemSetting::getSmtpConfig(),
-                $e->getTraceAsString()
-            );
         }
 
         return back()->with('status', __('app.email_verification.check_email'));

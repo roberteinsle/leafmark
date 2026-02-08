@@ -31,6 +31,18 @@ return [
         'search_results' => 'Résultats de Recherche',
         'add_to_library' => 'Ajouter à la Bibliothèque',
         'add_book_manually' => 'Ajouter un Livre Manuellement',
+
+        // URL Import (Amazon & Thalia)
+        'import_from_url' => 'Importer depuis une URL',
+        'url_import_instructions' => 'Collez une URL de livre d\'une boutique compatible. Les données du livre seront extraites et importées automatiquement.',
+        'import_from_amazon_url' => 'Importer depuis une URL Amazon',
+        'amazon_url_instructions' => 'Collez une URL de livre Amazon. Les données du livre seront extraites et importées automatiquement.',
+        'amazon_url_example' => 'Exemple',
+        'import' => 'Importer',
+        'amazon_scrape_failed' => 'Impossible de récupérer les données du livre depuis Amazon. Veuillez réessayer ou ajouter le livre manuellement.',
+        'thalia_scrape_failed' => 'Impossible de récupérer les données du livre depuis Thalia. Veuillez réessayer ou ajouter le livre manuellement.',
+        'thalia_blocked' => 'Thalia a bloqué la requête automatique. Veuillez réessayer plus tard ou ajouter le livre manuellement.',
+
         'edit' => 'Modifier',
         'delete' => 'Supprimer',
         'view' => 'Voir',

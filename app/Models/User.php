@@ -20,6 +20,8 @@ class User extends Authenticatable
         'last_login_at',
         'google_books_api_key',
         'family_id',
+        'is_admin',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -34,6 +36,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -60,11 +63,6 @@ class User extends Authenticatable
     public function ownedFamily(): HasMany
     {
         return $this->hasMany(Family::class, 'owner_id');
-    }
-
-    public function emailLogs(): HasMany
-    {
-        return $this->hasMany(EmailLog::class);
     }
 
     public function importHistory(): HasMany
