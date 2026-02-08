@@ -19,6 +19,7 @@ class ImportHistory extends Model
         'total_rows',
         'imported_count',
         'skipped_count',
+        'overwritten_count',
         'failed_count',
         'errors',
         'import_tag',
@@ -32,6 +33,7 @@ class ImportHistory extends Model
         'total_rows' => 'integer',
         'imported_count' => 'integer',
         'skipped_count' => 'integer',
+        'overwritten_count' => 'integer',
         'failed_count' => 'integer',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
@@ -75,6 +77,11 @@ class ImportHistory extends Model
     public function incrementSkipped(): void
     {
         $this->increment('skipped_count');
+    }
+
+    public function incrementOverwritten(): void
+    {
+        $this->increment('overwritten_count');
     }
 
     public function incrementFailed(): void

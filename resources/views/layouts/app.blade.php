@@ -75,9 +75,6 @@
                                 </a>
                                 <hr class="my-1">
                                 @endif
-                                <a href="{{ route('import.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    📥 {{ __('app.import.title') }}
-                                </a>
                                 <a href="{{ route('settings.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     {{ __('app.nav.settings') }}
                                 </a>

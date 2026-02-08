@@ -8,6 +8,7 @@ use App\Http\Controllers\UserSettingsController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\StatsController;
+use App\Http\Controllers\LibraryTransferController;
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -83,6 +84,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/import/history', [ImportController::class, 'history'])->name('import.history');
     Route::get('/import/result/{importHistory}', [ImportController::class, 'result'])->name('import.result');
     Route::delete('/import/{importHistory}', [ImportController::class, 'destroy'])->name('import.destroy');
+
+    // Library export/import routes
+    Route::get('/library/export', [LibraryTransferController::class, 'export'])->name('library.export');
+    Route::get('/library/import', [LibraryTransferController::class, 'showImportForm'])->name('library.import');
+    Route::post('/library/import/upload', [LibraryTransferController::class, 'upload'])->name('library.import.upload');
+    Route::post('/library/import/execute', [LibraryTransferController::class, 'execute'])->name('library.import.execute');
+    Route::post('/library/import/cancel', [LibraryTransferController::class, 'cancel'])->name('library.import.cancel');
+    Route::get('/library/import/result/{importHistory}', [LibraryTransferController::class, 'result'])->name('library.import.result');
 
     // Reading Challenge routes
     Route::get('/challenge', [App\Http\Controllers\ReadingChallengeController::class, 'index'])->name('challenge.index');
