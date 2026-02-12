@@ -221,6 +221,11 @@ return [
         'owner_cannot_leave' => 'Jako właściciel nie możesz opuścić rodziny, dopóki są obecni inni członkowie. Usuń najpierw rodzinę lub przekaż własność.',
         'only_owner_can_delete' => 'Tylko właściciel może usunąć rodzinę',
         'only_owner_can_regenerate' => 'Tylko właściciel może wygenerować nowy kod dołączenia',
+
+        // Family reading widget
+        'currently_reading_title' => 'Rodzina czyta',
+        'page_x_of_y' => 'Strona :current z :total',
+        'view_family' => 'Zobacz rodzinę',
     ],
 
     // Statistics

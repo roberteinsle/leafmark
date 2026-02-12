@@ -23,6 +23,9 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . /var/www/html
 
+# Write git commit hash to file before removing .git
+RUN git rev-parse --short HEAD > /var/www/html/VERSION_HASH 2>/dev/null || echo "unknown" > /var/www/html/VERSION_HASH
+
 # Install dependencies
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_ALLOW_SUPERUSER=1

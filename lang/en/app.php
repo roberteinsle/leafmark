@@ -447,6 +447,11 @@ return [
         'owner_cannot_leave' => 'As owner, you cannot leave the family while other members are present. Delete the family first or transfer ownership.',
         'only_owner_can_delete' => 'Only the owner can delete the family',
         'only_owner_can_regenerate' => 'Only the owner can regenerate the join code',
+
+        // Family reading widget
+        'currently_reading_title' => 'Family Reading',
+        'page_x_of_y' => 'Page :current of :total',
+        'view_family' => 'View Family',
     ],
 
     // Settings

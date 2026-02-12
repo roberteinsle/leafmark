@@ -221,6 +221,11 @@ return [
         'owner_cannot_leave' => 'Como propietario, no puedes abandonar la familia mientras haya otros miembros presentes. Elimina primero la familia o transfiere la propiedad.',
         'only_owner_can_delete' => 'Solo el propietario puede eliminar la familia',
         'only_owner_can_regenerate' => 'Solo el propietario puede regenerar el código de unión',
+
+        // Family reading widget
+        'currently_reading_title' => 'Familia leyendo',
+        'page_x_of_y' => 'Página :current de :total',
+        'view_family' => 'Ver familia',
     ],
 
     // Statistics

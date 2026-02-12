@@ -123,7 +123,7 @@
                     &copy; {{ date('Y') }} Leafmark. Made with ❤️ in Hamburg
                 </p>
                 <p class="text-center text-gray-400 text-xs mt-1">
-                    v{{ config('app.version') }}
+                    v{{ config('app.version') }}@if(config('app.commit_hash') && config('app.commit_hash') !== 'unknown') ({{ config('app.commit_hash') }})@endif
                 </p>
             </div>
         </div>

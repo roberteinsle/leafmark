@@ -619,6 +619,11 @@ return [
         'owner_cannot_leave' => 'Als Owner kannst du die Familie nicht verlassen, solange noch andere Mitglieder vorhanden sind. Lösche zuerst die Familie oder übertrage die Ownership.',
         'only_owner_can_delete' => 'Nur der Owner kann die Familie löschen',
         'only_owner_can_regenerate' => 'Nur der Owner kann den Beitrittscode regenerieren',
+
+        // Family reading widget
+        'currently_reading_title' => 'Familie liest',
+        'page_x_of_y' => 'Seite :current von :total',
+        'view_family' => 'Familie ansehen',
     ],
 
     // Contact Form

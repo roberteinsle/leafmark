@@ -4,6 +4,10 @@
 
 @section('content')
 <div class="px-4">
+    <div class="flex flex-col lg:flex-row gap-6">
+    {{-- Main Content --}}
+    <div class="{{ $familyReading->isNotEmpty() ? 'lg:flex-1 lg:min-w-0' : 'w-full' }}">
+
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900">{{ __('app.books.title') }}</h1>
         <a href="{{ route('books.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
@@ -797,6 +801,17 @@
             </div>
         </div>
     </div>
+
+    </div>{{-- End Main Content --}}
+
+    {{-- Family Currently Reading Sidebar --}}
+    @if($familyReading->isNotEmpty())
+    <div class="lg:w-72 xl:w-80 flex-shrink-0 order-first lg:order-last">
+        @include('books.partials.family-reading-widget')
+    </div>
+    @endif
+
+    </div>{{-- End Flex Container --}}
 </div>
 
 @push('scripts')

@@ -17,6 +17,12 @@ return [
 
     'version' => '1.5.0',
 
+    'commit_hash' => trim(@file_get_contents(base_path('VERSION_HASH')) ?: '') ?: (
+        is_dir(base_path('.git'))
+            ? trim(shell_exec('git rev-parse --short HEAD 2>/dev/null') ?? '')
+            : 'unknown'
+    ),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

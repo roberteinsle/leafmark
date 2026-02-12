@@ -213,6 +213,11 @@ return [
         'owner_cannot_leave' => 'En tant que propriétaire, vous ne pouvez pas quitter la famille tant que d\'autres membres sont présents. Supprimez d\'abord la famille ou transférez la propriété.',
         'only_owner_can_delete' => 'Seul le propriétaire peut supprimer la famille',
         'only_owner_can_regenerate' => 'Seul le propriétaire peut régénérer le code d\'adhésion',
+
+        // Family reading widget
+        'currently_reading_title' => 'Famille en lecture',
+        'page_x_of_y' => 'Page :current sur :total',
+        'view_family' => 'Voir la famille',
     ],
 
     // Statistics

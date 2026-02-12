@@ -128,7 +128,25 @@ class BookController extends Controller
         // Get user's tags for bulk tag operations
         $userTags = auth()->user()->tags()->ordered()->get();
 
-        return view('books.index', compact('books', 'counts', 'challenge', 'viewPref', 'userTags'));
+        // Get family members' currently reading books (most recent per member)
+        $familyReading = collect();
+        if (auth()->user()->hasFamily()) {
+            $memberIds = auth()->user()->family->members()
+                ->where('users.id', '!=', auth()->id())
+                ->pluck('users.id');
+            if ($memberIds->isNotEmpty()) {
+                $familyReading = Book::whereIn('user_id', $memberIds)
+                    ->where('status', 'currently_reading')
+                    ->with(['user:id,name', 'covers'])
+                    ->orderBy('updated_at', 'desc')
+                    ->get()
+                    ->groupBy('user_id')
+                    ->map(fn ($books) => $books->first())
+                    ->values();
+            }
+        }
+
+        return view('books.index', compact('books', 'counts', 'challenge', 'viewPref', 'userTags', 'familyReading'));
     }
 
     public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook): View

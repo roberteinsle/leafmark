@@ -210,6 +210,11 @@ return [
         'owner_cannot_leave' => 'Come proprietario, non puoi lasciare la famiglia finché sono presenti altri membri. Elimina prima la famiglia o trasferisci la proprietà.',
         'only_owner_can_delete' => 'Solo il proprietario può eliminare la famiglia',
         'only_owner_can_regenerate' => 'Solo il proprietario può rigenerare il codice di adesione',
+
+        // Family reading widget
+        'currently_reading_title' => 'La famiglia legge',
+        'page_x_of_y' => 'Pagina :current di :total',
+        'view_family' => 'Vedi famiglia',
     ],
 
     // Statistics
