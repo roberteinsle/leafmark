@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Leafmark is a **multi-user** book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, organize books with tags, import book data from external APIs (Google Books, Open Library, BookBrainz, Big Book API) or CSV files (Goodreads), and set yearly reading goals.
+Leafmark is a **multi-user** book tracking web application built with Laravel 11 and PHP 8.2. Users can manage their book collections, track reading progress, view reading statistics, organize books with tags, import book data from external APIs (Google Books, Open Library, BookBrainz, Big Book API), Amazon scraping, CSV files (Goodreads), or ZIP library backups, and set yearly reading goals.
 
 The application supports multiple users with individual book collections, admin-controlled registration, and flexible user management. Perfect for organizations, book clubs, families, or communities.
+
+**Version:** Defined in `config/app.php` as `app.version`, displayed in the footer of every page.
 
 **⚠️ Critical Pattern:** Books use Unix timestamps (from `added_at`) as route keys instead of sequential IDs. See [Book Route Key Binding](#book-route-key-binding) for details.
 
@@ -206,9 +208,10 @@ The application has core models with the following relationships:
 
 **Auto-Admin Assignment:**
 - The **first user to register automatically becomes an admin**
-- Users with email matching `ADMIN_EMAIL` in .env automatically become admins
+- Users with email matching `ADMIN_EMAIL` env var automatically become admins
 - No seeder required
 - Implemented in RegisterController.php
+- `ADMIN_EMAIL` should be set in Coolify environment variables for production
 
 **System Settings:**
 - `SystemSetting` model stores application-wide configuration
@@ -250,6 +253,9 @@ Books can be imported from external sources via Service classes:
 - `OpenLibraryService` - Open Library API integration (no key required)
 - `BookBrainzService` - BookBrainz API for additional metadata
 - `BigBookApiService` - Big Book API integration with comprehensive book data (no language filtering supported)
+- `AmazonScraperService` - Scrapes book data from Amazon URLs (DE/COM)
+- `LibraryExportService` - Creates ZIP archive backups of entire library
+- `LibraryImportService` - Imports ZIP archive backups with validation and duplicate handling
 - `CoverImageService` - Handles cover image uploads and management
 - `LanguageService` - Language code conversions and display names
 
@@ -266,6 +272,56 @@ Books can be imported from external sources via Service classes:
 - Multi-source search merges results from multiple APIs
 - Language-aware search with fallback to language-neutral results (Google Books, Open Library, BookBrainz)
 - Note: Big Book API does not support language filtering
+
+### Amazon Book Scraping
+
+Books can be imported by pasting an Amazon product URL:
+
+**AmazonScraperService** provides:
+- HTML scraping from Amazon.de and Amazon.com URLs
+- Extracts: title, author, ISBN-10/13, publisher, publication date, page count, language, description, series info, cover image
+- Multiple fallback patterns for each field (meta tags, HTML elements)
+- Automatic cover image download and local storage as `BookCover`
+- Sets imported books to `want_to_read` status
+- 15-second HTTP timeout with minimal headers
+
+**Route:** `POST /books/scrape-amazon` (name: `books.scrape-amazon`)
+
+### Library Export/Import (ZIP Archive)
+
+Users can export their entire library as a ZIP archive and import it on another instance:
+
+**LibraryTransferController** handles:
+- `export()` - Download ZIP archive of entire library
+- `showImportForm()` - Display import form
+- `upload()` - Upload and validate ZIP, show preview
+- `execute()` - Process import with duplicate handling strategy
+- `cancel()` - Cancel pending import
+- `result()` - View import results
+
+**LibraryExportService** creates ZIP archives containing:
+- All books with full metadata (JSON)
+- Book cover images (organized by book)
+- Tags with color and ordering
+- Reading progress history
+- Reading challenges
+- User metadata and schema version
+
+**LibraryImportService** provides:
+- ZIP validation with security checks (path traversal prevention, 50MB limit)
+- Schema version validation (version 1)
+- Preview before import (book count, tag count, etc.)
+- Three duplicate handling strategies: `skip`, `overwrite`, `keep_both`
+- Session-based workflow (upload → preview → execute)
+- Import tracking via `ImportHistory` model
+
+**Routes:**
+- `GET /library/export` - Download ZIP
+- `GET /library/import` - Show import form
+- `POST /library/import/upload` - Upload and preview ZIP
+- `POST /library/import/execute` - Execute import
+- `POST /library/import/cancel` - Cancel import
+- `GET /library/import/result/{importHistory}` - View results
 
 ### CSV Import System
 
@@ -319,6 +375,29 @@ Users can customize their book list view per status/shelf:
 
 View preferences persist across sessions and are shelf-specific (e.g., different columns for "Currently Reading" vs "Read").
 
+### Reading Statistics
+
+The statistics page provides comprehensive reading analytics:
+
+**StatsController** (`App\Http\Controllers\StatsController`) handles:
+- `index()` - Display statistics dashboard with year selector
+
+**Statistics displayed:**
+- **Overview:** Total books read, total pages read, average rating, currently reading count
+- **Yearly breakdown:** Books and pages per selected year, books per month chart (Chart.js)
+- **Comparison:** Current year vs previous year (books and pages)
+- **Time metrics:** Average days per book, average pages per day, best/worst reading month
+- **Book extremes:** Longest and shortest book (with details)
+- **Content analysis:** Top 10 languages, format distribution, top 10 authors
+- **Challenge integration:** Progress bar if a reading challenge exists for the selected year
+
+**Route:** `GET /stats` (name: `stats.index`)
+
+**Technical notes:**
+- Uses SQLite `strftime()` for date grouping
+- Year selector auto-populated from years with finished books
+- Empty state shown when no books have been finished
+
 ### Authentication & Authorization
 
 **Basic Authentication:**
@@ -334,11 +413,37 @@ View preferences persist across sessions and are shelf-specific (e.g., different
 - Admin users have `is_admin = true` in database
 - Admin middleware registered as `'admin' => \App\Http\Middleware\IsAdmin::class`
 
+**Password Reset:**
+- `ForgotPasswordController` - Shows form, sends reset link email
+- `ResetPasswordController` - Shows reset form, processes password change
+- Token stored in `password_reset_tokens` table (60-minute expiration)
+- Sends `PasswordResetMail` via SMTP (if enabled)
+- Optional Turnstile CAPTCHA protection
+
+**Email Verification:**
+- `VerificationController` - Handles verification link clicks and resend
+- Uses signed URLs with SHA1 email hash
+- 60-minute token expiration
+- Sends `VerifyEmailMail` via SMTP (if enabled)
+- Optional Turnstile CAPTCHA on resend
+
 **Registration Control:**
 - `RegisterController` checks `SystemSetting` for registration rules
 - Three registration modes: open, domain, code
 - Registration can be completely disabled via admin settings
-- No email verification or CAPTCHA required
+
+**Cloudflare Turnstile CAPTCHA:**
+- Optional bot protection on password reset and email verification forms
+- Configured via Admin > System Settings (`turnstile_enabled`, `turnstile_site_key`, `turnstile_secret_key`)
+- `TurnstileValid` validation rule validates against Cloudflare API
+- Gracefully skips validation if not configured
+
+**SMTP Email Configuration:**
+- Dynamic SMTP configuration stored in `system_settings` table (not `.env`)
+- Settings: `smtp_enabled`, `smtp_host`, `smtp_port`, `smtp_encryption`, `smtp_username`, `smtp_password`, `smtp_from_address`, `smtp_from_name`
+- `DynamicMailConfigServiceProvider` loads SMTP config from database at runtime
+- Mail classes: `PasswordResetMail`, `VerifyEmailMail`, `TestEmail`
+- Helper methods: `SystemSetting::isSmtpEnabled()`, `SystemSetting::getSmtpConfig()`
 
 ### Internationalization
 
@@ -415,15 +520,10 @@ Routes are defined in [routes/web.php](routes/web.php):
 
 **Guest-only routes:**
 - `/register`, `/login` - Authentication forms
-- `/forgot-password`, `/reset-password/{token}` - Password reset
-- `/verify-email` - Email verification notice
-
-**Email verification routes:**
-- `/email/verify/{id}/{hash}` - Verify email (signed route)
-- `/email/resend` - Resend verification email
 
 **Protected routes (requires auth):**
 - `/books` - Resource routes (index, create, store, show, edit, update, destroy)
+- `/books/scrape-amazon` - POST to import book from Amazon URL
 - `/books/store-from-api` - Store book imported from external API
 - `/books/bulk-delete` - Delete multiple books at once
 - `/books/bulk-add-tags` - Add tags to multiple books
@@ -445,7 +545,10 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `/settings` - GET/PATCH for user settings
 - `/challenge` - Reading challenge routes (index, store, update, destroy)
 - `/family` - Family management routes
-- `/import` - CSV import routes
+- `/import` - CSV import routes (Goodreads)
+- `/library/export` - GET to download library ZIP archive
+- `/library/import` - Library ZIP import routes (upload, execute, cancel, result)
+- `/stats` - GET reading statistics dashboard
 
 **Admin routes (requires auth + admin):**
 - `/admin` - Admin dashboard with user statistics
@@ -503,8 +606,11 @@ Routes are defined in [routes/web.php](routes/web.php):
 
 **system_settings table:**
 - Key-value storage for application configuration
-- Stores registration and API settings
-- Keys: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
+- Stores registration, API, SMTP, and Turnstile settings
+- Registration keys: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
+- API keys: `google_books_api_key`, `bigbook_api_key`
+- SMTP keys: `smtp_enabled`, `smtp_host`, `smtp_port`, `smtp_encryption`, `smtp_username`, `smtp_password`, `smtp_from_address`, `smtp_from_name`
+- Turnstile keys: `turnstile_enabled`, `turnstile_site_key`, `turnstile_secret_key`
 - No caching in model (direct database queries)
 
 **families table:**
@@ -541,6 +647,7 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `updateStatus()` - Change reading status (triggers timestamp updates)
 - `updateRating()` - Update book rating and review
 - `storeFromApi()` - Import book from external API search
+- `scrapeAmazon()` - Import book from Amazon URL via scraping
 - `bulkDelete()` - Delete multiple books
 - `bulkAddTags()` - Add tags to multiple books
 - `bulkRemoveTag()` - Remove tag from multiple books
@@ -596,7 +703,21 @@ Routes are defined in [routes/web.php](routes/web.php):
 - `result()` - View detailed import results
 - `destroy()` - Delete import history record
 
-**Note:** Email functionality (contact form, SMTP settings) and the `EmailLog` model have been removed.
+**LibraryTransferController** handles:
+- `export()` - Generate and download library ZIP archive
+- `showImportForm()` - Display library import form
+- `upload()` - Upload and validate ZIP, show preview
+- `execute()` - Process library import with duplicate strategy
+- `cancel()` - Cancel pending library import
+- `result()` - View library import results
+
+**StatsController** handles:
+- `index()` - Display reading statistics dashboard with year selector
+
+**Auth controllers:**
+- `ForgotPasswordController` - Password reset request form and email sending
+- `ResetPasswordController` - Password reset form and processing
+- `VerificationController` - Email verification link handling and resend
 
 When implementing controllers:
 - Use route model binding: `public function show(Book $book)`
@@ -612,7 +733,7 @@ When implementing controllers:
 - Uses Tailwind CSS (CDN, no build process)
 - Alpine.js for interactive components
 - Server-rendered Blade templates (no SPA framework)
-- Views organized by feature: `books/`, `tags/`, `auth/`, `settings/`, `challenge/`, `admin/`
+- Views organized by feature: `books/`, `tags/`, `auth/`, `settings/`, `challenge/`, `admin/`, `stats/`, `library/`
 
 **Admin views:**
 - `admin/index.blade.php` - Dashboard with stats and quick links
@@ -626,16 +747,23 @@ When implementing controllers:
 - `family/create.blade.php` - Form to create a new family
 - `family/join.blade.php` - Form to join a family with a code
 
+**Stats views:**
+- `stats/index.blade.php` - Reading statistics dashboard with charts
+
+**Library transfer views:**
+- `library/import.blade.php` - Library ZIP import form
+- `library/preview.blade.php` - Import preview before execution
+- `library/result.blade.php` - Import results
+
 **Auth views:**
 - `auth/register.blade.php` - Registration form
 - `auth/login.blade.php` - Login form
+- `auth/forgot-password.blade.php` - Password reset request form
+- `auth/reset-password.blade.php` - Password reset form
+- `auth/verify-email.blade.php` - Email verification notice
 
 **Public views:**
 - `welcome.blade.php` - Landing page (localized)
-- `kontakt.blade.php` - Contact form (localized URLs)
-- `impressum.blade.php` - Imprint/legal notice
-- `datenschutz.blade.php` - Privacy policy
-- `changelog.blade.php` - Version history
 
 ## Important Notes for Development
 
@@ -760,7 +888,7 @@ The application now supports multi-user environments with admin controls:
 - Key-value configuration storage
 - **NO CACHING** - direct database queries to avoid cache table dependency
 - Common settings: `registration_enabled`, `registration_mode`, `allowed_email_domains`, `registration_code`
-- Helper methods: `isRegistrationEnabled()`, `getRegistrationMode()`, `isEmailDomainAllowed()`
+- Helper methods: `isRegistrationEnabled()`, `getRegistrationMode()`, `isEmailDomainAllowed()`, `isSmtpEnabled()`, `getSmtpConfig()`, `isTurnstileEnabled()`, `getTurnstileSiteKey()`, `getTurnstileSecretKey()`
 
 ### Security Considerations
 

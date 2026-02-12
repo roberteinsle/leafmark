@@ -122,6 +122,9 @@
                 <p class="text-center text-gray-500 text-sm">
                     &copy; {{ date('Y') }} Leafmark. Made with ❤️ in Hamburg
                 </p>
+                <p class="text-center text-gray-400 text-xs mt-1">
+                    v{{ config('app.version') }}
+                </p>
             </div>
         </div>
     </footer>

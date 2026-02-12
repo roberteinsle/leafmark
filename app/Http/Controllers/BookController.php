@@ -445,6 +445,7 @@ class BookController extends Controller
             'purchase_price' => 'nullable|numeric|min:0',
             'purchase_currency' => 'nullable|string|size:3',
             'current_page' => 'nullable|integer|min:0',
+            'added_at' => 'nullable|date',
             'started_at' => 'nullable|date',
             'finished_at' => 'nullable|date',
         ]);

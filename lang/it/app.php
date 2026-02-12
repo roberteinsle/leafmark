@@ -43,10 +43,12 @@ return [
         'amazon_scrape_failed' => 'Impossibile recuperare i dati del libro da Amazon. Riprova o aggiungi il libro manualmente.',
 
         'edit' => 'Modifica',
+        'edit_book' => 'Modifica libro',
         'delete' => 'Elimina',
         'view' => 'Visualizza',
         'back_to_books' => 'Torna ai Libri',
         'back_to_book' => 'Torna al Libro',
+        'save_changes' => 'Salva modifiche',
         'by_author' => 'di',
         'pages' => 'Pagine',
 
@@ -56,6 +58,7 @@ return [
         'series' => 'Serie',
         'publisher' => 'Editore',
         'description' => 'Descrizione',
+        'language_placeholder' => 'es. en, it',
         'status' => 'Stato',
         'want_to_read' => 'Voglio leggere',
         'currently_reading' => 'Sto leggendo',
@@ -96,6 +99,41 @@ return [
         'column_date_finished' => 'Data di fine',
         'column_tags' => 'Tag',
         'column_actions' => 'Azioni',
+
+        // Covers
+        'covers_managed_below' => 'Le immagini di copertina sono gestite qui sotto, dopo aver salvato questo modulo.',
+        'cover_url_label' => 'URL copertina (per riferimento)',
+        'cover_url_help' => 'URL copertina API originale (sola lettura)',
+        'thumbnail_url_label' => 'URL miniatura (per riferimento)',
+        'thumbnail_url_help' => 'URL miniatura API originale (sola lettura)',
+
+        // Formats
+        'select_format' => '-- Seleziona formato --',
+        'format_digital' => 'Digitale',
+        'format_paperback' => 'Brossura',
+        'format_hardcover' => 'Copertina rigida',
+        'format_audiobook' => 'Audiolibro',
+        'format_magazine' => 'Rivista',
+        'format_spiral_bound' => 'Spirale',
+        'format_leather_bound' => 'Rilegatura in pelle',
+        'format_journal' => 'Diario',
+        'format_comic' => 'Fumetto',
+        'format_graphic_novel' => 'Graphic novel',
+        'format_manga' => 'Manga',
+        'format_box_set' => 'Cofanetto',
+        'format_omnibus' => 'Omnibus',
+        'format_reference' => 'Consultazione',
+        'format_other' => 'Altro',
+
+        // Cover management JS
+        'cover_image_label' => 'Immagine di copertina',
+        'current_label' => 'Attuale',
+        'new_from_api' => 'Nuova da API',
+        'invalid_image_type' => 'Carica un file immagine valido (JPEG, PNG, GIF o WebP).',
+        'file_too_large' => 'La dimensione del file deve essere inferiore a 25 MB.',
+        'selected_file' => 'Selezionato',
+        'selected_files' => ':count file selezionato/i',
+        'invalid_files' => 'Alcuni file non sono validi',
 
         // Book details page
         'tab_details' => 'Dettagli',

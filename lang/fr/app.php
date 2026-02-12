@@ -43,10 +43,12 @@ return [
         'amazon_scrape_failed' => 'Impossible de récupérer les données du livre depuis Amazon. Veuillez réessayer ou ajouter le livre manuellement.',
 
         'edit' => 'Modifier',
+        'edit_book' => 'Modifier le livre',
         'delete' => 'Supprimer',
         'view' => 'Voir',
         'back_to_books' => 'Retour aux Livres',
         'back_to_book' => 'Retour au Livre',
+        'save_changes' => 'Enregistrer les modifications',
         'by_author' => 'par',
         'pages' => 'Pages',
 
@@ -56,10 +58,49 @@ return [
         'series' => 'Série',
         'publisher' => 'Éditeur',
         'description' => 'Description',
+        'language' => 'Langue',
+        'language_placeholder' => 'ex. en, fr',
         'status' => 'Statut',
         'want_to_read' => 'À lire',
         'currently_reading' => 'En cours de lecture',
         'read' => 'Lu',
+
+        // Covers
+        'cover_images' => 'Images de couverture',
+        'covers_managed_below' => 'Les images de couverture sont gérées ci-dessous, après avoir enregistré ce formulaire.',
+        'cover_url_label' => 'URL de couverture (pour référence)',
+        'cover_url_help' => 'URL de couverture API originale (lecture seule)',
+        'thumbnail_url_label' => 'URL de la vignette (pour référence)',
+        'thumbnail_url_help' => 'URL de la vignette API originale (lecture seule)',
+        'delete_cover' => 'Supprimer la couverture',
+
+        // Formats
+        'select_format' => '-- Choisir le format --',
+        'format_digital' => 'Numérique',
+        'format_paperback' => 'Broché',
+        'format_hardcover' => 'Relié',
+        'format_audiobook' => 'Livre audio',
+        'format_magazine' => 'Magazine',
+        'format_spiral_bound' => 'Spirale',
+        'format_leather_bound' => 'Cuir',
+        'format_journal' => 'Journal',
+        'format_comic' => 'Bande dessinée',
+        'format_graphic_novel' => 'Roman graphique',
+        'format_manga' => 'Manga',
+        'format_box_set' => 'Coffret',
+        'format_omnibus' => 'Omnibus',
+        'format_reference' => 'Référence',
+        'format_other' => 'Autre',
+
+        // Cover management JS
+        'cover_image_label' => 'Image de couverture',
+        'current_label' => 'Actuelle',
+        'new_from_api' => 'Nouvelle depuis l\'API',
+        'invalid_image_type' => 'Veuillez télécharger un fichier image valide (JPEG, PNG, GIF ou WebP).',
+        'file_too_large' => 'La taille du fichier doit être inférieure à 25 Mo.',
+        'selected_file' => 'Sélectionné',
+        'selected_files' => ':count fichier(s) sélectionné(s)',
+        'invalid_files' => 'Certains fichiers sont invalides',
 
         // View Mode
         'view_card' => 'Vue Cartes',

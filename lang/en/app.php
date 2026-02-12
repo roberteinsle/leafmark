@@ -103,10 +103,12 @@ return [
         'amazon_scrape_failed' => 'Could not fetch book data from Amazon. Please try again or add the book manually.',
 
         'edit' => 'Edit',
+        'edit_book' => 'Edit Book',
         'delete' => 'Delete',
         'view' => 'View',
         'back_to_books' => 'Back to Books',
         'back_to_book' => 'Back to Book',
+        'save_changes' => 'Save Changes',
         'by_author' => 'by',
         'pages' => 'Pages',
 
@@ -122,6 +124,7 @@ return [
         'description' => 'Description',
         'page_count' => 'Page Count',
         'language' => 'Language',
+        'language_placeholder' => 'e.g., en, de',
         'format' => 'Format',
         'purchase_date' => 'Purchase Date',
         'purchase_price' => 'Purchase Price',
@@ -142,6 +145,11 @@ return [
 
         // Covers
         'cover_images' => 'Cover Images',
+        'covers_managed_below' => 'Cover images are managed below, after saving this form.',
+        'cover_url_label' => 'Cover URL (for reference)',
+        'cover_url_help' => 'Original API cover URL (read-only)',
+        'thumbnail_url_label' => 'Thumbnail URL (for reference)',
+        'thumbnail_url_help' => 'Original API thumbnail URL (read-only)',
         'current_covers' => 'Current covers (hover to delete or set as default)',
         'upload_new_cover' => 'Upload New Cover',
         'upload_covers' => 'Upload Cover(s)',
@@ -151,6 +159,34 @@ return [
         'default' => 'Default',
         'set_default' => 'Set Default',
         'delete_cover' => 'Delete Cover',
+
+        // Formats
+        'select_format' => '-- Select Format --',
+        'format_digital' => 'Digital',
+        'format_paperback' => 'Paperback',
+        'format_hardcover' => 'Hardcover',
+        'format_audiobook' => 'Audiobook',
+        'format_magazine' => 'Magazine',
+        'format_spiral_bound' => 'Spiral Bound',
+        'format_leather_bound' => 'Leather Bound',
+        'format_journal' => 'Journal',
+        'format_comic' => 'Comic',
+        'format_graphic_novel' => 'Graphic Novel',
+        'format_manga' => 'Manga',
+        'format_box_set' => 'Box Set',
+        'format_omnibus' => 'Omnibus',
+        'format_reference' => 'Reference',
+        'format_other' => 'Other',
+
+        // Cover management JS
+        'cover_image_label' => 'Cover Image',
+        'current_label' => 'Current',
+        'new_from_api' => 'New from API',
+        'invalid_image_type' => 'Please upload a valid image file (JPEG, PNG, GIF, or WebP).',
+        'file_too_large' => 'File size must be less than 25MB.',
+        'selected_file' => 'Selected',
+        'selected_files' => 'Selected :count file(s)',
+        'invalid_files' => 'Some files are invalid',
 
         // Search providers
         'provider' => 'Provider',

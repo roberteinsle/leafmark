@@ -72,10 +72,12 @@ return [
         'amazon_scrape_failed' => 'Buchdaten konnten nicht von Amazon abgerufen werden. Bitte versuche es erneut oder füge das Buch manuell hinzu.',
 
         'edit' => 'Bearbeiten',
+        'edit_book' => 'Buch bearbeiten',
         'delete' => 'Löschen',
         'view' => 'Ansehen',
         'back_to_books' => 'Zurück zu Büchern',
         'back_to_book' => 'Zurück zum Buch',
+        'save_changes' => 'Änderungen speichern',
         'by_author' => 'von',
         'pages' => 'Seiten',
 
@@ -91,6 +93,7 @@ return [
         'description' => 'Beschreibung',
         'page_count' => 'Seitenzahl',
         'language' => 'Sprache',
+        'language_placeholder' => 'z.B. en, de',
         'format' => 'Format',
         'purchase_date' => 'Kaufdatum',
         'purchase_price' => 'Kaufpreis',
@@ -111,6 +114,11 @@ return [
 
         // Covers
         'cover_images' => 'Cover-Bilder',
+        'covers_managed_below' => 'Cover-Bilder werden unten verwaltet, nachdem dieses Formular gespeichert wurde.',
+        'cover_url_label' => 'Cover-URL (zur Referenz)',
+        'cover_url_help' => 'Originale API-Cover-URL (nur Lesen)',
+        'thumbnail_url_label' => 'Thumbnail-URL (zur Referenz)',
+        'thumbnail_url_help' => 'Originale API-Thumbnail-URL (nur Lesen)',
         'current_covers' => 'Aktuelle Cover (Hover zum Löschen oder als Standard setzen)',
         'upload_new_cover' => 'Neues Cover hochladen',
         'upload_covers' => 'Cover hochladen',
@@ -120,6 +128,34 @@ return [
         'default' => 'Standard',
         'set_default' => 'Als Standard setzen',
         'delete_cover' => 'Cover löschen',
+
+        // Formats
+        'select_format' => '-- Format wählen --',
+        'format_digital' => 'Digital',
+        'format_paperback' => 'Taschenbuch',
+        'format_hardcover' => 'Gebunden',
+        'format_audiobook' => 'Hörbuch',
+        'format_magazine' => 'Zeitschrift',
+        'format_spiral_bound' => 'Spiralbindung',
+        'format_leather_bound' => 'Ledereinband',
+        'format_journal' => 'Journal',
+        'format_comic' => 'Comic',
+        'format_graphic_novel' => 'Graphic Novel',
+        'format_manga' => 'Manga',
+        'format_box_set' => 'Box-Set',
+        'format_omnibus' => 'Sammelband',
+        'format_reference' => 'Nachschlagewerk',
+        'format_other' => 'Sonstiges',
+
+        // Cover management JS
+        'cover_image_label' => 'Cover-Bild',
+        'current_label' => 'Aktuell',
+        'new_from_api' => 'Neu von API',
+        'invalid_image_type' => 'Bitte laden Sie ein gültiges Bild hoch (JPEG, PNG, GIF oder WebP).',
+        'file_too_large' => 'Die Datei darf maximal 25MB groß sein.',
+        'selected_file' => 'Ausgewählt',
+        'selected_files' => ':count Datei(en) ausgewählt',
+        'invalid_files' => 'Einige Dateien sind ungültig',
 
         // Search providers
         'provider' => 'Anbieter',
