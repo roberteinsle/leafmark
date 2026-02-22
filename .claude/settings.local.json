@@ -86,7 +86,19 @@
       "Bash(xargs:*)",
       "Bash(composer dump-autoload:*)",
       "Bash(grep:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(docker logs:*)",
+      "Bash(XDEBUG_MODE=off php artisan serve:*)",
+      "Bash(XDEBUG_MODE=off php:*)",
+      "Bash(composer show:*)",
+      "Bash(composer require:*)",
+      "Bash(XDEBUG_MODE=off ./vendor/bin/phpunit:*)",
+      "Bash(sudo apt-get:*)",
+      "Bash(sudo docker-php-ext-install:*)",
+      "Bash(apt list:*)",
+      "Bash(php -d extension=zip -r:*)",
+      "Bash(git status:*)",
+      "Bash(php vendor/bin/phpunit:*)"
     ]
   }
 }
