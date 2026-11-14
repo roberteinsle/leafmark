@@ -98,6 +98,7 @@
                     <button type="button" @click="fetchData('google')" :disabled="loading" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded disabled:opacity-50">Google Books</button>
                     <button type="button" @click="fetchData('bigbook')" :disabled="loading" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded disabled:opacity-50">Big Book</button>
                     <button type="button" @click="fetchData('openlibrary')" :disabled="loading" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded disabled:opacity-50">Open Library</button>
+                    <button type="button" @click="fetchData('dnb')" :disabled="loading" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded disabled:opacity-50">DNB</button>
                 </div>
             </div>
             <p class="text-sm text-blue-700" x-show="!open">{{ __('app.books.refresh_hint') }}</p>

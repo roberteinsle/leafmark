@@ -14,7 +14,7 @@ return [
         'feature1_title' => 'Track Your Reading',
         'feature1_desc' => 'Monitor your progress through books with page tracking and reading statistics.',
         'feature2_title' => 'Search Books',
-        'feature2_desc' => 'Find books from multiple sources including Google Books, Open Library, and BookBrainz.',
+        'feature2_desc' => 'Find books from multiple sources including Google Books, Open Library, BookBrainz and the German National Library (DNB).',
         'feature3_title' => 'Organize with Tags',
         'feature3_desc' => 'Create custom tags to organize your library exactly the way you want.',
         'feature4_title' => 'Reading Challenges',
@@ -49,7 +49,9 @@ return [
 
     // Books
     'books' => [
+        'dnb' => 'German National Library (DNB)',
         'source_names' => [
+            'dnb' => 'German National Library',
             'bigbook' => 'Big Book API',
             'bookbrainz' => 'BookBrainz',
             'openlibrary' => 'Open Library',
@@ -568,7 +570,7 @@ return [
         'secret_clear' => 'Remove saved value',
         'secret_not_set' => 'Not set',
         'api_keys_title' => 'API keys for book sources',
-        'api_keys_intro' => 'Google Books and Big Book API only appear as sources when a key is set. Open Library and BookBrainz work without a key.',
+        'api_keys_intro' => 'Google Books and Big Book API only appear as sources when a key is set. Open Library, BookBrainz and the German National Library (DNB) work without a key.',
         'google_key_help' => 'Google Cloud console → APIs & Services → Credentials. Restrict the key to the Books API; with an IP restriction, add the server\'s outgoing IPv4 address (or the whole IPv6 /64 network).',
         'bigbook_key_help' => 'From bigbookapi.com (free tier: 60 requests per minute).',
         'google_key_from_env' => 'A key from the GOOGLE_BOOKS_API_KEY environment variable is currently used.',

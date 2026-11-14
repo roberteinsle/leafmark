@@ -18,7 +18,9 @@ return [
 
     // Books
     'books' => [
+        'dnb' => 'Biblioteca Nacional de Alemania (DNB)',
         'source_names' => [
+            'dnb' => 'Biblioteca Nacional de Alemania',
             'bigbook' => 'Big Book API',
             'bookbrainz' => 'BookBrainz',
             'openlibrary' => 'Open Library',
@@ -636,7 +638,7 @@ return [
         'feature1_title' => 'Sigue tu lectura',
         'feature1_desc' => 'Controla tu progreso con el seguimiento de páginas y estadísticas de lectura.',
         'feature2_title' => 'Busca libros',
-        'feature2_desc' => 'Encuentra libros en varias fuentes, como Google Books, Open Library y BookBrainz.',
+        'feature2_desc' => 'Encuentra libros en varias fuentes, como Google Books, Open Library, BookBrainz y la Biblioteca Nacional de Alemania (DNB).',
         'feature3_title' => 'Organiza con etiquetas',
         'feature3_desc' => 'Crea etiquetas personalizadas para organizar tu biblioteca exactamente como quieras.',
         'feature4_title' => 'Desafíos de lectura',
@@ -724,7 +726,7 @@ return [
         'google_key_from_env' => 'Actualmente se usa una clave de la variable de entorno GOOGLE_BOOKS_API_KEY.',
         'bigbook_key_help' => 'En bigbookapi.com (plan gratuito: 60 solicitudes por minuto).',
         'google_key_help' => 'Consola de Google Cloud → APIs y servicios → Credenciales. Restringe la clave a la Books API; si usas una restricción de IP, añade la dirección IPv4 de salida del servidor (o toda la red IPv6 /64).',
-        'api_keys_intro' => 'Google Books y Big Book API solo aparecen como fuentes si hay una clave configurada. Open Library y BookBrainz funcionan sin clave.',
+        'api_keys_intro' => 'Google Books y Big Book API solo aparecen como fuentes si hay una clave configurada. Open Library, BookBrainz y la Biblioteca Nacional de Alemania (DNB) funcionan sin clave.',
         'api_keys_title' => 'Claves API para fuentes de libros',
         'secret_not_set' => 'Sin configurar',
         'secret_clear' => 'Eliminar el valor guardado',

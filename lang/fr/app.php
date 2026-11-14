@@ -18,7 +18,9 @@ return [
 
     // Books
     'books' => [
+        'dnb' => 'Bibliothèque nationale allemande (DNB)',
         'source_names' => [
+            'dnb' => 'Bibliothèque nationale allemande',
             'bigbook' => 'Big Book API',
             'bookbrainz' => 'BookBrainz',
             'openlibrary' => 'Open Library',
@@ -636,7 +638,7 @@ return [
         'feature1_title' => 'Suis ta lecture',
         'feature1_desc' => 'Suis ta progression page par page et consulte tes statistiques de lecture.',
         'feature2_title' => 'Recherche de livres',
-        'feature2_desc' => 'Trouve des livres dans plusieurs sources, dont Google Books, Open Library et BookBrainz.',
+        'feature2_desc' => 'Trouve des livres dans plusieurs sources, dont Google Books, Open Library, BookBrainz et la Bibliothèque nationale allemande (DNB).',
         'feature3_title' => 'Organise avec des étiquettes',
         'feature3_desc' => 'Crée tes propres étiquettes pour organiser ta bibliothèque exactement comme tu le souhaites.',
         'feature4_title' => 'Défis de lecture',
@@ -724,7 +726,7 @@ return [
         'google_key_from_env' => 'Une clé issue de la variable d\'environnement GOOGLE_BOOKS_API_KEY est actuellement utilisée.',
         'bigbook_key_help' => 'Sur bigbookapi.com (offre gratuite : 60 requêtes par minute).',
         'google_key_help' => 'Console Google Cloud → API et services → Identifiants. Limite la clé à la Books API ; avec une restriction d\'IP, ajoute l\'adresse IPv4 sortante du serveur (ou tout le réseau IPv6 /64).',
-        'api_keys_intro' => 'Google Books et Big Book API n\'apparaissent comme sources que si une clé est définie. Open Library et BookBrainz fonctionnent sans clé.',
+        'api_keys_intro' => 'Google Books et Big Book API n\'apparaissent comme sources que si une clé est définie. Open Library, BookBrainz et la Bibliothèque nationale allemande (DNB) fonctionnent sans clé.',
         'api_keys_title' => 'Clés API des sources de livres',
         'secret_not_set' => 'Non défini',
         'secret_clear' => 'Supprimer la valeur enregistrée',

@@ -16,9 +16,10 @@ Wird nichts Passendes gefunden, lässt sich das Buch auch von Hand anlegen.
 |---|---|---|
 | Open Library | nein | Standardquelle |
 | BookBrainz | nein | zusätzliche Metadaten |
+| Deutsche Nationalbibliothek (DNB) | nein | sehr gut für deutschsprachige Bücher; Metadaten unter CC0, Cover über Open Library |
 | Google Books | ja | erscheint nur, wenn ein Schlüssel gesetzt ist |
 | Big Book API | ja | ohne Sprachfilter |
-| Alle Quellen | – | fasst die Treffer zusammen und entfernt Dubletten anhand der ISBN |
+| Alle Quellen | – | Voreinstellung; fragt alle Quellen ohne Schlüssel und die mit gesetztem Schlüssel ab, fasst die Treffer zusammen und entfernt Dubletten anhand der ISBN |
 
 Die Schlüssel setzt ein Admin unter [Administration](Administration.md#api-schlüssel). Kann eine Quelle nicht antworten, zeigt die Suche einen Hinweis über den Treffern, statt einfach „keine Treffer“ zu melden:
 
@@ -27,6 +28,16 @@ Die Schlüssel setzt ein Admin unter [Administration](Administration.md#api-schl
 - **Nicht erreichbar:** Zeitüberschreitung oder Serverfehler der Quelle.
 
 Externe Abfragen sind pro Nutzer auf 30 pro Minute und 500 pro Tag begrenzt.
+
+### Deutsche Nationalbibliothek
+
+Die DNB verzeichnet nahezu alle in Deutschland erschienenen Bücher. Bei einer deutschen ISBN (978-3…) oder deutscher Oberfläche stehen ihre Treffer unter **Alle Quellen** ganz oben.
+
+- Gezielt suchen: `tit:Europa im Erdölrausch` (Titel), `per:Ganser, Daniele` (Person); ohne Präfix wird in allen Feldern gesucht.
+- Übernommen werden Titel, Untertitel, Autoren (nur Verfasser, keine Sprecher oder Übersetzer), Verlag, Erscheinungsjahr, ISBN, Seitenzahl, Sprache sowie Reihe und Band.
+- Gedruckte Ausgaben mit ISBN stehen vor Hörbüchern und E-Books ohne ISBN.
+- Beschreibungen liefert die DNB nicht. Das Cover kommt, falls vorhanden, über die ISBN von Open Library.
+- Antworten werden 24 Stunden zwischengespeichert.
 
 ### Von Amazon übernehmen
 

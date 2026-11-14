@@ -18,7 +18,9 @@ return [
 
     // Books
     'books' => [
+        'dnb' => 'Deutsche Nationalbibliothek',
         'source_names' => [
+            'dnb' => 'Deutsche Nationalbibliothek',
             'bigbook' => 'Big Book API',
             'bookbrainz' => 'BookBrainz',
             'openlibrary' => 'Open Library',
@@ -471,7 +473,7 @@ return [
         'secret_clear' => 'Gespeicherten Wert entfernen',
         'secret_not_set' => 'Nicht gesetzt',
         'api_keys_title' => 'API-Schlüssel der Buchquellen',
-        'api_keys_intro' => 'Google Books und Big Book API erscheinen nur als Quelle, wenn ein Schlüssel gesetzt ist. Open Library und BookBrainz funktionieren ohne Schlüssel.',
+        'api_keys_intro' => 'Google Books und Big Book API erscheinen nur als Quelle, wenn ein Schlüssel gesetzt ist. Open Library, BookBrainz und die Deutsche Nationalbibliothek (DNB) funktionieren ohne Schlüssel.',
         'google_key_help' => 'Google Cloud Console → APIs und Dienste → Anmeldedaten. Den Schlüssel auf die Books API beschränken; bei einer IP-Einschränkung die ausgehende IPv4-Adresse des Servers eintragen (oder das ganze IPv6-/64-Netz).',
         'bigbook_key_help' => 'Von bigbookapi.com (kostenlos: 60 Anfragen pro Minute).',
         'google_key_from_env' => 'Aktuell wird ein Schlüssel aus der Umgebungsvariable GOOGLE_BOOKS_API_KEY verwendet.',
@@ -876,7 +878,7 @@ return [
         'feature1_title' => 'Lesefortschritt verfolgen',
         'feature1_desc' => 'Behalte deinen Fortschritt mit Seitenzählung und Lesestatistiken im Blick.',
         'feature2_title' => 'Bücher suchen',
-        'feature2_desc' => 'Finde Bücher aus mehreren Quellen, darunter Google Books, Open Library und BookBrainz.',
+        'feature2_desc' => 'Finde Bücher aus mehreren Quellen, darunter Google Books, Open Library, BookBrainz und die Deutsche Nationalbibliothek (DNB).',
         'feature3_title' => 'Mit Tags organisieren',
         'feature3_desc' => 'Erstelle eigene Tags und organisiere deine Bibliothek genau so, wie du möchtest.',
         'feature4_title' => 'Lese-Challenges',

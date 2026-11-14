@@ -8,6 +8,7 @@ use App\Services\AmazonScraperService;
 use App\Services\BigBookApiService;
 use App\Services\BookBrainzService;
 use App\Services\CoverImageService;
+use App\Services\DnbService;
 use App\Services\GoogleBooksService;
 use App\Services\OpenLibraryService;
 use Illuminate\Http\RedirectResponse;
@@ -168,11 +169,11 @@ class BookController extends Controller implements HasMiddleware
         return view('books.index', compact('books', 'counts', 'challenge', 'viewPref', 'userTags', 'familyReading'));
     }
 
-    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook): View
+    public function create(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook, DnbService $dnb): View
     {
         $searchQuery = $request->get('q');
         $language = $request->get('lang', auth()->user()->preferred_language ?? 'en');
-        $provider = $request->get('provider', 'openlibrary'); // Default to OpenLibrary
+        $provider = $request->get('provider', 'both'); // Standard: alle Quellen (wie im Formular)
         $searchResults = [];
         $noResults = false;
         $providerErrors = [];
@@ -182,33 +183,35 @@ class BookController extends Controller implements HasMiddleware
         $hasBigBook = (bool) \App\Models\SystemSetting::getSecret('bigbook_api_key');
 
         if ($searchQuery) {
-            $googleResults = [];
-            $openLibraryResults = [];
-            $bookBrainzResults = [];
-            $bigBookResults = [];
+            $all = $provider === 'both';
+            $results = ['google' => [], 'bigbook' => [], 'dnb' => [], 'bookbrainz' => [], 'openlibrary' => []];
 
-            // Search based on selected provider
-            if ($provider === 'both' || $provider === 'google') {
-                $googleResults = $googleBooks->search($searchQuery, 10, $language);
+            // Bei "Alle Quellen" nur Quellen mit Schlüssel abfragen – ohne Schlüssel liefert Google nur Kontingentfehler
+            if ($provider === 'google' || ($all && $hasGoogle)) {
+                $results['google'] = $googleBooks->search($searchQuery, 10, $language);
                 if ($googleBooks->lastError) {
                     $providerErrors['google'] = $googleBooks->lastError;
                 }
             }
-
-            if ($provider === 'both' || $provider === 'openlibrary') {
-                $openLibraryResults = $openLibrary->search($searchQuery, 10, $language);
+            if ($provider === 'bigbook' || ($all && $hasBigBook)) {
+                $results['bigbook'] = $bigBook->search($searchQuery, 10, $language);
+            }
+            if ($all || $provider === 'dnb') {
+                $results['dnb'] = $dnb->search($searchQuery, 10, $language);
+            }
+            if ($all || $provider === 'bookbrainz') {
+                $results['bookbrainz'] = $bookBrainz->search($searchQuery, 10, $language);
+            }
+            if ($all || $provider === 'openlibrary') {
+                $results['openlibrary'] = $openLibrary->search($searchQuery, 10, $language);
             }
 
-            if ($provider === 'both' || $provider === 'bookbrainz') {
-                $bookBrainzResults = $bookBrainz->search($searchQuery, 10, $language);
+            // Deutsche ISBN (978-3…, ISBN-10 mit 3…) oder deutsche Oberfläche: DNB-Treffer zuerst
+            if ($this->prefersDnb($searchQuery)) {
+                $results = ['dnb' => $results['dnb']] + $results;
             }
 
-            if ($provider === 'both' || $provider === 'bigbook') {
-                $bigBookResults = $bigBook->search($searchQuery, 10, $language);
-            }
-
-            // Merge and deduplicate results based on ISBN
-            $searchResults = $this->mergeSearchResults($googleResults, $openLibraryResults, $bookBrainzResults, $bigBookResults);
+            $searchResults = $this->mergeSearchResults($results);
             $noResults = empty($searchResults);
         }
 
@@ -216,70 +219,46 @@ class BookController extends Controller implements HasMiddleware
     }
 
     /**
-     * Merge and deduplicate search results from multiple sources
+     * Fasst die Treffer mehrerer Quellen zusammen, in der Reihenfolge von $resultsBySource.
+     * Dubletten werden über die ISBN entfernt (ISBN-13 und ISBN-10); Treffer ohne ISBN bleiben erhalten.
+     *
+     * @param  array<string, array>  $resultsBySource  z. B. ['google' => [...], 'dnb' => [...]]
      */
-    private function mergeSearchResults(array $googleResults, array $openLibraryResults, array $bookBrainzResults = [], array $bigBookResults = []): array
+    private function mergeSearchResults(array $resultsBySource): array
     {
         $merged = [];
         $seenIsbns = [];
 
-        // Add Google Books results first (they tend to have better data)
-        foreach ($googleResults as $result) {
-            $isbn = $result['isbn13'] ?? $result['isbn'] ?? null;
-            if ($isbn && !in_array($isbn, $seenIsbns)) {
-                $seenIsbns[] = $isbn;
-                $result['source'] = 'google';
-                $merged[] = $result;
-            } elseif (!$isbn) {
-                // Add books without ISBN too
-                $result['source'] = 'google';
-                $merged[] = $result;
-            }
-        }
+        foreach ($resultsBySource as $source => $results) {
+            foreach ($results as $result) {
+                $isbns = array_filter([$result['isbn13'] ?? null, $result['isbn'] ?? null]);
 
-        // Add Big Book API results
-        foreach ($bigBookResults as $result) {
-            $isbn = $result['isbn13'] ?? $result['isbn'] ?? null;
-            if ($isbn && !in_array($isbn, $seenIsbns)) {
-                $seenIsbns[] = $isbn;
-                $result['source'] = 'bigbook';
-                $merged[] = $result;
-            } elseif (!$isbn) {
-                // Add books without ISBN too
-                $result['source'] = 'bigbook';
-                $merged[] = $result;
-            }
-        }
+                if ($isbns && array_intersect($isbns, $seenIsbns)) {
+                    continue;
+                }
 
-        // Add BookBrainz results
-        foreach ($bookBrainzResults as $result) {
-            $isbn = $result['isbn13'] ?? $result['isbn'] ?? null;
-            if ($isbn && !in_array($isbn, $seenIsbns)) {
-                $seenIsbns[] = $isbn;
-                $result['source'] = 'bookbrainz';
-                $merged[] = $result;
-            } elseif (!$isbn) {
-                // Add books without ISBN too
-                $result['source'] = 'bookbrainz';
-                $merged[] = $result;
-            }
-        }
-
-        // Add Open Library results that aren't duplicates
-        foreach ($openLibraryResults as $result) {
-            $isbn = $result['isbn13'] ?? $result['isbn'] ?? null;
-            if ($isbn && !in_array($isbn, $seenIsbns)) {
-                $seenIsbns[] = $isbn;
-                $result['source'] = 'openlibrary';
-                $merged[] = $result;
-            } elseif (!$isbn) {
-                // Add books without ISBN too
-                $result['source'] = 'openlibrary';
+                $seenIsbns = [...$seenIsbns, ...$isbns];
+                $result['source'] = $source;
                 $merged[] = $result;
             }
         }
 
         return $merged;
+    }
+
+    /**
+     * DNB zuerst bei deutschsprachiger ISBN (978-3…, ISBN-10 mit führender 3) oder deutscher Oberfläche.
+     * Hinweis: 979-1x ist nicht Deutschland (979-10 Frankreich, 979-11 Korea, 979-12 Italien, 979-13 Spanien).
+     */
+    private function prefersDnb(string $query): bool
+    {
+        $digits = strtoupper(str_replace(['-', ' '], '', preg_replace('/^isbn:\s*/i', '', trim($query))));
+
+        if (preg_match('/^(\d{9}[\dX]|\d{13})$/', $digits)) {
+            return str_starts_with($digits, '9783') || (strlen($digits) === 10 && str_starts_with($digits, '3'));
+        }
+
+        return app()->getLocale() === 'de';
     }
 
     /**
@@ -335,14 +314,15 @@ class BookController extends Controller implements HasMiddleware
         return redirect()->route('books.show', $book)->with('success', __('app.books.book_added'));
     }
 
-    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook, CoverImageService $coverService): RedirectResponse
+    public function storeFromApi(Request $request, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook, DnbService $dnb, CoverImageService $coverService): RedirectResponse
     {
         $validated = $request->validate([
             'google_books_id' => 'nullable|string',
             'open_library_id' => 'nullable|string',
             'bookbrainz_id' => 'nullable|string',
             'bigbook_id' => 'nullable|string',
-            'source' => 'required|in:google,openlibrary,bookbrainz,bigbook',
+            'dnb_id' => 'nullable|string|max:20',
+            'source' => 'required|in:google,openlibrary,bookbrainz,bigbook,dnb',
             'status' => 'required|in:want_to_read,currently_reading,read',
         ]);
 
@@ -356,6 +336,9 @@ class BookController extends Controller implements HasMiddleware
         } elseif ($validated['source'] === 'bigbook') {
             $bookData = $bigBook->getBook($validated['bigbook_id']);
             $externalId = $validated['bigbook_id'];
+        } elseif ($validated['source'] === 'dnb') {
+            $bookData = $validated['dnb_id'] ? $dnb->getBook($validated['dnb_id']) : null;
+            $externalId = $validated['dnb_id'];
         } else {
             $bookData = $openLibrary->getBook($validated['open_library_id']);
             $externalId = $validated['open_library_id'];
@@ -391,6 +374,9 @@ class BookController extends Controller implements HasMiddleware
             'description' => $bookData['description'],
             'page_count' => $bookData['page_count'],
             'language' => $bookData['language'],
+            // Reihe liefert bisher nur die DNB; andere Quellen geben null zurück
+            'series' => $bookData['series'] ?? null,
+            'series_position' => $bookData['series_position'] ?? null,
             'cover_url' => $coverUrl,
             'thumbnail' => $coverUrl,
             'local_cover_path' => $localCoverPath,
@@ -887,7 +873,7 @@ class BookController extends Controller implements HasMiddleware
     /**
      * Fetch fresh data from API for preview
      */
-    public function fetchApiData(Request $request, Book $book, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook)
+    public function fetchApiData(Request $request, Book $book, GoogleBooksService $googleBooks, OpenLibraryService $openLibrary, BookBrainzService $bookBrainz, BigBookApiService $bigBook, DnbService $dnb)
     {
         if ($book->user_id !== auth()->id()) {
             abort(403);
@@ -906,6 +892,7 @@ class BookController extends Controller implements HasMiddleware
             'openlibrary' => $openLibrary,
             'bookbrainz' => $bookBrainz,
             'bigbook' => $bigBook,
+            'dnb' => $dnb,
         ];
         if (! isset($services[$source])) {
             return response()->json(['error' => __('app.books.api_unknown_source')], 422);

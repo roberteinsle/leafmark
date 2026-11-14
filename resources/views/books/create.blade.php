@@ -26,23 +26,17 @@
                            autofocus>
                     <select name="provider"
                             class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        @php
-                            $defaultProvider = 'both';
-                            if (!$hasGoogle && !$hasBigBook) {
-                                $defaultProvider = 'openlibrary';
-                            }
-                        @endphp
+                        @php($defaultProvider = 'both')
                         <option value="openlibrary" {{ request('provider', $defaultProvider) === 'openlibrary' ? 'selected' : '' }}>{{ __('app.books.openlibrary') }}</option>
                         <option value="bookbrainz" {{ request('provider', $defaultProvider) === 'bookbrainz' ? 'selected' : '' }}>BookBrainz</option>
+                        <option value="dnb" {{ request('provider', $defaultProvider) === 'dnb' ? 'selected' : '' }}>{{ __('app.books.dnb') }}</option>
                         @if($hasBigBook)
                         <option value="bigbook" {{ request('provider', $defaultProvider) === 'bigbook' ? 'selected' : '' }}>Big Book API</option>
                         @endif
                         @if($hasGoogle)
                         <option value="google" {{ request('provider', $defaultProvider) === 'google' ? 'selected' : '' }}>{{ __('app.books.google_books') }}</option>
                         @endif
-                        @if($hasGoogle || $hasBigBook)
                         <option value="both" {{ request('provider', $defaultProvider) === 'both' ? 'selected' : '' }}>{{ __('app.books.all_sources') }}</option>
-                        @endif
                     </select>
                     <select name="lang"
                             class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -160,6 +154,8 @@
                                     <input type="hidden" name="bookbrainz_id" value="{{ $result['bookbrainz_id'] }}">
                                 @elseif($result['source'] === 'bigbook')
                                     <input type="hidden" name="bigbook_id" value="{{ $result['bigbook_id'] }}">
+                                @elseif($result['source'] === 'dnb')
+                                    <input type="hidden" name="dnb_id" value="{{ $result['dnb_id'] }}">
                                 @else
                                     <input type="hidden" name="open_library_id" value="{{ $result['open_library_id'] }}">
                                 @endif
@@ -184,6 +180,8 @@
                                             BookBrainz
                                         @elseif($result['source'] === 'bigbook')
                                             Big Book API
+                                        @elseif($result['source'] === 'dnb')
+                                            {{ __('app.books.dnb') }}
                                         @else
                                             {{ __('app.books.openlibrary') }}
                                         @endif

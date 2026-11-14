@@ -46,7 +46,7 @@ Nötig für Anmeldelinks per E-Mail. Ohne SMTP melden sich Nutzer mit Passkey od
 
 ### API-Schlüssel
 
-Google Books und Big Book API erscheinen erst als Buchquelle, wenn ein Schlüssel gesetzt ist. Die Schlüssel werden verschlüsselt gespeichert; ein leeres Feld behält den gespeicherten Schlüssel, **Gespeicherten Wert entfernen** löscht ihn.
+Google Books und Big Book API erscheinen erst als Buchquelle, wenn ein Schlüssel gesetzt ist; Open Library, BookBrainz und die Deutsche Nationalbibliothek brauchen keinen. Die Schlüssel werden verschlüsselt gespeichert; ein leeres Feld behält den gespeicherten Schlüssel, **Gespeicherten Wert entfernen** löscht ihn.
 
 **Google Books einrichten:**
 

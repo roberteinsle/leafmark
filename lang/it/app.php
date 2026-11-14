@@ -18,7 +18,9 @@ return [
 
     // Books
     'books' => [
+        'dnb' => 'Biblioteca nazionale tedesca (DNB)',
         'source_names' => [
+            'dnb' => 'Biblioteca nazionale tedesca',
             'bigbook' => 'Big Book API',
             'bookbrainz' => 'BookBrainz',
             'openlibrary' => 'Open Library',
@@ -636,7 +638,7 @@ return [
         'feature1_title' => 'Segui la tua lettura',
         'feature1_desc' => 'Monitora i tuoi progressi con il conteggio delle pagine e le statistiche di lettura.',
         'feature2_title' => 'Cerca libri',
-        'feature2_desc' => 'Trova libri da più fonti, tra cui Google Books, Open Library e BookBrainz.',
+        'feature2_desc' => 'Trova libri da più fonti, tra cui Google Books, Open Library, BookBrainz e la Biblioteca nazionale tedesca (DNB).',
         'feature3_title' => 'Organizza con le etichette',
         'feature3_desc' => 'Crea etichette personalizzate per organizzare la tua biblioteca esattamente come vuoi.',
         'feature4_title' => 'Sfide di lettura',
@@ -724,7 +726,7 @@ return [
         'google_key_from_env' => 'Al momento viene usata una chiave dalla variabile d\'ambiente GOOGLE_BOOKS_API_KEY.',
         'bigbook_key_help' => 'Da bigbookapi.com (piano gratuito: 60 richieste al minuto).',
         'google_key_help' => 'Console Google Cloud → API e servizi → Credenziali. Limita la chiave alla Books API; con una restrizione IP, aggiungi l\'indirizzo IPv4 in uscita del server (o l\'intera rete IPv6 /64).',
-        'api_keys_intro' => 'Google Books e Big Book API compaiono come fonti solo se è impostata una chiave. Open Library e BookBrainz funzionano senza chiave.',
+        'api_keys_intro' => 'Google Books e Big Book API compaiono come fonti solo se è impostata una chiave. Open Library, BookBrainz e la Biblioteca nazionale tedesca (DNB) funzionano senza chiave.',
         'api_keys_title' => 'Chiavi API per le fonti di libri',
         'secret_not_set' => 'Non impostato',
         'secret_clear' => 'Rimuovi il valore salvato',

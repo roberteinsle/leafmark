@@ -18,6 +18,7 @@ A multi-user book tracking web application built with Laravel 13 and PHP 8.5. Ma
 - **Google Books API** - Search by ISBN, author, or title
 - **Open Library API** - Free, no API key required
 - **BookBrainz API** - Additional metadata source
+- **Deutsche Nationalbibliothek (DNB)** - German National Library via SRU, no API key required, metadata under CC0
 - **Big Book API** - Comprehensive book data
 - **Amazon Scraping** - Import book data from Amazon URLs (DE/COM)
 - **Goodreads CSV Import** - Import from Goodreads export files with duplicate detection
