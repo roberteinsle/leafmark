@@ -34,6 +34,10 @@ weekly rebuild ─┘        │
    | `APP_TAG` | leave empty (= `latest`); set for rollbacks |
 
 5. **Domain:** on service `app`, set the domain with internal port **8080**.
+   If the container restart-loops with "storage is not writable": Coolify created the `app-storage` volume empty and owned by root. Fix once:
+   ```bash
+   docker run --rm -u root -v <resource-uuid>_app-storage:/s --entrypoint sh ghcr.io/roberteinsle/leafmark:latest -c 'chown -R 82:82 /s'
+   ```
 6. **Backups:** enable daily backups on the Postgres resource. The `app-storage` volume (covers) is covered by the server backup.
 7. **Optional auto-deploy:** add the repo secrets `COOLIFY_WEBHOOK` and `COOLIFY_TOKEN`, plus the repo variable `AUTO_DEPLOY=true`.
 

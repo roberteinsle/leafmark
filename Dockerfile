@@ -36,6 +36,8 @@ ENV AUTORUN_ENABLED=true \
 
 USER root
 RUN install-php-extensions intl gd zip bcmath exif pdo_pgsql
+# Legt fehlende storage-Ordner im Volume an, bevor AUTORUN läuft
+COPY --chmod=755 docker/entrypoint.d/40-leafmark-storage.sh /etc/entrypoint.d/40-leafmark-storage.sh
 USER www-data
 
 WORKDIR /var/www/html
