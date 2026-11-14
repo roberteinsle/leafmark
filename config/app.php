@@ -17,7 +17,10 @@ return [
 
     'version' => '1.5.0',
 
-    'commit_hash' => trim(@file_get_contents(base_path('VERSION_HASH')) ?: '') ?: (
+    // First user OR this address automatically becomes admin on registration
+    'admin_email' => env('ADMIN_EMAIL'),
+
+    'commit_hash' => (is_file(base_path('VERSION_HASH')) ? trim((string) file_get_contents(base_path('VERSION_HASH'))) : '') ?: (
         is_dir(base_path('.git'))
             ? trim(shell_exec('git rev-parse --short HEAD 2>/dev/null') ?? '')
             : 'unknown'

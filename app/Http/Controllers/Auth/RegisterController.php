@@ -66,8 +66,8 @@ class RegisterController extends Controller
         // Check if this is the first user (will become admin)
         $isFirstUser = User::count() === 0;
 
-        // Check if email matches ADMIN_EMAIL from .env
-        $adminEmail = env('ADMIN_EMAIL');
+        // Check if email matches ADMIN_EMAIL (config app.admin_email)
+        $adminEmail = config('app.admin_email');
         $isAdminEmail = !empty($adminEmail) && $request->email === $adminEmail;
 
         // User becomes admin if: first user OR email matches ADMIN_EMAIL
