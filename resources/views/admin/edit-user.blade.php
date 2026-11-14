@@ -189,7 +189,25 @@
                 @if($user->id !== auth()->id())
                 <div class="mt-8 border-t pt-6">
                     <h3 class="text-lg font-semibold text-red-900 mb-4">Danger Zone</h3>
-                    
+
+                    @if($user->hasTwoFactorEnabled())
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium text-yellow-900">{{ __('app.two_factor.admin_reset_title') }}</h4>
+                                <p class="text-sm text-yellow-800 mt-1">{{ __('app.two_factor.admin_reset_help') }}</p>
+                            </div>
+                            <form method="POST" action="{{ route('admin.users.reset-two-factor', $user) }}" class="ml-4" onsubmit="return confirm(@js(__('app.two_factor.admin_reset_confirm')))">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                                    {{ __('app.two_factor.admin_reset_button') }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                         <div class="flex items-center justify-between">
                             <div>

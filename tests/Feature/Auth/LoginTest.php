@@ -12,7 +12,7 @@ class LoginTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_user_can_login_with_valid_credentials(): void
+    public function test_valid_password_leads_to_second_factor_not_login(): void
     {
         $user = $this->createUser(['password' => bcrypt('password123')]);
 
@@ -21,10 +21,9 @@ class LoginTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertRedirect(route('books.index'));
-        $this->assertAuthenticatedAs($user);
-        $user->refresh();
-        $this->assertNotNull($user->last_login_at);
+        // Standard Abschnitt 11: Passwort nur mit 2FA – ohne eingerichtete 2FA geht es zum Einrichten
+        $response->assertRedirect(route('two-factor.setup'));
+        $this->assertGuest();
     }
 
     public function test_login_fails_with_wrong_password(): void

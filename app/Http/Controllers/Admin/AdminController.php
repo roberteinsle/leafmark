@@ -110,6 +110,17 @@ class AdminController extends Controller
     }
 
     /**
+     * 2FA eines Nutzers zurücksetzen (Gerät und Wiederherstellungscodes verloren).
+     * Beim nächsten Passwort-Login muss der Nutzer 2FA neu einrichten.
+     */
+    public function resetTwoFactor(User $user, \App\Services\TwoFactorService $twoFactor): RedirectResponse
+    {
+        $twoFactor->disable($user);
+
+        return back()->with('success', __('app.two_factor.admin_reset_done'));
+    }
+
+    /**
      * Delete a user
      */
     public function deleteUser(User $user): RedirectResponse

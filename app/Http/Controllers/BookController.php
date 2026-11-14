@@ -12,13 +12,32 @@ use App\Services\GoogleBooksService;
 use App\Services\OpenLibraryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
-class BookController extends Controller
+class BookController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            // Diese Aktionen rufen externe Buch-APIs oder Amazon auf (Standard 12.1)
+            new Middleware('throttle:external-api', only: [
+                'create', 'scrapeAmazon', 'storeFromApi', 'fetchApiData', 'refreshFromApi',
+            ]),
+        ];
+    }
+
     public function index(Request $request): View
     {
+        $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
+            'author' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', 'string', 'max:30'],
+            'sort' => ['nullable', 'string', 'max:50'],
+        ]);
+
         // Get or create view preference for current shelf
         $shelf = $request->get('status', 'all');
         $viewPref = BookViewPreference::getForUser(auth()->id(), $shelf);
@@ -29,10 +48,10 @@ class BookController extends Controller
         if ($request->has('search') && $request->search) {
             $searchTerm = $request->search;
             $query->where(function($q) use ($searchTerm) {
-                $q->where('title', 'like', "%{$searchTerm}%")
-                  ->orWhere('author', 'like', "%{$searchTerm}%")
-                  ->orWhere('isbn', 'like', "%{$searchTerm}%")
-                  ->orWhere('isbn13', 'like', "%{$searchTerm}%");
+                $q->whereLike('title', "%{$searchTerm}%")
+                  ->orWhereLike('author', "%{$searchTerm}%")
+                  ->orWhereLike('isbn', "%{$searchTerm}%")
+                  ->orWhereLike('isbn13', "%{$searchTerm}%");
             });
         }
 
@@ -104,10 +123,10 @@ class BookController extends Controller
         if ($request->has('search') && $request->search) {
             $searchTerm = $request->search;
             $baseQuery->where(function($q) use ($searchTerm) {
-                $q->where('title', 'like', "%{$searchTerm}%")
-                  ->orWhere('author', 'like', "%{$searchTerm}%")
-                  ->orWhere('isbn', 'like', "%{$searchTerm}%")
-                  ->orWhere('isbn13', 'like', "%{$searchTerm}%");
+                $q->whereLike('title', "%{$searchTerm}%")
+                  ->orWhereLike('author', "%{$searchTerm}%")
+                  ->orWhereLike('isbn', "%{$searchTerm}%")
+                  ->orWhereLike('isbn13', "%{$searchTerm}%");
             });
         }
         if ($request->has('author') && $request->author) {

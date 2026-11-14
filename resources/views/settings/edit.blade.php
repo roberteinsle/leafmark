@@ -88,6 +88,16 @@
 
             <!-- Security Tab -->
             <div x-show="activeTab === 'security'" class="space-y-6" style="display: none;">
+                <div class="flex items-center justify-between gap-4 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                    <div>
+                        <p class="font-medium text-indigo-900">{{ __('app.security.title') }}</p>
+                        <p class="text-sm text-indigo-800">{{ __('app.security.link_help') }}</p>
+                    </div>
+                    <a href="{{ route('settings.security') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 whitespace-nowrap">
+                        {{ __('app.security.manage') }}
+                    </a>
+                </div>
+
                 <div>
                     <label for="current_password" class="block text-sm font-medium text-gray-700">{{ __('app.settings.current_password') }}</label>
                     <input type="password" name="current_password" id="current_password" value="{{ old('current_password') }}"

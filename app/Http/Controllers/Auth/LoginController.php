@@ -3,12 +3,19 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * Passwort-Login (Standard Abschnitt 11, Rang 3): nur zusammen mit 2FA.
+ *
+ * Ein korrektes Passwort meldet noch nicht an. Es folgt die 2FA-Abfrage oder,
+ * wenn noch keine 2FA eingerichtet ist, das Einrichten. Siehe TwoFactorLoginController.
+ */
 class LoginController extends Controller
 {
     public function showLoginForm(): View
@@ -19,24 +26,25 @@ class LoginController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+            'email' => ['required', 'email', 'max:255'],
+            'password' => ['required', 'string', 'max:255'],
         ]);
 
-        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $request->boolean('remember'))) {
-            $user = Auth::user();
-
-            // Update last login timestamp
-            $user->update(['last_login_at' => now()]);
-
-            $request->session()->regenerate();
-
-            return redirect()->intended(route('books.index'));
+        if (! Auth::validate($credentials)) {
+            throw ValidationException::withMessages([
+                'email' => __('app.login.failed'),
+            ]);
         }
 
-        throw ValidationException::withMessages([
-            'email' => __('The provided credentials do not match our records.'),
-        ]);
+        $user = User::where('email', $credentials['email'])->firstOrFail();
+
+        $request->session()->put('login.id', $user->id);
+        $request->session()->put('login.remember', $request->boolean('remember'));
+        $request->session()->regenerate();
+
+        return $user->hasTwoFactorEnabled()
+            ? redirect()->route('two-factor.challenge')
+            : redirect()->route('two-factor.setup');
     }
 
     public function logout(Request $request): RedirectResponse

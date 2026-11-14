@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ConfirmPasswordController;
+use App\Http\Controllers\Auth\MagicLinkController;
+use App\Http\Controllers\Auth\TwoFactorLoginController;
+use App\Http\Controllers\SecuritySettingsController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\TagController;
@@ -23,10 +27,22 @@ Route::get('/', function () {
 // Authentication routes
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
+    Route::post('/register', [RegisterController::class, 'register'])->name('register.submit')->middleware('throttle:register');
 
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+    Route::post('/login', [LoginController::class, 'login'])->name('login.submit')->middleware('throttle:login');
+
+    // Magic Link (Standard Abschnitt 11): nur verfügbar, wenn SMTP konfiguriert ist
+    Route::get('/login/magic', [MagicLinkController::class, 'showRequestForm'])->name('login.magic');
+    Route::post('/login/magic', [MagicLinkController::class, 'send'])->name('login.magic.send')->middleware('throttle:login');
+    Route::get('/login/magic/{token}', [MagicLinkController::class, 'confirm'])->name('login.magic.confirm')->middleware(['signed', 'throttle:login']);
+    Route::post('/login/magic/consume', [MagicLinkController::class, 'consume'])->name('login.magic.consume')->middleware('throttle:login');
+
+    // Zweiter Faktor nach korrektem Passwort (Standard Abschnitt 11: Passwort nur mit 2FA)
+    Route::get('/two-factor-challenge', [TwoFactorLoginController::class, 'showChallenge'])->name('two-factor.challenge');
+    Route::post('/two-factor-challenge', [TwoFactorLoginController::class, 'challenge'])->name('two-factor.challenge.submit')->middleware('throttle:login');
+    Route::get('/two-factor-setup', [TwoFactorLoginController::class, 'showSetup'])->name('two-factor.setup');
+    Route::post('/two-factor-setup', [TwoFactorLoginController::class, 'setup'])->name('two-factor.setup.submit')->middleware('throttle:login');
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])
@@ -76,20 +92,33 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings', [UserSettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings', [UserSettingsController::class, 'update'])->name('settings.update');
 
+    // Passwort bestätigen (Ziel der Middleware password.confirm, z. B. für Passkey-Verwaltung)
+    Route::get('/confirm-password', [ConfirmPasswordController::class, 'show'])->name('password.confirm');
+    Route::post('/confirm-password', [ConfirmPasswordController::class, 'store'])->name('password.confirm.submit')->middleware('throttle:login');
+
+    // Anmeldung & Sicherheit: Passkeys (Routen aus laravel/passkeys) und 2FA
+    Route::middleware('password.confirm')->prefix('settings/security')->name('settings.')->group(function () {
+        Route::get('/', [SecuritySettingsController::class, 'show'])->name('security');
+        Route::post('/two-factor', [SecuritySettingsController::class, 'startTwoFactor'])->name('two-factor.start');
+        Route::post('/two-factor/confirm', [SecuritySettingsController::class, 'confirmTwoFactor'])->name('two-factor.confirm');
+        Route::post('/two-factor/recovery-codes', [SecuritySettingsController::class, 'regenerateRecoveryCodes'])->name('two-factor.recovery-codes');
+        Route::delete('/two-factor', [SecuritySettingsController::class, 'disableTwoFactor'])->name('two-factor.disable');
+    });
+
     // Import routes
     Route::get('/import', [ImportController::class, 'index'])->name('import.index');
-    Route::post('/import/upload', [ImportController::class, 'upload'])->name('import.upload');
-    Route::post('/import/execute', [ImportController::class, 'execute'])->name('import.execute');
+    Route::post('/import/upload', [ImportController::class, 'upload'])->name('import.upload')->middleware('throttle:expensive');
+    Route::post('/import/execute', [ImportController::class, 'execute'])->name('import.execute')->middleware('throttle:expensive');
     Route::post('/import/cancel', [ImportController::class, 'cancel'])->name('import.cancel');
     Route::get('/import/history', [ImportController::class, 'history'])->name('import.history');
     Route::get('/import/result/{importHistory}', [ImportController::class, 'result'])->name('import.result');
     Route::delete('/import/{importHistory}', [ImportController::class, 'destroy'])->name('import.destroy');
 
     // Library export/import routes
-    Route::get('/library/export', [LibraryTransferController::class, 'export'])->name('library.export');
+    Route::get('/library/export', [LibraryTransferController::class, 'export'])->name('library.export')->middleware('throttle:expensive');
     Route::get('/library/import', [LibraryTransferController::class, 'showImportForm'])->name('library.import');
-    Route::post('/library/import/upload', [LibraryTransferController::class, 'upload'])->name('library.import.upload');
-    Route::post('/library/import/execute', [LibraryTransferController::class, 'execute'])->name('library.import.execute');
+    Route::post('/library/import/upload', [LibraryTransferController::class, 'upload'])->name('library.import.upload')->middleware('throttle:expensive');
+    Route::post('/library/import/execute', [LibraryTransferController::class, 'execute'])->name('library.import.execute')->middleware('throttle:expensive');
     Route::post('/library/import/cancel', [LibraryTransferController::class, 'cancel'])->name('library.import.cancel');
     Route::get('/library/import/result/{importHistory}', [LibraryTransferController::class, 'result'])->name('library.import.result');
 
@@ -120,6 +149,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
     Route::patch('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
     Route::patch('/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
+    Route::patch('/users/{user}/reset-two-factor', [AdminController::class, 'resetTwoFactor'])->name('users.reset-two-factor');
     Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.delete');
 
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
