@@ -7,7 +7,7 @@ This file provides context for Claude Code sessions.
 - **Name:** Leafmark
 - **Type:** Personal Book Tracking Web App
 - **Framework:** Laravel 13 + PHP 8.5
-- **Database:** PostgreSQL 16 (tests also run on SQLite)
+- **Database:** PostgreSQL 16 (production and tests)
 - **Frontend:** Blade Templates + Tailwind CSS + Alpine.js (Vite build)
 
 ## Repository

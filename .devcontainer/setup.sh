@@ -26,6 +26,8 @@ docker compose up -d db
 until docker compose exec -T db pg_isready -U leafmark > /dev/null 2>&1; do
     sleep 2
 done
+# Testdatenbank für php artisan test (siehe phpunit.xml)
+docker compose exec -T db createdb -U leafmark leafmark_test 2>/dev/null || true
 
 php artisan migrate --force
 php artisan storage:link || true

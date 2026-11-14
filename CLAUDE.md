@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Leafmark is a multi-user book tracking app: book collections with reading status/progress, tags, series, covers, yearly reading challenges, statistics, family groups, and imports from external book APIs, Amazon, Goodreads CSV and ZIP backups.
 
-**Stack:** PHP 8.5 · Laravel 13 · Postgres 16 (production; SQLite works for tests) · Blade + Alpine.js + Tailwind 3, built with Vite · serversideup/php (FPM + Nginx) image · GitHub Actions → GHCR → Coolify.
+**Stack:** PHP 8.5 · Laravel 13 · Postgres 16 (production and tests) · Blade + Alpine.js + Tailwind 3, built with Vite · serversideup/php (FPM + Nginx) image · GitHub Actions → GHCR → Coolify.
 
 Version: `app.version` in `config/app.php`, shown in the footer with the commit hash (from `VERSION_HASH`, written at image build).
 
@@ -14,21 +14,18 @@ Version: `app.version` in `config/app.php`, shown in the footer with the commit 
 
 - **Book route keys are Unix timestamps of `added_at`, not IDs.** `Book::getRouteKey()` / `resolveRouteBinding()` resolve by timestamp (fallback: ID) and always scope to `auth()->id()`. Routes use `where('book', '[0-9]+')`.
 - **Route order in `routes/web.php` matters:** cover routes before `DELETE /books/{book}`; specific `/books/...` routes before `Route::resource('books')`.
-- **Code must run on both Postgres and SQLite.** No `strftime()`/driver-specific SQL; use `whereYear()`, `whereLike()` (case-insensitive on both), or group in PHP. CI runs the suite against both.
+- **Postgres only** (production, CI and tests). Postgres `LIKE` is case-sensitive: use `whereLike()` for user-facing search. Tests need the Postgres container running (`docker compose up -d db`).
 - **`APP_KEY` must never change in production**: 2FA secrets and recovery codes are stored with the `encrypted` cast.
 - **`env()` only inside `config/`.** The container runs `config:cache` on start, so `env()` elsewhere returns null (e.g. `ADMIN_EMAIL` is read via `config('app.admin_email')`).
 - **`SystemSetting` reads the DB directly (no cache)**; SMTP is configured at runtime from `system_settings` by `DynamicMailConfigServiceProvider`.
-- Merging to `main` builds and pushes `ghcr.io/roberteinsle/leafmark:latest`. It only goes live when someone clicks Deploy in Coolify, or automatically if the repo variable `AUTO_DEPLOY=true` is set.
+- **Merging to `main` deploys to production.** The workflow pushes `ghcr.io/roberteinsle/leafmark:latest` and, because the repo variable `AUTO_DEPLOY=true` is set, triggers the Coolify webhook. Work on branches.
 
 ## Commands
 
 ```bash
-php artisan test                         # full suite (SQLite in-memory, see phpunit.xml)
+php artisan test                         # full suite against Postgres database leafmark_test (see phpunit.xml)
 php artisan test --filter=MagicLinkTest  # single class or method
 php artisan test tests/Feature/StatsTest.php
-
-# Same suite against Postgres (docker compose up -d db)
-DB_CONNECTION=pgsql DB_HOST=127.0.0.1 DB_DATABASE=leafmark_test DB_USERNAME=leafmark DB_PASSWORD=leafmark php artisan test
 
 php artisan serve & npm run dev          # local dev (Postgres from docker-compose.yml)
 npm run build                            # production assets → public/build
@@ -41,14 +38,13 @@ There is no linter or formatter configured. Tests call `withoutVite()` (in `test
 
 Follows the owner's deployment standard: **Coolify never builds.**
 
-1. `.github/workflows/build.yml`: tests (SQLite + Postgres matrix) → Docker build (`pull: true`, weekly rebuild for PHP patches) → push to GHCR → print `php -v` → fail if the frontend bundle contains anything that looks like a key.
+1. `.github/workflows/build.yml`: tests (Postgres service) → Docker build (`pull: true`, weekly rebuild for PHP patches) → push to GHCR → print `php -v` → fail if the frontend bundle contains anything that looks like a key.
 2. Coolify runs `deploy/docker-compose.coolify.yml` (app only) as a "Docker Compose Empty" resource and only pulls images. Postgres is a **separate Coolify resource**; the app reaches it via the external `coolify` network and `DB_HOST`. Do not add a `db` service to that compose file. Edits to that file must be pasted into Coolify by hand.
 3. On container start, serversideup AUTORUN runs `migrate --force`, `storage:link` and the config/route/view caches. There is no entrypoint script.
 4. Rollback: set `APP_TAG` in Coolify to a `sha-…` or semver tag and redeploy. Don't roll back to images built with an unpatched PHP.
 
 **PHP version lives in three places, changed together:** `Dockerfile` (`ARG PHP_VERSION`), `composer.json` (`"php"`), `.devcontainer/devcontainer.json` (image tag).
 
-`deploy/MIGRATION.md` is the one-off cutover guide from the old SQLite deployment. `php artisan leafmark:import-sqlite <file>` copies a legacy SQLite DB into the current DB, keeping IDs.
 
 ## Architecture
 

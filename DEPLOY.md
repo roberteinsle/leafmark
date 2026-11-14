@@ -3,7 +3,7 @@
 Leafmark follows the pattern **GitHub → GHCR → Coolify**: GitHub Actions builds the image, GitHub Container Registry stores it, and Coolify only pulls and runs it. Coolify never builds.
 
 ```
-push to main ──► GitHub Action (tests on SQLite + Postgres, docker build, PHP 8.5 base image pulled fresh)
+push to main ──► GitHub Action (tests on Postgres, docker build, PHP 8.5 base image pulled fresh)
 weekly rebuild ─┘        │
                          ▼
              ghcr.io/roberteinsle/leafmark:latest  (+ sha-xxxxxxx, semver tags)
@@ -12,7 +12,6 @@ weekly rebuild ─┘        │
              Coolify "Docker Compose Empty" resource ──► Deploy = docker compose pull && up -d
 ```
 
-> Moving from the old Coolify Application (built from the Dockerfile, SQLite)? Follow [deploy/MIGRATION.md](deploy/MIGRATION.md) once.
 
 ## One-time setup
 

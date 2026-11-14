@@ -17,7 +17,7 @@ Postgres is started again on every codespace start (`postStartCommand`).
 ## Everyday commands
 
 ```bash
-php artisan test                          # tests (SQLite in-memory, no Postgres needed)
+php artisan test                          # tests against the leafmark_test database (Postgres container)
 php artisan migrate                       # migrations against the Postgres container
 php artisan migrate:fresh                 # drop everything and re-migrate
 docker compose exec db psql -U leafmark   # database shell

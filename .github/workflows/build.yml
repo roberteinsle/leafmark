@@ -35,28 +35,19 @@ jobs:
           --health-cmd "pg_isready -U leafmark"
           --health-interval 5s
           --health-retries 10
-    strategy:
-      matrix:
-        db: [sqlite, pgsql]
     steps:
       - uses: actions/checkout@v4
 
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          extensions: intl, gd, zip, bcmath, exif, pdo_pgsql, pdo_sqlite
+          extensions: intl, gd, zip, bcmath, exif, pdo_pgsql
           coverage: none
 
       - run: composer install --no-interaction --prefer-dist
 
-      - name: Tests (${{ matrix.db }})
-        env:
-          DB_CONNECTION: ${{ matrix.db }}
-          DB_HOST: 127.0.0.1
-          DB_PORT: 5432
-          DB_DATABASE: ${{ matrix.db == 'pgsql' && 'leafmark_test' || ':memory:' }}
-          DB_USERNAME: leafmark
-          DB_PASSWORD: leafmark
+      # DB-Zugang kommt aus phpunit.xml (127.0.0.1:5432, leafmark_test)
+      - name: Tests
         run: vendor/bin/phpunit
 
   build:
