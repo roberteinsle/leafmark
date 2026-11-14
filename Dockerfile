@@ -16,7 +16,9 @@ WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
 COPY . .
-RUN composer dump-autoload --optimize --no-dev
+# --no-scripts: kein artisan beim Build (Dateien gehören root, der Build läuft als www-data);
+# das Package-Manifest erzeugt Laravel beim Start bzw. AUTORUN optimize
+RUN composer dump-autoload --optimize --no-dev --no-scripts
 
 # --- Stufe 3: Runtime ---
 FROM serversideup/php:${PHP_VERSION}-fpm-nginx-alpine

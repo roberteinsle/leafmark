@@ -17,3 +17,4 @@ database/*.sqlite
 tests
 docker-compose.yml
 deploy
+bootstrap/cache/*.php
