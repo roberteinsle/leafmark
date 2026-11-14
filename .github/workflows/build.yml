@@ -120,5 +120,8 @@ jobs:
       - name: Trigger Coolify deploy
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AUTO_DEPLOY == 'true'
         run: |
-          curl -fsS -X GET "${{ secrets.COOLIFY_WEBHOOK }}" \
+          # Neuere Coolify-Versionen erwarten POST (GET → 405), ältere GET
+          curl -fsS -X POST "${{ secrets.COOLIFY_WEBHOOK }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
+          || curl -fsS -X GET "${{ secrets.COOLIFY_WEBHOOK }}" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
