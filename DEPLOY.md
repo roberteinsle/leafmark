@@ -1,203 +1,66 @@
 # Deployment Guide
 
-This guide covers deploying Leafmark to production using Coolify on a self-hosted server.
-
-## Prerequisites
-
-- A server (VPS) with Docker installed
-- Coolify installed and configured
-- A domain name (e.g., `leafmark.app`)
-- Cloudflare account (optional, for CDN/SSL)
-
-## Architecture
+Leafmark follows the pattern **GitHub → GHCR → Coolify**: GitHub Actions builds the image, GitHub Container Registry stores it, and Coolify only pulls and runs it. Coolify never builds.
 
 ```
-User → Cloudflare (CDN/SSL) → Server → Coolify/Traefik → Leafmark Container
-                                              ↓
-                                         MariaDB Container
+push to main ──► GitHub Action (tests on SQLite + Postgres, docker build, PHP 8.5 base image pulled fresh)
+weekly rebuild ─┘        │
+                         ▼
+             ghcr.io/roberteinsle/leafmark:latest  (+ sha-xxxxxxx, semver tags)
+                         │
+                         ▼
+             Coolify "Docker Compose Empty" resource ──► Deploy = docker compose pull && up -d
 ```
 
-## Deployment with Coolify
+> Moving from the old Coolify Application (built from the Dockerfile, SQLite)? Follow [deploy/MIGRATION.md](deploy/MIGRATION.md) once.
 
-### 1. Add Project in Coolify
+## One-time setup
 
-1. Go to **Projects** → **Add Project**
-2. Name: `Leafmark`
-3. Click **Add Resource** → **Public Repository**
+1. **GHCR pull access on the Coolify server:** create a GitHub personal access token (classic) with only the `read:packages` scope, then on the server:
+   ```bash
+   echo '<PAT>' | docker login ghcr.io -u roberteinsle --password-stdin
+   ```
+2. **Postgres resource:** Project → Environment `production` → New Resource → **PostgreSQL 16** as a standalone Coolify service (not publicly available). Note its internal hostname from "Postgres URL (internal)".
+3. **App resource:** New Resource → **Docker Compose Empty**. Paste [deploy/docker-compose.coolify.yml](deploy/docker-compose.coolify.yml). The app joins the external `coolify` network to reach the Postgres resource.
+4. **Environment variables** in Coolify:
 
-### 2. Configure Repository
+   | Variable | Value |
+   |---|---|
+   | `APP_KEY` | `php artisan key:generate --show`. **Never change it afterwards**: it encrypts users' 2FA secrets |
+   | `APP_URL` | `https://www.leafmark.app` (also the passkey relying party) |
+   | `DB_HOST` | internal hostname of the Postgres resource |
+   | `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | credentials of the Postgres resource |
+   | `ADMIN_EMAIL` | optional, auto-admin on registration |
+   | `APP_LOCALE` | optional default language |
+   | `APP_TAG` | leave empty (= `latest`); set for rollbacks |
 
-- **Repository URL:** `https://github.com/roberteinsle/leafmark`
-- **Branch:** `main`
-- **Build Pack:** `Dockerfile` (auto-detected)
+5. **Domain:** on service `app`, set the domain with internal port **8080**.
+6. **Backups:** enable daily backups on the Postgres resource. The `app-storage` volume (covers) is covered by the server backup.
+7. **Optional auto-deploy:** add the repo secrets `COOLIFY_WEBHOOK` and `COOLIFY_TOKEN`, plus the repo variable `AUTO_DEPLOY=true`.
 
-### 3. Environment Variables
+## Everyday deploy
 
-Add these environment variables in Coolify:
+Merge to `main` → wait for the action to turn green → click **Deploy** in Coolify. On start, the container runs migrations, `storage:link` and the caches (serversideup AUTORUN). Expect a few seconds of downtime.
 
-```env
-APP_NAME=Leafmark
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://www.leafmark.app
+After deploying, check:
+- `https://www.leafmark.app/up` returns 200
+- `docker exec <app-container> php -v` shows the current patched PHP 8.5
 
-DB_CONNECTION=mysql
-DB_HOST=leafmark-db
-DB_PORT=3306
-DB_DATABASE=leafmark
-DB_USERNAME=leafmark
-DB_PASSWORD=<secure-password>
-
-# Optional API Keys
-GOOGLE_BOOKS_API_KEY=<your-key>
-ISBNDB_API_KEY=<your-key>
-```
-
-### 4. Database Service
-
-Add a MariaDB service in the same project:
-
-1. **Add Resource** → **Database** → **MariaDB**
-2. Name: `leafmark-db`
-3. Configure credentials to match your environment variables
-
-### 5. Domain Configuration
-
-- **Domain:** `www.leafmark.app`
-- **Proxy:** Select `Cloudflare` if using Cloudflare
-
-### 6. Deploy
-
-Click **Deploy** – Coolify will:
-1. Clone the repository
-2. Build the Docker image
-3. Start the container
-4. Configure the reverse proxy
-
-## DNS Configuration (Cloudflare)
-
-Add these DNS records:
-
-| Type | Name | Content | Proxy |
-|------|------|---------|-------|
-| A | @ | `<server-ip>` | Proxied (orange) |
-| CNAME | www | `leafmark.app` | Proxied (orange) |
-
-### Redirect apex to www
-
-In Cloudflare **Rules** → **Redirect Rules**:
-
-- **When:** Hostname equals `leafmark.app`
-- **Then:** Redirect to `https://www.leafmark.app` (301)
-
-## SSL Configuration
-
-### With Cloudflare (Recommended)
-
-1. In Coolify, select **Cloudflare** as proxy type
-2. In Cloudflare **SSL/TLS** settings, set to **Full (strict)**
-
-### Without Cloudflare
-
-Coolify will automatically generate Let's Encrypt certificates.
-
-## Post-Deployment
-
-### Run Migrations
-
-In Coolify, use the **Terminal** tab or SSH into the container:
+## Releases and rollback
 
 ```bash
-docker exec -it <container-id> php artisan migrate --force
+git tag -a v1.6.0 -m "Passkeys, Postgres, PHP 8.5"
+git push origin v1.6.0      # adds tags 1.6.0 and 1.6
 ```
 
-### Generate App Key (if not set)
+Rollback: set `APP_TAG` to an older tag (`sha-a1b2c3d` or `1.5.0`) → Deploy. Clear `APP_TAG` to return to `latest`. Migrations are **not** rolled back; restore the DB backup first if the rollback crosses a migration. Never roll back to an image built before 2026-10-21 (unpatched PHP; see the build log for its PHP version).
 
-```bash
-docker exec -it <container-id> php artisan key:generate
-```
+## PHP updates
 
-### Clear Caches
+- **Critical patch:** Actions → Build & Push → Run workflow with `no_cache=true` (or `gh workflow run build.yml -f no_cache=true`), check the PHP version in the log, then Deploy.
+- **Regular patch:** nothing to do; the weekly rebuild picks it up.
+- **New minor version:** change `Dockerfile` (`ARG PHP_VERSION`), `composer.json` (`"php"`) and `.devcontainer/devcontainer.json` in one commit, run `composer update` and the tests, merge, tag a minor release.
 
-```bash
-docker exec -it <container-id> php artisan config:cache
-docker exec -it <container-id> php artisan route:cache
-docker exec -it <container-id> php artisan view:cache
-```
+## Changing the compose file
 
-## Automatic Deployments
-
-Coolify automatically sets up a webhook. Every push to `main` triggers a new deployment.
-
-To disable auto-deploy:
-1. Go to your resource in Coolify
-2. **Settings** → Disable **Auto Deploy**
-
-## Monitoring
-
-### Logs
-
-In Coolify: **Resources** → **Leafmark** → **Logs**
-
-Or via SSH:
-```bash
-docker logs -f <container-id>
-```
-
-### Health Check
-
-The app exposes a health endpoint:
-```bash
-curl https://www.leafmark.app/health
-```
-
-## Backup
-
-### Database Backup
-
-```bash
-docker exec leafmark-db mysqldump -u leafmark -p leafmark > backup.sql
-```
-
-### Automated Backups with Coolify
-
-1. Go to **S3 Storages** in Coolify
-2. Configure your S3-compatible storage
-3. Enable backups for your database service
-
-## Troubleshooting
-
-### Container won't start
-
-Check logs in Coolify or:
-```bash
-docker logs <container-id>
-```
-
-### 502 Bad Gateway
-
-- Check if the container is running
-- Verify the port configuration
-- Check Traefik logs: `docker logs coolify-proxy`
-
-### Database connection failed
-
-- Verify DB_HOST matches the database container name
-- Check if database container is running
-- Verify credentials match
-
-## Useful Commands
-
-```bash
-# Enter container shell
-docker exec -it <container-id> bash
-
-# Run artisan commands
-docker exec -it <container-id> php artisan <command>
-
-# View real-time logs
-docker logs -f <container-id>
-
-# Restart container
-docker restart <container-id>
-```
+Edit `deploy/docker-compose.coolify.yml`, commit, paste the new content into Coolify, save, Deploy. This is the only manual double step.

@@ -6,9 +6,9 @@ This file provides context for Claude Code sessions.
 
 - **Name:** Leafmark
 - **Type:** Personal Book Tracking Web App
-- **Framework:** Laravel 11 + PHP 8.2
-- **Database:** SQLite (development), MariaDB/MySQL (optional for production)
-- **Frontend:** Blade Templates + Tailwind CSS
+- **Framework:** Laravel 13 + PHP 8.5
+- **Database:** PostgreSQL 16 (tests also run on SQLite)
+- **Frontend:** Blade Templates + Tailwind CSS + Alpine.js (Vite build)
 
 ## Repository
 
@@ -20,7 +20,7 @@ This file provides context for Claude Code sessions.
 
 ```
 Development:  GitHub Codespaces
-Production:   Hetzner VM → Coolify → Docker
+Production:   GitHub Actions → GHCR → Coolify (Hetzner VM)
 CDN/DNS:      Cloudflare
 Domain:       leafmark.app
 ```
@@ -32,7 +32,9 @@ Domain:       leafmark.app
 | `CLAUDE.md` | Claude Code instructions and conventions |
 | `CODESPACES.md` | Codespaces setup guide |
 | `DEPLOY.md` | Production deployment guide |
-| `docker-compose.yaml` | Local Docker setup |
+| `docker-compose.yml` | Local dev: Postgres + production image |
+| `deploy/docker-compose.coolify.yml` | What runs in Coolify (pasted by hand) |
+| `.github/workflows/build.yml` | Tests, image build, push to GHCR |
 | `Dockerfile` | Production container build |
 
 ## Development Workflow
@@ -40,8 +42,8 @@ Domain:       leafmark.app
 1. Create/open Codespace on `main` branch
 2. Make changes with Claude Code assistance
 3. Test locally in Codespace
-4. Commit and push to `main`
-5. Coolify auto-deploys to production
+4. Merge to `main` → GitHub Action builds the image
+5. Click Deploy in Coolify (or auto-deploy if `AUTO_DEPLOY=true`)
 
 ## Common Tasks
 

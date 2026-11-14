@@ -1,6 +1,6 @@
 # Leafmark - Book Tracking Web App
 
-A multi-user book tracking web application built with Laravel 11 and PHP 8.2. Manage your book collection, track reading progress, view statistics, and organize books with tags.
+A multi-user book tracking web application built with Laravel 13 and PHP 8.5. Manage your book collection, track reading progress, view statistics, and organize books with tags.
 
 **Live:** [www.leafmark.app](https://www.leafmark.app)
 
@@ -58,21 +58,24 @@ A multi-user book tracking web application built with Laravel 11 and PHP 8.2. Ma
 
 ### Internationalization
 - 6 languages: English, German, French, Italian, Spanish, Polish
-- Configured via `APP_LOCALE` in `.env`
+- Per-user language preference, default via `APP_LOCALE`
 
 ### Security
-- Password reset via email
-- Email verification
+- Sign in with passkeys (fingerprint, face, device PIN)
+- Passwordless sign-in via email link (when SMTP is configured)
+- Password sign-in always requires two-factor authentication (TOTP) with recovery codes
+- Rate limiting on sign-in, imports/exports and external API calls
 - Cloudflare Turnstile CAPTCHA support (optional)
 - Dynamic SMTP configuration via admin settings
 
 ## Tech Stack
 
-- **Backend:** Laravel 11 + PHP 8.2
-- **Database:** SQLite
-- **Frontend:** Blade Templates + Tailwind CSS + Alpine.js
+- **Backend:** Laravel 13 + PHP 8.5
+- **Database:** PostgreSQL 16
+- **Frontend:** Blade Templates + Tailwind CSS + Alpine.js, built with Vite
 - **Charts:** Chart.js
-- **Deployment:** Docker / Coolify
+- **Auth:** laravel/passkeys, magic links, TOTP 2FA
+- **Deployment:** GitHub Actions → GHCR → Coolify (serversideup/php image)
 
 ## Quick Start
 
@@ -90,12 +93,15 @@ See [CODESPACES.md](CODESPACES.md) for details.
 git clone https://github.com/roberteinsle/leafmark.git
 cd leafmark
 
+# Requires PHP 8.5, Composer, Node 22 and Docker (for Postgres)
+composer install
+npm ci
 cp .env.example .env
 php artisan key:generate
-touch database/database.sqlite
+docker compose up -d db
 php artisan migrate
 php artisan storage:link
-php artisan serve
+php artisan serve   # plus `npm run dev` in a second terminal
 
 # Access at http://localhost:8000
 ```
@@ -108,11 +114,12 @@ See [DEPLOY.md](DEPLOY.md) for detailed deployment instructions.
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `APP_KEY` | Laravel application key | Yes |
-| `APP_LOCALE` | Application language (de, en, fr, it, es, pl) | Yes |
+| `APP_KEY` | Laravel application key. **Never change it in production** (encrypts 2FA secrets) | Yes |
+| `APP_URL` | Public URL (also the passkey relying party) | Yes |
+| `APP_LOCALE` | Default language (de, en, fr, it, es, pl); users can choose their own | No |
+| `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | Postgres credentials | Yes |
 | `ADMIN_EMAIL` | Auto-admin assignment for this email | No |
 | `GOOGLE_BOOKS_API_KEY` | Google Books API key | No |
-| `BIGBOOK_API_KEY` | Big Book API key | No |
 
 SMTP, Turnstile CAPTCHA, and API keys can also be configured via Admin > System Settings in the UI.
 
