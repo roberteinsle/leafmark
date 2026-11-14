@@ -12,7 +12,7 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ config('app.url') }}">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50">
     <div class="min-h-screen flex flex-col">

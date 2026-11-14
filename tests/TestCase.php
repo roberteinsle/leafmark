@@ -10,6 +10,14 @@ abstract class TestCase extends BaseTestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Tests brauchen keinen Vite-Build (public/build fehlt in CI)
+        $this->withoutVite();
+    }
+
     protected function createUser(array $overrides = []): User
     {
         return User::factory()->create($overrides);
