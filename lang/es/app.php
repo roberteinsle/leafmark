@@ -829,6 +829,9 @@ return [
 
     // Import
     'import' => [
+        'note_series' => 'Las series en los títulos, como «(Harry Potter, #4)», se guardan como serie y volumen; solo se importa el autor principal (Goodreads incluye a los traductores como autores adicionales)',
+        'note_shelves' => 'Las estanterías de Goodreads se convierten en etiquetas; to-read, currently-reading y read definen el estado de lectura',
+        'create_import_tag' => 'Añadir también una etiqueta de importación única a todos los libros importados (para encontrar o eliminar esta importación más tarde)',
         'title' => 'Importar libros',
         'description' => 'Importa tu biblioteca desde Goodreads u otras fuentes',
         'upload_csv' => 'Subir archivo CSV',
@@ -855,7 +858,6 @@ return [
         'preview_first_books' => 'Vista previa de los primeros 10 libros',
         'important_notes' => 'Notas importantes',
         'note_duplicates' => 'Los libros que ya están en tu biblioteca se omitirán',
-        'note_tag' => 'Todos los libros importados recibirán una etiqueta de importación única para identificarlos fácilmente',
         'note_time' => 'Las importaciones grandes pueden tardar varios minutos',
         'confirm_import' => 'Confirmar e importar',
         'cancel' => 'Cancelar',

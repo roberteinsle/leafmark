@@ -63,10 +63,30 @@ Jede Liste (Alle, Lese ich gerade, Möchte ich lesen, Gelesen) merkt sich ihre e
 
 1. Bei Goodreads unter **My Books → Import and export → Export Library** die CSV-Datei herunterladen.
 2. In Leafmark unter **Einstellungen → Datenverwaltung → Goodreads CSV-Import** hochladen (CSV, höchstens 10 MB).
-3. Die Vorschau prüfen und wählen, ob Dubletten übersprungen werden und ob alle importierten Bücher einen eigenen Tag bekommen.
-4. Importieren. Goodreads-Regale werden zu Tags.
+3. Die Vorschau zeigt die Zahl der Bücher und die ersten zehn Einträge. Optional: **Import-Tag** anhaken – dann bekommen alle Bücher dieses Imports zusätzlich einen eindeutigen Tag (z. B. `import1765432100`), über den sich der Import später unter **Tags** wiederfinden lässt.
+4. Importieren. Das Ergebnis zeigt importierte, übersprungene und fehlerhafte Einträge; die Fehlermeldungen nennen die Zeilennummer der CSV-Datei.
 
-Dubletten erkennt Leafmark an ISBN, Titel und Autor. Jeder Import erscheint im Import-Verlauf mit Zahl der importierten, übersprungenen und fehlerhaften Einträge.
+### Was übernommen wird
+
+| Goodreads | Leafmark |
+|---|---|
+| Exklusives Regal `read` / `currently-reading` / `to-read` | Lesestatus Gelesen / Lese ich gerade / Möchte ich lesen |
+| alle anderen Regale (z. B. `klassiker`) | Tags gleichen Namens |
+| Titel „Harry Potter und der Feuerkelch (Harry Potter, #4)“ | Titel „Harry Potter und der Feuerkelch“, Reihe „Harry Potter“, Band 4 (bei Sammelbänden wie `#1-3` ohne Band) |
+| Author | Autor – nur der Hauptautor; „Additional Authors“ enthält bei Goodreads auch Übersetzer und Sprecher |
+| ISBN, ISBN13, Book Id | ISBN-10, ISBN-13, Goodreads-ID |
+| My Rating, My Review, Private Notes | Bewertung (0 = keine), Rezension (private Notizen werden angehängt) |
+| Binding | Format: Kindle/E-Book → Digital, Hardcover/Gebunden → Hardcover, Paperback/Taschenbuch → Paperback, Audible/Audio → Hörbuch |
+| Year Published, sonst Original Publication Year | Erscheinungsdatum (1. Januar des Jahres) |
+| Date Added, Date Read | Hinzugefügt am, Beendet am; bei „Lese ich gerade“ gilt Hinzugefügt als Beginn |
+
+Unsichtbare Steuerzeichen und doppelte Leerzeichen aus Goodreads werden entfernt.
+
+**Dubletten** werden immer übersprungen. Erkannt werden sie an Goodreads-ID, ISBN-13, ISBN-10 oder Titel plus Autor. Ein zweiter Import derselben Datei legt also nichts doppelt an, ergänzt aber fehlende Regal-Tags.
+
+**Hinweis Statistik:** Bücher mit Status „gelesen“, aber ohne „Date Read“ zählen nicht in Statistik und Challenge, weil das Beendet-Datum fehlt. Das Datum lässt sich danach auf der Buchseite nachtragen.
+
+Jede Zeile wird einzeln gespeichert: Eine fehlerhafte Zeile (z. B. ohne Titel) bricht den Import nicht ab.
 
 ## Bibliothek sichern und umziehen (ZIP)
 

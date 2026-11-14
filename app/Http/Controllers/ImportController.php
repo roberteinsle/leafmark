@@ -73,7 +73,7 @@ class ImportController extends Controller
 
         try {
             $service = new GoodreadsImportService(auth()->user());
-            $importHistory = $service->import(Storage::path($filePath), $filename);
+            $importHistory = $service->import(Storage::path($filePath), $filename, $request->boolean('create_import_tag'));
 
             // Clean up temp file
             Storage::delete($filePath);

@@ -62,10 +62,13 @@
             <p class="text-sm text-indigo-800 mb-3">{{ __('app.import.import_tag_description') }}</p>
             <div class="flex gap-2">
                 <code class="bg-white px-3 py-1 rounded text-indigo-600 font-mono text-sm">{{ $importHistory->import_tag }}</code>
-                <a href="{{ route('books.index', ['tag' => $importHistory->import_tag]) }}" 
+                @php($importTagModel = auth()->user()->tags()->where('name', $importHistory->import_tag)->first())
+                @if($importTagModel)
+                <a href="{{ route('tags.show', $importTagModel) }}"
                    class="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
                     {{ __('app.import.view_imported_books') }} →
                 </a>
+                @endif
             </div>
         </div>
         @endif

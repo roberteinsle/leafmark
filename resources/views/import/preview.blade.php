@@ -47,7 +47,8 @@
             <h3 class="font-medium text-yellow-900 mb-2">{{ __('app.import.important_notes') }}</h3>
             <ul class="list-disc list-inside text-sm text-yellow-800 space-y-1">
                 <li>{{ __('app.import.note_duplicates') }}</li>
-                <li>{{ __('app.import.note_tag') }}</li>
+                <li>{{ __('app.import.note_shelves') }}</li>
+                <li>{{ __('app.import.note_series') }}</li>
                 <li>{{ __('app.import.note_time') }}</li>
             </ul>
         </div>
@@ -55,6 +56,10 @@
         <div class="flex gap-4">
             <form action="{{ route('import.execute') }}" method="POST" class="flex-1">
                 @csrf
+                <label class="flex items-center gap-2 mb-3 text-sm text-gray-700">
+                    <input type="checkbox" name="create_import_tag" value="1" class="rounded border-gray-300 text-indigo-600">
+                    {{ __('app.import.create_import_tag') }}
+                </label>
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg">
                     {{ __('app.import.confirm_import') }}
                 </button>

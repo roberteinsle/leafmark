@@ -85,7 +85,7 @@ Services in `app/Services/`: Google Books, Open Library, BookBrainz, Big Book AP
 
 ### Imports and exports
 
-- Goodreads CSV: `ImportController` + `GoodreadsImportService`, with a session-based upload → preview → execute flow.
+- Goodreads CSV: `ImportController` + `GoodreadsImportService`, session-based upload → preview → execute. Exclusive shelf → status, other shelves → tags, "(Series, #n)" split from the title, main author only, binding → format, one savepoint per row (a failing row must not abort the Postgres transaction). The import tag is optional.
 - ZIP library backup: `LibraryTransferController` + `LibraryExportService` / `LibraryImportService`. Schema version 1, path-traversal checks, duplicate strategies `skip` / `overwrite` / `keep_both`.
 
 Both record runs in `ImportHistory`.
