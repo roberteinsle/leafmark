@@ -18,3 +18,5 @@ tests
 docker-compose.yml
 deploy
 bootstrap/cache/*.php
+handbuch
+scripts

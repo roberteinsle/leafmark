@@ -29,9 +29,11 @@ class DynamicMailConfigServiceProvider extends ServiceProvider
                 Config::set('mail.default', 'smtp');
                 Config::set('mail.mailers.smtp', [
                     'transport' => 'smtp',
+                    // Laravel 13: 'scheme' statt 'encryption'. smtps = SSL/TLS ab Verbindungsbeginn (Port 465),
+                    // smtp = Klartext mit automatischem STARTTLS, wenn der Server es anbietet (Port 587)
+                    'scheme' => $smtp['encryption'] === 'ssl' ? 'smtps' : 'smtp',
                     'host' => $smtp['host'],
                     'port' => $smtp['port'],
-                    'encryption' => $smtp['encryption'],
                     'username' => $smtp['username'],
                     'password' => $smtp['password'],
                     'timeout' => null,

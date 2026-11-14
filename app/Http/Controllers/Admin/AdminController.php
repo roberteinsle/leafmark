@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Services\GoogleBooksService;
 
 class AdminController extends Controller
 {
@@ -144,11 +146,24 @@ class AdminController extends Controller
         $allowedDomains = SystemSetting::get('allowed_email_domains', '');
         $registrationCode = SystemSetting::get('registration_code', '');
 
+        $smtp = SystemSetting::getSmtpConfig();
+        $smtpEnabled = SystemSetting::isSmtpEnabled();
+        $hasSmtpPassword = (bool) SystemSetting::getSecret('smtp_password');
+        $hasGoogleKey = (bool) SystemSetting::getSecret('google_books_api_key');
+        $googleKeyFromEnv = ! $hasGoogleKey && (bool) config('services.google_books.api_key');
+        $hasBigBookKey = (bool) SystemSetting::getSecret('bigbook_api_key');
+
         return view('admin.settings', compact(
             'registrationEnabled',
             'registrationMode',
             'allowedDomains',
-            'registrationCode'
+            'registrationCode',
+            'smtp',
+            'smtpEnabled',
+            'hasSmtpPassword',
+            'hasGoogleKey',
+            'googleKeyFromEnv',
+            'hasBigBookKey'
         ));
     }
 
@@ -171,6 +186,90 @@ class AdminController extends Controller
         SystemSetting::set('allowed_email_domains', $validated['allowed_email_domains'] ?? '');
         SystemSetting::set('registration_code', $validated['registration_code'] ?? '');
 
-        return back()->with('success', 'Registration settings updated successfully.');
+        return redirect()->route('admin.settings')->with('success', __('app.admin.registration_saved'));
+    }
+
+    /**
+     * E-Mail-Versand (SMTP). Das Passwort wird verschlüsselt gespeichert; ein leeres Feld behält es.
+     */
+    public function updateMail(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'smtp_enabled' => ['nullable', 'boolean'],
+            'smtp_host' => ['required_if_accepted:smtp_enabled', 'nullable', 'string', 'max:255'],
+            'smtp_port' => ['required_if_accepted:smtp_enabled', 'nullable', 'integer', 'between:1,65535'],
+            'smtp_encryption' => ['required', 'in:tls,ssl,none'],
+            'smtp_username' => ['nullable', 'string', 'max:255'],
+            'smtp_password' => ['nullable', 'string', 'max:255'],
+            'smtp_from_address' => ['required_if_accepted:smtp_enabled', 'nullable', 'email', 'max:255'],
+            'smtp_from_name' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        SystemSetting::set('smtp_enabled', $request->boolean('smtp_enabled') ? 'true' : 'false');
+        foreach (['smtp_host', 'smtp_port', 'smtp_encryption', 'smtp_username', 'smtp_from_address', 'smtp_from_name'] as $key) {
+            SystemSetting::set($key, (string) ($validated[$key] ?? ''));
+        }
+        if ($request->boolean('smtp_password_clear')) {
+            SystemSetting::setSecret('smtp_password', null);
+        } elseif (filled($validated['smtp_password'] ?? null)) {
+            SystemSetting::setSecret('smtp_password', $validated['smtp_password']);
+        }
+
+        return redirect()->route('admin.settings')->with('success', __('app.admin.mail_saved'));
+    }
+
+    /**
+     * Testmail an die Adresse des angemeldeten Admins (mit den gespeicherten Einstellungen).
+     */
+    public function testMail(Request $request): RedirectResponse
+    {
+        if (! SystemSetting::isSmtpEnabled()) {
+            return redirect()->route('admin.settings')->withErrors(['smtp' => __('app.admin.mail_test_disabled')]);
+        }
+
+        try {
+            Mail::raw(__('app.admin.mail_test_body'), function ($message) use ($request) {
+                $message->to($request->user()->email)->subject(__('app.admin.mail_test_subject'));
+            });
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.settings')->withErrors(['smtp' => __('app.admin.mail_test_failed', ['error' => $e->getMessage()])]);
+        }
+
+        return redirect()->route('admin.settings')->with('success', __('app.admin.mail_test_sent', ['email' => $request->user()->email]));
+    }
+
+    /**
+     * API-Schlüssel der Buchquellen. Verschlüsselt gespeichert; ein leeres Feld behält den Schlüssel.
+     */
+    public function updateApiKeys(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'google_books_api_key' => ['nullable', 'string', 'max:255'],
+            'bigbook_api_key' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        foreach (['google_books_api_key', 'bigbook_api_key'] as $key) {
+            if ($request->boolean($key.'_clear')) {
+                SystemSetting::setSecret($key, null);
+            } elseif (filled($validated[$key] ?? null)) {
+                SystemSetting::setSecret($key, trim($validated[$key]));
+            }
+        }
+
+        return redirect()->route('admin.settings')->with('success', __('app.admin.api_keys_saved'));
+    }
+
+    /**
+     * Prüft den Google-Books-Schlüssel mit einer echten Anfrage und zeigt Googles Antwort.
+     */
+    public function testGoogleBooks(GoogleBooksService $googleBooks): RedirectResponse
+    {
+        $result = $googleBooks->testConnection();
+
+        return $result['ok']
+            ? redirect()->route('admin.settings')->with('success', __('app.admin.google_test_ok'))
+            : redirect()->route('admin.settings')->withErrors([
+                'google' => __('app.admin.google_test_failed', ['status' => $result['status'] ?? '-', 'message' => $result['message']]),
+            ]);
     }
 }

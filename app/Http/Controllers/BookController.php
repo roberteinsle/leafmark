@@ -175,6 +175,11 @@ class BookController extends Controller implements HasMiddleware
         $provider = $request->get('provider', 'openlibrary'); // Default to OpenLibrary
         $searchResults = [];
         $noResults = false;
+        $providerErrors = [];
+
+        // Welche Quellen sind nutzbar? Google und Big Book brauchen einen Schlüssel (Admin → Systemeinstellungen)
+        $hasGoogle = $googleBooks->hasApiKey();
+        $hasBigBook = (bool) \App\Models\SystemSetting::getSecret('bigbook_api_key');
 
         if ($searchQuery) {
             $googleResults = [];
@@ -185,6 +190,9 @@ class BookController extends Controller implements HasMiddleware
             // Search based on selected provider
             if ($provider === 'both' || $provider === 'google') {
                 $googleResults = $googleBooks->search($searchQuery, 10, $language);
+                if ($googleBooks->lastError) {
+                    $providerErrors['google'] = $googleBooks->lastError;
+                }
             }
 
             if ($provider === 'both' || $provider === 'openlibrary') {
@@ -204,7 +212,7 @@ class BookController extends Controller implements HasMiddleware
             $noResults = empty($searchResults);
         }
 
-        return view('books.create', compact('searchQuery', 'searchResults', 'noResults'));
+        return view('books.create', compact('searchQuery', 'searchResults', 'noResults', 'providerErrors', 'hasGoogle', 'hasBigBook'));
     }
 
     /**

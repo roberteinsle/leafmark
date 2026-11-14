@@ -49,6 +49,9 @@ return [
 
     // Books
     'books' => [
+        'provider_error_quota' => ':source: the daily request quota is used up. Results from this source are missing until tomorrow.',
+        'provider_error_key_rejected' => ':source rejected the API key (check the key and its IP restriction). Searched without key instead.',
+        'provider_error_unavailable' => ':source is currently not reachable. Results from this source are missing.',
         'title' => 'My Books',
         'add_new' => 'Add a New Book',
         'add_new_book' => 'Add New Book',
@@ -531,6 +534,39 @@ return [
 
     // Admin
     'admin' => [
+        'registration_saved' => 'Registration settings saved.',
+        'mail_title' => 'Email (SMTP)',
+        'mail_intro' => 'Needed for sign-in links by email. Without SMTP, users sign in with a passkey or password + two-factor authentication.',
+        'mail_enabled' => 'Send emails via SMTP',
+        'mail_host' => 'SMTP server',
+        'mail_port' => 'Port',
+        'mail_encryption' => 'Encryption',
+        'mail_encryption_tls' => 'STARTTLS (usually port 587)',
+        'mail_encryption_ssl' => 'SSL/TLS (usually port 465)',
+        'mail_encryption_none' => 'None',
+        'mail_username' => 'Username',
+        'mail_password' => 'Password',
+        'mail_from_address' => 'Sender address',
+        'mail_from_name' => 'Sender name',
+        'mail_test_button' => 'Send test email',
+        'mail_saved' => 'Email settings saved.',
+        'mail_test_disabled' => 'Enable and save the SMTP settings first.',
+        'mail_test_subject' => 'Leafmark test email',
+        'mail_test_body' => 'This is a test email from Leafmark. Your SMTP settings work.',
+        'mail_test_failed' => 'The test email could not be sent: :error',
+        'mail_test_sent' => 'Test email sent to :email.',
+        'secret_keep' => 'Saved – leave empty to keep',
+        'secret_clear' => 'Remove saved value',
+        'secret_not_set' => 'Not set',
+        'api_keys_title' => 'API keys for book sources',
+        'api_keys_intro' => 'Google Books and Big Book API only appear as sources when a key is set. Open Library and BookBrainz work without a key.',
+        'google_key_help' => 'Google Cloud console → APIs & Services → Credentials. Restrict the key to the Books API; with an IP restriction, add the server\'s outgoing IPv4 address (or the whole IPv6 /64 network).',
+        'bigbook_key_help' => 'From bigbookapi.com (free tier: 60 requests per minute).',
+        'google_key_from_env' => 'A key from the GOOGLE_BOOKS_API_KEY environment variable is currently used.',
+        'api_keys_saved' => 'API keys saved.',
+        'google_test_button' => 'Test Google Books key',
+        'google_test_ok' => 'Google Books answered successfully – the key works.',
+        'google_test_failed' => 'Google Books answered with status :status: :message',
         'title' => 'Administration',
         'dashboard' => 'Dashboard',
         'users' => 'Users',
@@ -635,97 +671,6 @@ return [
         'turnstile_failed' => 'Security verification failed. Please try again.',
     ],
 
-    // Changelog
-    'changelog' => [
-        'title' => 'Changelog',
-        'subtitle' => 'See what\'s new and what we\'ve been working on',
-        'january_2026' => 'January 2026',
-
-        // January 16, 2026
-        'jan_16_title' => 'User Experience Improvements',
-        'jan_16_date' => 'January 15, 2026',
-        'jan_16_author_filter_title' => 'Clickable Author Filter',
-        'jan_16_author_filter_desc' => 'Click on any author name to instantly filter your library and see all books by that author. Features a clear filter indicator and easy removal.',
-        'jan_16_changelog_title' => 'Changelog Page',
-        'jan_16_changelog_desc' => 'New changelog page accessible from the footer shows all recent updates and features in user-friendly language, with links to GitHub for technical details.',
-
-        // January 15, 2026 - Table View
-        'jan_15_table_view_title' => 'Table View for Books',
-        'jan_15_table_view_date' => 'January 15, 2026',
-        'jan_15_table_view_mode_title' => 'New Table View Mode',
-        'jan_15_table_view_mode_desc' => 'Switch between card and table view for your book collection. The table view provides a compact, spreadsheet-like overview with all your book information at a glance.',
-        'jan_15_table_columns_title' => 'Customizable Columns',
-        'jan_15_table_columns_desc' => 'Choose which columns to display in table view from 20 available options including cover, author, series, rating, pages, ISBN, publisher, purchase info, tags, and dates. Customize your view to see exactly what matters to you.',
-        'jan_15_table_persistence_title' => 'Personalized Settings',
-        'jan_15_table_persistence_desc' => 'Your view preferences and column selections are saved separately for each shelf (All Books, Want to Read, Currently Reading, Read), giving you complete flexibility in how you organize and view your collection.',
-        'jan_15_table_sorting_fix_title' => 'Improved Column Sorting',
-        'jan_15_table_sorting_fix_desc' => 'Fixed table sorting to respect your chosen column order when viewing all books. Previously, "Currently Reading" books were always shown first, which interfered with custom sorting.',
-
-        // January 16, 2026 - Bulk Tag Management
-        'jan_16_bulk_tags_title' => 'Bulk Tag Management',
-        'jan_16_bulk_tags_date' => 'January 15, 2026',
-        'jan_16_bulk_add_tags_title' => 'Bulk Add Tags',
-        'jan_16_bulk_add_tags_desc' => 'Select multiple books and add one or more tags to all of them at once. Perfect for organizing imported books or reorganizing your library.',
-        'jan_16_bulk_remove_tag_title' => 'Bulk Remove Tag',
-        'jan_16_bulk_remove_tag_desc' => 'Quickly remove a tag from multiple selected books. Clean up your tagging system efficiently.',
-        'jan_16_bulk_tag_search_title' => 'Searchable Tag Selection',
-        'jan_16_bulk_tag_search_desc' => 'When adding tags, use the search box to quickly find tags in large tag collections. Multi-select support lets you add multiple tags in one operation.',
-        'jan_16_bulk_tag_smart_title' => 'Smart Tag Filtering',
-        'jan_16_bulk_tag_smart_desc' => 'When removing tags, only tags that exist on at least one selected book are shown, making it easy to find the right tag to remove.',
-
-        // January 23, 2026
-        'jan_23_title' => 'Goodreads Import & Reading Progress',
-        'jan_23_date' => 'January 23, 2026',
-        'jan_23_import_title' => 'Goodreads CSV Import',
-        'jan_23_import_desc' => 'Easily migrate your entire book library from Goodreads with our new CSV import feature. Upload your Goodreads export, preview the books, and import with smart duplicate detection and automatic tagging. Includes detailed import statistics and error reporting.',
-        'jan_23_progress_title' => 'Enhanced Reading Progress Visualization',
-        'jan_23_progress_desc' => 'Track your reading progress with a new dedicated tab featuring an interactive bar chart. Visualize your reading speed over time, see progress history with mini bars, and enjoy a cleaner organization of book details.',
-
-        // January 15, 2026
-        'jan_15_title' => 'Major Feature Update',
-        'jan_15_date' => 'January 15, 2026',
-        'jan_15_contact_title' => 'New Contact Form',
-        'jan_15_contact_desc' => 'We\'ve added a comprehensive contact form with spam protection, making it easier and safer to get in touch with us.',
-        'jan_15_bigbook_title' => 'Big Book API Integration',
-        'jan_15_bigbook_desc' => 'You can now search for books using the Big Book API, giving you access to even more book data when adding titles to your collection.',
-        'jan_15_email_title' => 'Email Event Tracking',
-        'jan_15_email_desc' => 'View your recent email notifications in your settings, and admins can now see email events for each user.',
-        'jan_15_ui_title' => 'Interface Improvements',
-        'jan_15_ui_desc' => 'Made usernames clickable in admin areas, updated legal pages, and improved the overall user experience.',
-        'jan_15_removed_title' => 'Simplified Book Updates',
-        'jan_15_removed_desc' => 'Removed the external source update feature from book details to streamline the interface. You can still import books when first adding them.',
-
-        // January 14, 2026
-        'jan_14_title' => 'Flexible Registration System',
-        'jan_14_date' => 'January 14, 2026',
-        'jan_14_registration_title' => 'New Registration Options',
-        'jan_14_registration_desc' => 'Admins can now configure registration settings: open registration, domain-restricted, or code-required. The invitation system has been simplified.',
-
-        // January 11, 2026
-        'jan_11_title' => 'Family Accounts',
-        'jan_11_date' => 'January 11, 2026',
-        'jan_11_family_title' => 'Family Groups Feature',
-        'jan_11_family_desc' => 'Create or join family groups to see who else is reading! Each family gets a unique join code that can be shared with family members.',
-
-        // January 10, 2026
-        'jan_10_title' => 'Reading Features & System Improvements',
-        'jan_10_date' => 'January 10, 2026',
-        'jan_10_ratings_title' => 'Book Ratings & Reviews',
-        'jan_10_ratings_desc' => 'Rate books with a 5-star system and write reviews to remember your thoughts about each book.',
-        'jan_10_challenge_title' => 'Reading Challenges',
-        'jan_10_challenge_desc' => 'Set yearly reading goals and track your progress with reading challenges. See your progress right on your books page!',
-        'jan_10_backup_title' => 'Automated Backups',
-        'jan_10_backup_desc' => 'Your data is now automatically backed up to prevent any loss. We take data safety seriously!',
-        'jan_10_email_title' => 'Email Notifications',
-        'jan_10_email_desc' => 'Enhanced email system for password resets, email verification, and system notifications.',
-        'jan_10_multilingual_title' => 'Multilingual Support',
-        'jan_10_multilingual_desc' => 'Improved language support with better settings organization and multilingual landing page.',
-
-        // Info box
-        'info_title' => 'Want to see more?',
-        'info_desc' => 'This changelog shows the major features and improvements. For detailed technical changes, check out our GitHub repository.',
-        'view_github' => 'View on GitHub →',
-    ],
 
     // Import
     'import' => [

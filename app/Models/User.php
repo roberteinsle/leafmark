@@ -20,7 +20,6 @@ class User extends Authenticatable implements PasskeyUser
         'password',
         'preferred_language',
         'last_login_at',
-        'google_books_api_key',
         'family_id',
         'is_admin',
         'email_verified_at',

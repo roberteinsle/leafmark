@@ -14,7 +14,7 @@ class BigBookApiService
     public function __construct()
     {
         // Use global API key from system settings
-        $this->apiKey = SystemSetting::get('bigbook_api_key');
+        $this->apiKey = SystemSetting::getSecret('bigbook_api_key');
     }
 
     /**

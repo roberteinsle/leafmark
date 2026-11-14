@@ -82,7 +82,7 @@ A multi-user book tracking web application built with Laravel 13 and PHP 8.5. Ma
 2. Wait for the environment to build (~2 min)
 3. The app starts automatically at port 8000
 
-See [CODESPACES.md](CODESPACES.md) for details.
+See [handbuch/Entwicklung.md](handbuch/Entwicklung.md).
 
 ### Option 2: Local Development
 
@@ -105,7 +105,7 @@ php artisan serve   # plus `npm run dev` in a second terminal
 
 ### Option 3: Self-Hosted with Coolify
 
-See [DEPLOY.md](DEPLOY.md) for detailed deployment instructions.
+See [handbuch/Installation-und-Betrieb.md](handbuch/Installation-und-Betrieb.md) (also in the wiki).
 
 ## Environment Variables
 
@@ -118,7 +118,7 @@ See [DEPLOY.md](DEPLOY.md) for detailed deployment instructions.
 | `ADMIN_EMAIL` | Auto-admin assignment for this email | No |
 | `GOOGLE_BOOKS_API_KEY` | Google Books API key | No |
 
-SMTP settings and the Google Books / Big Book API keys are read from the `system_settings` table. Admin → System Settings currently only covers registration.
+Registration, SMTP and the Google Books / Big Book API keys are configured under Admin → System Settings (secrets are stored encrypted with `APP_KEY`).
 
 ## Development with Claude Code
 

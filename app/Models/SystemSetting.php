@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Crypt;
 
 class SystemSetting extends Model
 {
@@ -82,6 +83,32 @@ class SystemSetting extends Model
     }
 
     /**
+     * Geheime Werte (SMTP-Passwort, API-Keys) verschlüsselt mit APP_KEY speichern.
+     */
+    public static function setSecret(string $key, ?string $value): void
+    {
+        static::set($key, $value === null || $value === '' ? '' : Crypt::encryptString($value));
+    }
+
+    /**
+     * Liest einen geheimen Wert. Ältere Klartext-Werte werden unverändert zurückgegeben.
+     */
+    public static function getSecret(string $key): ?string
+    {
+        $value = static::get($key);
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (DecryptException) {
+            return $value;
+        }
+    }
+
+    /**
      * Check if SMTP is enabled
      */
     public static function isSmtpEnabled(): bool
@@ -99,7 +126,7 @@ class SystemSetting extends Model
             'port' => (int) static::get('smtp_port', '587'),
             'encryption' => static::get('smtp_encryption', 'tls'),
             'username' => static::get('smtp_username', ''),
-            'password' => static::get('smtp_password', ''),
+            'password' => static::getSecret('smtp_password') ?? '',
             'from_address' => static::get('smtp_from_address', ''),
             'from_name' => static::get('smtp_from_name', 'Leafmark'),
         ];

@@ -17,7 +17,7 @@ Version: `app.version` in `config/app.php`, shown in the footer with the commit 
 - **Postgres only** (production, CI and tests). Postgres `LIKE` is case-sensitive: use `whereLike()` for user-facing search. Tests need the Postgres container running (`docker compose up -d db`).
 - **`APP_KEY` must never change in production**: 2FA secrets and recovery codes are stored with the `encrypted` cast.
 - **`env()` only inside `config/`.** The container runs `config:cache` on start, so `env()` elsewhere returns null (e.g. `ADMIN_EMAIL` is read via `config('app.admin_email')`).
-- **`SystemSetting` reads the DB directly (no cache)**; SMTP is configured at runtime from `system_settings` by `DynamicMailConfigServiceProvider`. Admin → System Settings only edits registration; SMTP (`smtp_*`) and API keys (`google_books_api_key`, `bigbook_api_key`) have no UI yet.
+- **`SystemSetting` reads the DB directly (no cache)**; SMTP is configured at runtime from `system_settings` by `DynamicMailConfigServiceProvider`. Admin → System Settings edits registration, SMTP and API keys; secrets (`smtp_password`, `google_books_api_key`, `bigbook_api_key`) go through `SystemSetting::setSecret()` / `getSecret()` (encrypted with `APP_KEY`, legacy plaintext still readable).
 - **Merging to `main` deploys to production.** The workflow pushes `ghcr.io/<owner>/leafmark:latest` and, because the repo variable `AUTO_DEPLOY=true` is set, triggers the Coolify webhook. Work on branches.
 - **No personal data of the maintainer** in code, docs, commits or issues: no names, email addresses, private domains, locations or account-specific tokens. Use placeholders (`<owner>`, `example.com`) and environment variables (e.g. `APP_IMAGE`, `GOOGLE_SITE_VERIFICATION`).
 - **One container only.** Nothing is queued (`QUEUE_CONNECTION=sync`) and nothing is scheduled (`routes/console.php` is empty), so there is no worker or scheduler. Adding queued jobs or scheduled tasks requires adding those containers to `deploy/docker-compose.coolify.yml`.
@@ -35,6 +35,17 @@ docker compose up -d --build             # run the production image locally on :
 ```
 
 There is no linter or formatter configured. Tests call `withoutVite()` (in `tests/TestCase.php`), so no asset build is needed to run them.
+
+## Documentation
+
+Update whatever a change affects, in the same commit:
+
+- `handbuch/<Seite>.md` (German): all details for operators and users. It is the **source of the GitHub wiki**.
+- `README.md`: only for a new module or a changed quick start; keep it short.
+- `CLAUDE.md`: changes to architecture, rules or workflows.
+- Wiki: regenerate with `python3 scripts/build-wiki.py --push` (pushes to `<repo>.wiki.git`). Never edit the wiki by hand; pages missing from `handbuch/` are removed.
+
+Finish changes by committing and pushing to `main`.
 
 ## Deployment
 
@@ -70,7 +81,7 @@ User → Books, Tags, ReadingChallenges, ImportHistory, BookViewPreferences, Pas
 
 ### External book data
 
-Services in `app/Services/`: Google Books, Open Library, BookBrainz, Big Book API, Amazon scraper. API keys are system settings (Admin → System Settings), with a `GOOGLE_BOOKS_API_KEY` env fallback. `BookController::create()` merges multi-source search results. Covers are stored on the `public` disk under `covers/` (`CoverImageService`); fallback order is primary cover → first cover → `local_cover_path` → external URL.
+Services in `app/Services/`: Google Books, Open Library, BookBrainz, Big Book API, Amazon scraper. `GoogleBooksService` searches ISBNs as `isbn:` and passes everything else unchanged to Google (no title/author guessing), uses a 10 s timeout, retries without key when Google rejects it, and exposes `lastError` (`quota`, `key_rejected`, `unavailable`), which the search page shows as a notice. Google Books and Big Book only appear as sources when a key is set. API keys are system settings (Admin → System Settings), with a `GOOGLE_BOOKS_API_KEY` env fallback. `BookController::create()` merges multi-source search results. Covers are stored on the `public` disk under `covers/` (`CoverImageService`); fallback order is primary cover → first cover → `local_cover_path` → external URL.
 
 ### Imports and exports
 

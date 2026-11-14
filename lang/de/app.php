@@ -18,6 +18,9 @@ return [
 
     // Books
     'books' => [
+        'provider_error_quota' => ':source: Das tägliche Anfragekontingent ist aufgebraucht. Treffer aus dieser Quelle fehlen bis morgen.',
+        'provider_error_key_rejected' => ':source hat den API-Schlüssel abgelehnt (Schlüssel und IP-Einschränkung prüfen). Es wurde ohne Schlüssel gesucht.',
+        'provider_error_unavailable' => ':source ist gerade nicht erreichbar. Treffer aus dieser Quelle fehlen.',
         'title' => 'Meine Bücher',
         'add_new' => 'Neues Buch hinzufügen',
         'add_new_book' => 'Neues Buch hinzufügen',
@@ -360,6 +363,9 @@ return [
 
     // Settings
     'settings' => [
+        'preferred_language_help' => 'Wähle deine bevorzugte Sprache für die Benutzeroberfläche',
+        'api_keys_help' => 'Die Unterstützung der Amazon Product Advertising API wurde eingestellt. Nutze Google Books oder Open Library für die Buchsuche.',
+        'api_keys_info' => 'Die API-Konfiguration wurde entfernt',
         'title' => 'Einstellungen',
         'subtitle' => 'Verwalten Sie Ihre Kontoeinstellungen',
         'manage_preferences' => 'Verwalten Sie Ihre Kontoeinstellungen und Präferenzen',
@@ -431,6 +437,39 @@ return [
 
     // Admin
     'admin' => [
+        'registration_saved' => 'Registrierungseinstellungen gespeichert.',
+        'mail_title' => 'E-Mail (SMTP)',
+        'mail_intro' => 'Wird für Anmeldelinks per E-Mail gebraucht. Ohne SMTP melden sich Nutzer mit Passkey oder Passwort + Zwei-Faktor an.',
+        'mail_enabled' => 'E-Mails über SMTP versenden',
+        'mail_host' => 'SMTP-Server',
+        'mail_port' => 'Port',
+        'mail_encryption' => 'Verschlüsselung',
+        'mail_encryption_tls' => 'STARTTLS (meist Port 587)',
+        'mail_encryption_ssl' => 'SSL/TLS (meist Port 465)',
+        'mail_encryption_none' => 'Keine',
+        'mail_username' => 'Benutzername',
+        'mail_password' => 'Passwort',
+        'mail_from_address' => 'Absenderadresse',
+        'mail_from_name' => 'Absendername',
+        'mail_test_button' => 'Testmail senden',
+        'mail_saved' => 'E-Mail-Einstellungen gespeichert.',
+        'mail_test_disabled' => 'Aktiviere und speichere zuerst die SMTP-Einstellungen.',
+        'mail_test_subject' => 'Leafmark-Testmail',
+        'mail_test_body' => 'Dies ist eine Testmail von Leafmark. Deine SMTP-Einstellungen funktionieren.',
+        'mail_test_failed' => 'Die Testmail konnte nicht gesendet werden: :error',
+        'mail_test_sent' => 'Testmail an :email gesendet.',
+        'secret_keep' => 'Gespeichert – leer lassen, um ihn zu behalten',
+        'secret_clear' => 'Gespeicherten Wert entfernen',
+        'secret_not_set' => 'Nicht gesetzt',
+        'api_keys_title' => 'API-Schlüssel der Buchquellen',
+        'api_keys_intro' => 'Google Books und Big Book API erscheinen nur als Quelle, wenn ein Schlüssel gesetzt ist. Open Library und BookBrainz funktionieren ohne Schlüssel.',
+        'google_key_help' => 'Google Cloud Console → APIs und Dienste → Anmeldedaten. Den Schlüssel auf die Books API beschränken; bei einer IP-Einschränkung die ausgehende IPv4-Adresse des Servers eintragen (oder das ganze IPv6-/64-Netz).',
+        'bigbook_key_help' => 'Von bigbookapi.com (kostenlos: 60 Anfragen pro Minute).',
+        'google_key_from_env' => 'Aktuell wird ein Schlüssel aus der Umgebungsvariable GOOGLE_BOOKS_API_KEY verwendet.',
+        'api_keys_saved' => 'API-Schlüssel gespeichert.',
+        'google_test_button' => 'Google-Books-Schlüssel testen',
+        'google_test_ok' => 'Google Books hat erfolgreich geantwortet – der Schlüssel funktioniert.',
+        'google_test_failed' => 'Google Books antwortete mit Status :status: :message',
         'title' => 'Administration',
         'dashboard' => 'Dashboard',
         'users' => 'Benutzer',
@@ -507,13 +546,6 @@ return [
 
 
         // Invitations Page
-        'invitation_management_description' => 'Erstelle und verwalte Einladungen für neue Benutzer',
-        'no_invitations' => 'Noch keine Einladungen',
-        'no_invitations_description' => 'Erstelle eine neue Einladung, um Benutzer zur Registrierung einzuladen.',
-        'actions' => 'Aktionen',
-        'delete_invitation_confirm' => 'Möchtest du diese Einladung wirklich löschen?',
-        'invitation_link_copied' => 'Einladungslink in die Zwischenablage kopiert!',
-        'copy_failed' => 'Fehler beim Kopieren. Bitte kopiere den Link manuell.',
     ],
 
 
@@ -610,97 +642,6 @@ return [
         'turnstile_failed' => 'Sicherheitsprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.',
     ],
 
-    // Changelog
-    'changelog' => [
-        'title' => 'Changelog',
-        'subtitle' => 'Sehen Sie, was neu ist und woran wir gearbeitet haben',
-        'january_2026' => 'Januar 2026',
-
-        // January 16, 2026
-        'jan_16_title' => 'Verbesserungen der Benutzererfahrung',
-        'jan_16_date' => '15. Januar 2026',
-        'jan_16_author_filter_title' => 'Anklickbarer Autoren-Filter',
-        'jan_16_author_filter_desc' => 'Klicken Sie auf einen Autorennamen, um Ihre Bibliothek sofort zu filtern und alle Bücher dieses Autors anzuzeigen. Mit klarer Filteranzeige und einfacher Entfernung.',
-        'jan_16_changelog_title' => 'Changelog-Seite',
-        'jan_16_changelog_desc' => 'Neue Changelog-Seite im Footer zeigt alle aktuellen Updates und Funktionen in benutzerfreundlicher Sprache, mit Links zu GitHub für technische Details.',
-
-        // January 15, 2026 - Table View
-        'jan_15_table_view_title' => 'Tabellenansicht für Bücher',
-        'jan_15_table_view_date' => '15. Januar 2026',
-        'jan_15_table_view_mode_title' => 'Neue Tabellenansicht',
-        'jan_15_table_view_mode_desc' => 'Wechseln Sie zwischen Karten- und Tabellenansicht für Ihre Buchsammlung. Die Tabellenansicht bietet eine kompakte, tabellenartige Übersicht mit allen Buchinformationen auf einen Blick.',
-        'jan_15_table_columns_title' => 'Anpassbare Spalten',
-        'jan_15_table_columns_desc' => 'Wählen Sie aus 20 verfügbaren Spalten, welche in der Tabellenansicht angezeigt werden sollen: Cover, Autor, Serie, Bewertung, Seiten, ISBN, Verlag, Kaufinformationen, Tags und Datumsangaben. Passen Sie Ihre Ansicht an, um genau das zu sehen, was für Sie wichtig ist.',
-        'jan_15_table_persistence_title' => 'Personalisierte Einstellungen',
-        'jan_15_table_persistence_desc' => 'Ihre Ansichtseinstellungen und Spaltenauswahl werden separat für jedes Regal gespeichert (Alle Bücher, Möchte ich lesen, Lese ich gerade, Gelesen), sodass Sie volle Flexibilität bei der Organisation und Ansicht Ihrer Sammlung haben.',
-        'jan_15_table_sorting_fix_title' => 'Verbesserte Spaltensortierung',
-        'jan_15_table_sorting_fix_desc' => 'Die Tabellensortierung wurde korrigiert, um Ihre gewählte Spaltenreihenfolge beim Anzeigen aller Bücher zu respektieren. Zuvor wurden "Lese ich gerade"-Bücher immer zuerst angezeigt, was die benutzerdefinierte Sortierung störte.',
-
-        // January 16, 2026 - Bulk Tag Management
-        'jan_16_bulk_tags_title' => 'Massenbearbeitung von Tags',
-        'jan_16_bulk_tags_date' => '15. Januar 2026',
-        'jan_16_bulk_add_tags_title' => 'Tags Massenhaft Hinzufügen',
-        'jan_16_bulk_add_tags_desc' => 'Wählen Sie mehrere Bücher aus und fügen Sie allen auf einmal einen oder mehrere Tags hinzu. Perfekt zum Organisieren importierter Bücher oder zur Neuorganisation Ihrer Bibliothek.',
-        'jan_16_bulk_remove_tag_title' => 'Tag Massenhaft Entfernen',
-        'jan_16_bulk_remove_tag_desc' => 'Entfernen Sie schnell einen Tag von mehreren ausgewählten Büchern. Räumen Sie Ihr Tagging-System effizient auf.',
-        'jan_16_bulk_tag_search_title' => 'Durchsuchbare Tag-Auswahl',
-        'jan_16_bulk_tag_search_desc' => 'Beim Hinzufügen von Tags verwenden Sie das Suchfeld, um Tags in großen Tag-Sammlungen schnell zu finden. Multi-Select-Unterstützung ermöglicht das Hinzufügen mehrerer Tags in einem Vorgang.',
-        'jan_16_bulk_tag_smart_title' => 'Intelligente Tag-Filterung',
-        'jan_16_bulk_tag_smart_desc' => 'Beim Entfernen von Tags werden nur Tags angezeigt, die bei mindestens einem ausgewählten Buch vorhanden sind, was das Finden des richtigen Tags zum Entfernen erleichtert.',
-
-        // January 23, 2026
-        'jan_23_title' => 'Goodreads Import & Lesefortschritt',
-        'jan_23_date' => '23. Januar 2026',
-        'jan_23_import_title' => 'Goodreads CSV Import',
-        'jan_23_import_desc' => 'Migriere deine gesamte Buchbibliothek von Goodreads mit unserem neuen CSV-Import. Lade deinen Goodreads-Export hoch, sieh dir die Bücher in der Vorschau an und importiere sie mit intelligenter Duplikatserkennung und automatischem Tagging. Inklusive detaillierter Importstatistiken und Fehlerberichten.',
-        'jan_23_progress_title' => 'Verbesserte Lesefortschritt-Visualisierung',
-        'jan_23_progress_desc' => 'Verfolge deinen Lesefortschritt mit einem neuen Tab mit interaktivem Balkendiagramm. Visualisiere deine Lesegeschwindigkeit im Zeitverlauf, sieh dir die Fortschrittshistorie mit Mini-Balken an und genieße eine übersichtlichere Organisation der Buchdetails.',
-
-        // January 15, 2026
-        'jan_15_title' => 'Großes Feature-Update',
-        'jan_15_date' => '15. Januar 2026',
-        'jan_15_contact_title' => 'Neues Kontaktformular',
-        'jan_15_contact_desc' => 'Wir haben ein umfassendes Kontaktformular mit Spam-Schutz hinzugefügt, das es einfacher und sicherer macht, mit uns in Kontakt zu treten.',
-        'jan_15_bigbook_title' => 'Big Book API Integration',
-        'jan_15_bigbook_desc' => 'Sie können jetzt über die Big Book API nach Büchern suchen und haben beim Hinzufügen von Titeln zu Ihrer Sammlung Zugriff auf noch mehr Buchdaten.',
-        'jan_15_email_title' => 'E-Mail-Ereignisverfolgung',
-        'jan_15_email_desc' => 'Sehen Sie Ihre letzten E-Mail-Benachrichtigungen in Ihren Einstellungen, und Administratoren können jetzt E-Mail-Ereignisse für jeden Benutzer sehen.',
-        'jan_15_ui_title' => 'Verbesserungen der Benutzeroberfläche',
-        'jan_15_ui_desc' => 'Benutzernamen in Admin-Bereichen sind jetzt anklickbar, rechtliche Seiten wurden aktualisiert und die allgemeine Benutzererfahrung wurde verbessert.',
-        'jan_15_removed_title' => 'Vereinfachte Buchaktualisierungen',
-        'jan_15_removed_desc' => 'Die Funktion zum Aktualisieren aus externen Quellen wurde aus den Buchdetails entfernt, um die Oberfläche zu vereinfachen. Sie können Bücher weiterhin beim ersten Hinzufügen importieren.',
-
-        // January 14, 2026
-        'jan_14_title' => 'Flexibles Registrierungssystem',
-        'jan_14_date' => '14. Januar 2026',
-        'jan_14_registration_title' => 'Neue Registrierungsoptionen',
-        'jan_14_registration_desc' => 'Administratoren können jetzt Registrierungseinstellungen konfigurieren: offene Registrierung, domain-beschränkt oder code-erforderlich. Das Einladungssystem wurde vereinfacht.',
-
-        // January 11, 2026
-        'jan_11_title' => 'Familienkonten',
-        'jan_11_date' => '11. Januar 2026',
-        'jan_11_family_title' => 'Familiengruppen-Funktion',
-        'jan_11_family_desc' => 'Erstellen oder treten Sie Familiengruppen bei, um zu sehen, wer sonst noch liest! Jede Familie erhält einen eindeutigen Beitrittscode, der mit Familienmitgliedern geteilt werden kann.',
-
-        // January 10, 2026
-        'jan_10_title' => 'Lesefunktionen & Systemverbesserungen',
-        'jan_10_date' => '10. Januar 2026',
-        'jan_10_ratings_title' => 'Buchbewertungen & Rezensionen',
-        'jan_10_ratings_desc' => 'Bewerten Sie Bücher mit einem 5-Sterne-System und schreiben Sie Rezensionen, um sich an Ihre Gedanken zu jedem Buch zu erinnern.',
-        'jan_10_challenge_title' => 'Lese-Challenges',
-        'jan_10_challenge_desc' => 'Setzen Sie sich jährliche Leseziele und verfolgen Sie Ihren Fortschritt mit Lese-Challenges. Sehen Sie Ihren Fortschritt direkt auf Ihrer Bücher-Seite!',
-        'jan_10_backup_title' => 'Automatische Backups',
-        'jan_10_backup_desc' => 'Ihre Daten werden jetzt automatisch gesichert, um jeden Verlust zu verhindern. Wir nehmen Datensicherheit ernst!',
-        'jan_10_email_title' => 'E-Mail-Benachrichtigungen',
-        'jan_10_email_desc' => 'Verbessertes E-Mail-System für Passwort-Resets, E-Mail-Verifizierung und Systembenachrichtigungen.',
-        'jan_10_multilingual_title' => 'Mehrsprachige Unterstützung',
-        'jan_10_multilingual_desc' => 'Verbesserte Sprachunterstützung mit besserer Einstellungsorganisation und mehrsprachiger Landingpage.',
-
-        // Info box
-        'info_title' => 'Möchten Sie mehr sehen?',
-        'info_desc' => 'Dieses Changelog zeigt die wichtigsten Funktionen und Verbesserungen. Für detaillierte technische Änderungen schauen Sie in unser GitHub-Repository.',
-        'view_github' => 'Auf GitHub ansehen →',
-    ],
 
     // Import
     'import' => [
@@ -911,5 +852,36 @@ return [
         'intro' => 'Lege fest, wie du dich bei Leafmark anmeldest.',
         'link_help' => 'Passkeys und Zwei-Faktor-Authentifizierung',
         'manage' => 'Verwalten',
+    ],
+
+    // Welcome Page
+    'welcome' => [
+        'meta_title' => 'Deine persönliche App zum Verwalten deiner Bücher',
+        'meta_description' => 'Verfolge deinen Lesefortschritt, organisiere deine Büchersammlung und setze dir jährliche Leseziele mit Leafmark.',
+        'get_started' => 'Loslegen',
+        'hero_title' => 'Begleite deine Lesereise',
+        'hero_subtitle' => 'Deine persönliche Bibliothek, übersichtlich und jederzeit griffbereit. Behalte im Blick, was du gerade liest, was du lesen möchtest und was du schon gelesen hast.',
+        'start_tracking' => 'Jetzt starten',
+        'sign_in' => 'Anmelden',
+        'features_title' => 'Alles, was du für deine Bücher brauchst',
+        'feature1_title' => 'Lesefortschritt verfolgen',
+        'feature1_desc' => 'Behalte deinen Fortschritt mit Seitenzählung und Lesestatistiken im Blick.',
+        'feature2_title' => 'Bücher suchen',
+        'feature2_desc' => 'Finde Bücher aus mehreren Quellen, darunter Google Books, Open Library und BookBrainz.',
+        'feature3_title' => 'Mit Tags organisieren',
+        'feature3_desc' => 'Erstelle eigene Tags und organisiere deine Bibliothek genau so, wie du möchtest.',
+        'feature4_title' => 'Lese-Challenges',
+        'feature4_desc' => 'Setze dir jährliche Leseziele und verfolge deinen Fortschritt das ganze Jahr über.',
+        'feature5_title' => 'Fortschrittsverlauf',
+        'feature5_desc' => 'Halte deine aktuelle Seite fest und sieh dir deinen Leseverlauf über die Zeit an.',
+        'feature6_title' => 'Familienkonten',
+        'feature6_desc' => 'Verbinde dich mit Familie und Freunden und teile deine Leseabenteuer.',
+        'feature7_title' => 'Import aus mehreren Quellen',
+        'feature7_desc' => 'Importiere Bücher aus einer Goodreads-CSV oder durchsuche mehrere Buchdatenbanken.',
+        'feature8_title' => 'Serien verwalten',
+        'feature8_desc' => 'Organisiere Buchserien und verfolge deinen Fortschritt über mehrere Bände hinweg.',
+        'feature9_title' => 'Bewerten & Rezensieren',
+        'feature9_desc' => 'Bewerte Bücher mit Sternen und schreibe Rezensionen, um deine Gedanken festzuhalten.',
+        'footer' => '© ' . date('Y') . ' Leafmark',
     ],
 ];

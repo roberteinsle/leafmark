@@ -154,6 +154,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
     Route::patch('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
+    Route::patch('/settings/mail', [AdminController::class, 'updateMail'])->name('settings.mail');
+    Route::post('/settings/mail/test', [AdminController::class, 'testMail'])->name('settings.mail.test')->middleware('throttle:expensive');
+    Route::patch('/settings/api-keys', [AdminController::class, 'updateApiKeys'])->name('settings.api-keys');
+    Route::post('/settings/api-keys/test-google', [AdminController::class, 'testGoogleBooks'])->name('settings.api-keys.test-google')->middleware('throttle:expensive');
 });
 
 // Backward compatibility: Redirect old locale-prefixed URLs to non-prefixed versions

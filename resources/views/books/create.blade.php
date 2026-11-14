@@ -28,8 +28,6 @@
                             class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         @php
                             $defaultProvider = 'both';
-                            $hasGoogle = auth()->user()->google_books_api_key || config('services.google_books.api_key');
-                            $hasBigBook = \App\Models\SystemSetting::get('bigbook_api_key');
                             if (!$hasGoogle && !$hasBigBook) {
                                 $defaultProvider = 'openlibrary';
                             }
@@ -93,6 +91,15 @@
     </div>
 
     @if(isset($searchQuery) && $searchQuery)
+        @foreach($providerErrors ?? [] as $source => $error)
+            <div class="mb-4 bg-yellow-50 border border-yellow-200 text-yellow-900 px-4 py-3 rounded-lg text-sm" role="alert">
+                {{ __('app.books.provider_error_'.$error, ['source' => $source === 'google' ? __('app.books.google_books') : $source]) }}
+                @if(auth()->user()->is_admin && $error !== 'quota')
+                    <a href="{{ route('admin.settings') }}" class="underline">{{ __('app.admin.system_settings') }}</a>
+                @endif
+            </div>
+        @endforeach
+
         @if(!empty($searchResults))
             <!-- Search Results -->
             <div class="space-y-4">
