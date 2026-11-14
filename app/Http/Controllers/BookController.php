@@ -901,58 +901,35 @@ class BookController extends Controller implements HasMiddleware
             $source = $book->api_source ?? 'google';
         }
 
-        // Determine identifier for API call
-        $identifier = null;
-        if ($source === 'google') {
-            $identifier = $book->external_id ?? ($book->isbn13 ?: $book->isbn);
-        } elseif ($source === 'bigbook') {
-            $identifier = $book->isbn13 ?: $book->isbn;
-        } elseif ($source === 'openlibrary') {
-            $identifier = $book->external_id ?? ($book->isbn13 ?: $book->isbn);
-        } elseif ($source === 'bookbrainz') {
-            $identifier = $book->external_id ?? ($book->isbn13 ?: $book->isbn);
+        $services = [
+            'google' => $googleBooks,
+            'openlibrary' => $openLibrary,
+            'bookbrainz' => $bookBrainz,
+            'bigbook' => $bigBook,
+        ];
+        if (! isset($services[$source])) {
+            return response()->json(['error' => __('app.books.api_unknown_source')], 422);
         }
+        $service = $services[$source];
+        $sourceName = __('app.books.source_names.'.$source);
 
-        if (!$identifier) {
-            return response()->json(['error' => 'No ISBN or external ID available'], 400);
-        }
-
-        // Fetch data from API
         try {
+            $bookData = $this->lookupInSource($book, $source, $service);
+        } catch (\Throwable $e) {
+            Log::error('Fetch API data failed', ['source' => $source, 'message' => $e->getMessage()]);
             $bookData = null;
-            if ($source === 'google') {
-                if ($book->external_id) {
-                    $bookData = $googleBooks->getBook($book->external_id);
-                } else {
-                    $results = $googleBooks->search($identifier);
-                    $bookData = !empty($results) ? $results[0] : null;
-                }
-            } elseif ($source === 'bigbook') {
-                if ($book->external_id) {
-                    $bookData = $bigBook->getBook($book->external_id);
-                } else {
-                    $results = $bigBook->search($identifier);
-                    $bookData = !empty($results) ? $results[0] : null;
-                }
-            } elseif ($source === 'openlibrary') {
-                if ($book->external_id) {
-                    $bookData = $openLibrary->getBook($book->external_id);
-                } else {
-                    $results = $openLibrary->search($identifier);
-                    $bookData = !empty($results) ? $results[0] : null;
-                }
-            } elseif ($source === 'bookbrainz') {
-                if ($book->external_id) {
-                    $bookData = $bookBrainz->getBook($book->external_id);
-                } else {
-                    $results = $bookBrainz->search($identifier);
-                    $bookData = !empty($results) ? $results[0] : null;
-                }
-            }
+        }
 
-            if (!$bookData) {
-                return response()->json(['error' => 'No data found from API'], 404);
-            }
+        if (! $bookData) {
+            // Google meldet Kontingent/abgelehnten Schlüssel gesondert – das ist aussagekräftiger als "nichts gefunden"
+            $error = ($service instanceof GoogleBooksService && $service->lastError)
+                ? __('app.books.provider_error_'.$service->lastError, ['source' => $sourceName])
+                : __('app.books.api_no_data', ['source' => $sourceName]);
+
+            return response()->json(['error' => $error], 404);
+        }
+
+        try {
 
             // Return comparison data
             return response()->json([
@@ -984,8 +961,36 @@ class BookController extends Controller implements HasMiddleware
 
         } catch (\Exception $e) {
             Log::error('API fetch error', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'API request failed: ' . $e->getMessage()], 500);
+            return response()->json(['error' => __('app.books.api_no_data', ['source' => $sourceName])], 500);
         }
+    }
+
+    /**
+     * Sucht ein Buch in einer Quelle für "Von API neu importieren".
+     *
+     * Die gespeicherte external_id gilt nur für die Quelle, aus der das Buch stammt (api_source).
+     * Für andere Quellen: ISBN, sonst Titel + Autor. Früher wurde z. B. eine Open-Library-ID an
+     * Google geschickt, was immer mit 404 endete.
+     */
+    private function lookupInSource(Book $book, string $source, object $service): ?array
+    {
+        if ($book->external_id && $book->api_source === $source) {
+            $data = $service->getBook($book->external_id);
+            if ($data) {
+                return $data;
+            }
+        }
+
+        $isbn = $book->isbn13 ?: $book->isbn;
+        $query = $isbn ?: trim($book->title.' '.($book->author ?? ''));
+
+        if ($query === '') {
+            return null;
+        }
+
+        $results = $service->search($query, 5);
+
+        return $results[0] ?? null;
     }
 
     /**

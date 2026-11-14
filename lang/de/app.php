@@ -18,6 +18,15 @@ return [
 
     // Books
     'books' => [
+        'source_names' => [
+            'bigbook' => 'Big Book API',
+            'bookbrainz' => 'BookBrainz',
+            'openlibrary' => 'Open Library',
+            'google' => 'Google Books',
+        ],
+        'api_request_failed' => 'Die Daten konnten nicht geladen werden. Bitte versuche es später erneut.',
+        'api_no_data' => ':source hat keine passenden Daten zu diesem Buch. Trage eine ISBN ein oder prüfe Titel und Autor und versuche es erneut.',
+        'api_unknown_source' => 'Unbekannte Quelle.',
         'provider_error_quota' => ':source: Das tägliche Anfragekontingent ist aufgebraucht. Treffer aus dieser Quelle fehlen bis morgen.',
         'provider_error_key_rejected' => ':source hat den API-Schlüssel abgelehnt (Schlüssel und IP-Einschränkung prüfen). Es wurde ohne Schlüssel gesucht.',
         'provider_error_unavailable' => ':source ist gerade nicht erreichbar. Treffer aus dieser Quelle fehlen.',

@@ -49,6 +49,15 @@ return [
 
     // Books
     'books' => [
+        'source_names' => [
+            'bigbook' => 'Big Book API',
+            'bookbrainz' => 'BookBrainz',
+            'openlibrary' => 'Open Library',
+            'google' => 'Google Books',
+        ],
+        'api_request_failed' => 'The data could not be loaded. Please try again later.',
+        'api_no_data' => ':source has no matching data for this book. Add an ISBN or check title and author, then try again.',
+        'api_unknown_source' => 'Unknown source.',
         'provider_error_quota' => ':source: the daily request quota is used up. Results from this source are missing until tomorrow.',
         'provider_error_key_rejected' => ':source rejected the API key (check the key and its IP restriction). Searched without key instead.',
         'provider_error_unavailable' => ':source is currently not reachable. Results from this source are missing.',

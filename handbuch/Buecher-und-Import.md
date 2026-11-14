@@ -34,7 +34,7 @@ Auf der Suchseite lässt sich eine Produkt-URL von amazon.de oder amazon.com ein
 
 ## Buch bearbeiten
 
-Auf der Buchseite lassen sich alle Angaben ändern: Reihe und Band, Bewertung und Rezension, Kaufdatum, Preis, Währung und Format. **Von API neu importieren** holt die Metadaten erneut von der Quelle, aus der das Buch stammt.
+Auf der Buchseite lassen sich alle Angaben ändern: Reihe und Band, Bewertung und Rezension, Kaufdatum, Preis, Währung und Format. **Von API neu importieren** holt Daten aus einer gewählten Quelle und zeigt sie neben den aktuellen Angaben; du wählst, welche Felder übernommen werden. Gesucht wird über die gespeicherte ID (nur bei der Quelle, aus der das Buch stammt), sonst über die ISBN, sonst über Titel und Autor. Ohne ISBN kann der erste Treffer ein anderes Buch sein – vor dem Übernehmen vergleichen.
 
 ### Cover
 

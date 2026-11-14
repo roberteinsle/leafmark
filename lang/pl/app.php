@@ -18,6 +18,15 @@ return [
 
     // Books
     'books' => [
+        'source_names' => [
+            'bigbook' => 'Big Book API',
+            'bookbrainz' => 'BookBrainz',
+            'openlibrary' => 'Open Library',
+            'google' => 'Google Books',
+        ],
+        'api_request_failed' => 'Nie udało się wczytać danych. Spróbuj ponownie później.',
+        'api_no_data' => 'Źródło :source nie ma pasujących danych dla tej książki. Dodaj ISBN albo sprawdź tytuł i autora, a potem spróbuj ponownie.',
+        'api_unknown_source' => 'Nieznane źródło.',
         'refreshed_fields' => 'Zaktualizowano pola: :count',
         'apply_changes' => 'Zastosuj wybrane zmiany',
         'refresh_hint' => 'Kliknij źródło, aby pobrać zaktualizowane dane książki z zewnętrznych API',

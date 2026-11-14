@@ -17,7 +17,7 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ __('app.books.edit_book') }}</h1>
 
         <!-- Re-import from API Section -->
-        @if($book->isbn || $book->isbn13 || $book->external_id)
+        @if($book->title)
         <div class="mb-8 border-l-4 border-blue-500 bg-blue-50 p-4" x-data="{
             open: false,
             loading: false,
@@ -35,19 +35,16 @@
                         }
                     });
 
-                    if (!response.ok) {
-                        throw new Error('HTTP error ' + response.status);
-                    }
-
-                    const result = await response.json();
-                    if (result.success) {
+                    // Der Server liefert auch bei Fehlern (404, 422, 429) eine übersetzte Meldung als JSON
+                    const result = await response.json().catch(() => ({}));
+                    if (response.ok && result.success) {
                         this.data = result;
                         this.open = true;
                     } else {
-                        alert(result.error || 'Failed to fetch data');
+                        alert(result.error || result.message || @js(__('app.books.api_request_failed')));
                     }
                 } catch (e) {
-                    alert('Error: ' + e.message);
+                    alert(@js(__('app.books.api_request_failed')));
                 } finally {
                     this.loading = false;
                 }
