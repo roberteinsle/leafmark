@@ -394,7 +394,7 @@ class LibraryImportService
         if ($title && $author) {
             return $this->user->books()
                 ->where('title', $title)
-                ->where('author', 'LIKE', '%' . $author . '%')
+                ->whereLike('author', '%' . $author . '%')
                 ->first();
         }
 

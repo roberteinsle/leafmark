@@ -12,7 +12,10 @@ class StatsController extends Controller
     {
         $user = auth()->user();
         $currentYear = now()->year;
-        $selectedYear = (int) $request->get('year', $currentYear);
+        $validated = $request->validate([
+            'year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
+        ]);
+        $selectedYear = (int) ($validated['year'] ?? $currentYear);
 
         $availableYears = $this->getAvailableYears($user, $currentYear);
         $basicStats = $this->getBasicStats($user, $selectedYear);
@@ -36,8 +39,8 @@ class StatsController extends Controller
         return $user->books()
             ->where('status', 'read')
             ->whereNotNull('finished_at')
-            ->selectRaw('DISTINCT CAST(strftime("%Y", finished_at) AS INTEGER) as year')
-            ->pluck('year')
+            ->pluck('finished_at')
+            ->map(fn ($date) => Carbon::parse($date)->year)
             ->filter()
             ->push($currentYear)
             ->unique()
@@ -59,11 +62,11 @@ class StatsController extends Controller
             ->avg('rating');
 
         $booksReadThisYear = $user->books()->read()
-            ->whereRaw('CAST(strftime("%Y", finished_at) AS INTEGER) = ?', [$selectedYear])
+            ->whereYear('finished_at', $selectedYear)
             ->count();
 
         $pagesReadThisYear = (int) $user->books()->read()
-            ->whereRaw('CAST(strftime("%Y", finished_at) AS INTEGER) = ?', [$selectedYear])
+            ->whereYear('finished_at', $selectedYear)
             ->whereNotNull('page_count')
             ->sum('page_count');
 
@@ -84,10 +87,9 @@ class StatsController extends Controller
         // Books per month for selected year
         $booksPerMonth = [];
         $monthlyData = $user->books()->read()
-            ->whereRaw('CAST(strftime("%Y", finished_at) AS INTEGER) = ?', [$selectedYear])
-            ->selectRaw('CAST(strftime("%m", finished_at) AS INTEGER) as month, COUNT(*) as count')
-            ->groupByRaw('strftime("%m", finished_at)')
-            ->pluck('count', 'month');
+            ->whereYear('finished_at', $selectedYear)
+            ->pluck('finished_at')
+            ->countBy(fn ($date) => Carbon::parse($date)->month);
 
         for ($m = 1; $m <= 12; $m++) {
             $booksPerMonth[$m] = $monthlyData->get($m, 0);
@@ -97,10 +99,9 @@ class StatsController extends Controller
         $previousYear = $selectedYear - 1;
         $booksPerMonthLastYear = [];
         $monthlyDataLastYear = $user->books()->read()
-            ->whereRaw('CAST(strftime("%Y", finished_at) AS INTEGER) = ?', [$previousYear])
-            ->selectRaw('CAST(strftime("%m", finished_at) AS INTEGER) as month, COUNT(*) as count')
-            ->groupByRaw('strftime("%m", finished_at)')
-            ->pluck('count', 'month');
+            ->whereYear('finished_at', $previousYear)
+            ->pluck('finished_at')
+            ->countBy(fn ($date) => Carbon::parse($date)->month);
 
         for ($m = 1; $m <= 12; $m++) {
             $booksPerMonthLastYear[$m] = $monthlyDataLastYear->get($m, 0);
@@ -120,7 +121,7 @@ class StatsController extends Controller
 
         // Reading speed - load books with both dates
         $readBooksWithDates = $user->books()->read()
-            ->whereRaw('CAST(strftime("%Y", finished_at) AS INTEGER) = ?', [$selectedYear])
+            ->whereYear('finished_at', $selectedYear)
             ->whereNotNull('started_at')
             ->whereNotNull('finished_at')
             ->whereNotNull('page_count')
@@ -153,11 +154,11 @@ class StatsController extends Controller
 
         // Year comparison
         $booksLastYear = $user->books()->read()
-            ->whereRaw('CAST(strftime("%Y", finished_at) AS INTEGER) = ?', [$previousYear])
+            ->whereYear('finished_at', $previousYear)
             ->count();
 
         $pagesLastYear = (int) $user->books()->read()
-            ->whereRaw('CAST(strftime("%Y", finished_at) AS INTEGER) = ?', [$previousYear])
+            ->whereYear('finished_at', $previousYear)
             ->whereNotNull('page_count')
             ->sum('page_count');
 

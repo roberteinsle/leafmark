@@ -217,7 +217,7 @@ class GoodreadsImportService
         // Fallback: Match by title and author
         return $this->user->books()
             ->where('title', $title)
-            ->where('author', 'LIKE', '%' . $author . '%')
+            ->whereLike('author', '%' . $author . '%')
             ->first();
     }
 
