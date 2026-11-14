@@ -1,24 +1,19 @@
 {
-  "name": "Leafmark - Laravel 11",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "app",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "name": "Leafmark",
+  // PHP-Version = Dockerfile (ARG PHP_VERSION) = composer.json. Alle drei im selben Commit ändern.
+  "image": "mcr.microsoft.com/devcontainers/php:8.5-bookworm",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
-    }
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  "forwardPorts": [8000, 3306],
+  "forwardPorts": [8000, 5173, 5432],
   "portsAttributes": {
-    "8000": {
-      "label": "Laravel App",
-      "onAutoForward": "notify"
-    },
-    "3306": {
-      "label": "MariaDB"
-    }
+    "8000": { "label": "Laravel App", "onAutoForward": "notify" },
+    "5173": { "label": "Vite" },
+    "5432": { "label": "Postgres" }
   },
   "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "docker compose up -d db",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -26,10 +21,7 @@
         "mikestead.dotenv",
         "onecentlin.laravel-blade",
         "bradlc.vscode-tailwindcss"
-      ],
-      "settings": {
-        "php.validate.executablePath": "/usr/local/bin/php"
-      }
+      ]
     }
   },
   "remoteUser": "vscode"

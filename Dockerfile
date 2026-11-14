@@ -1,68 +1,42 @@
-# Use official PHP image with Apache
-FROM php:8.2-apache
+# PHP-Version: immer der neueste stabile Branch (Stand 2026-10-22: 8.5 → 8.5.12)
+# Steht an drei Stellen, im selben Commit ändern: Dockerfile, composer.json, .devcontainer/devcontainer.json
+ARG PHP_VERSION=8.5
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libsqlite3-dev \
-    zip \
-    unzip \
-    libzip-dev \
-    && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip
+# --- Stufe 1: Frontend-Assets (Vite) ---
+FROM node:22-alpine AS assets
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# --- Stufe 2: Composer (gleiche PHP-Version wie Runtime) ---
+FROM serversideup/php:${PHP_VERSION}-cli-alpine AS vendor
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
+COPY . .
+RUN composer dump-autoload --optimize --no-dev
 
-# Set working directory
+# --- Stufe 3: Runtime ---
+FROM serversideup/php:${PHP_VERSION}-fpm-nginx-alpine
+
+# Kurzer Commit-Hash für die Versionsanzeige im Footer (wird von der GitHub Action gesetzt)
+ARG GIT_SHA=unknown
+
+ENV AUTORUN_ENABLED=true \
+    AUTORUN_LARAVEL_MIGRATION=true \
+    PHP_OPCACHE_ENABLE=1 \
+    PHP_UPLOAD_MAX_FILE_SIZE=25M \
+    PHP_POST_MAX_SIZE=30M \
+    PHP_MEMORY_LIMIT=256M \
+    NGINX_CLIENT_MAX_BODY_SIZE=30M
+
+USER root
+RUN install-php-extensions intl gd zip bcmath exif pdo_pgsql
+USER www-data
+
 WORKDIR /var/www/html
-
-# Copy application files
-COPY . /var/www/html
-
-# Write git commit hash to file before removing .git
-RUN git rev-parse --short HEAD > /var/www/html/VERSION_HASH 2>/dev/null || echo "unknown" > /var/www/html/VERSION_HASH
-
-# Install dependencies
-ENV COMPOSER_MEMORY_LIMIT=-1
-ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Create Laravel directories if they don't exist
-RUN mkdir -p storage/framework/cache/data \
-    storage/framework/sessions \
-    storage/framework/views \
-    storage/logs \
-    bootstrap/cache
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
-
-# Configure Apache document root
-RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
-
-# Add Apache configuration for Laravel
-RUN echo '<Directory /var/www/html/public>\n\
-    Options Indexes FollowSymLinks\n\
-    AllowOverride All\n\
-    Require all granted\n\
-</Directory>' >> /etc/apache2/sites-available/000-default.conf
-
-# Configure PHP upload limits (25MB)
-RUN echo "upload_max_filesize = 25M" >> /usr/local/etc/php/conf.d/uploads.ini \
-    && echo "post_max_size = 30M" >> /usr/local/etc/php/conf.d/uploads.ini \
-    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini
-
-# Copy entrypoint script
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-EXPOSE 80
-
-ENTRYPOINT ["docker-entrypoint.sh"]
+COPY --chown=www-data:www-data --from=vendor /app /var/www/html
+COPY --chown=www-data:www-data --from=assets /app/public/build /var/www/html/public/build
+RUN echo "${GIT_SHA}" > /var/www/html/VERSION_HASH

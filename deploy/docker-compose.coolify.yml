@@ -1,0 +1,47 @@
+# deploy/docker-compose.coolify.yml
+# Wird von Hand in Coolify (Docker Compose Empty) eingefügt. Coolify liest diese Datei nicht aus dem Repo.
+# Nach Änderungen: committen, Inhalt in Coolify einfügen, speichern, Deploy.
+#
+# Postgres läuft als eigenständige Coolify-Resource (nicht in diesem Compose).
+# DB_HOST = interner Hostname dieser Resource (Coolify → Postgres → "Postgres URL (internal)").
+services:
+  app:
+    image: ghcr.io/roberteinsle/leafmark:${APP_TAG:-latest}
+    pull_policy: always
+    environment:
+      - APP_NAME=${APP_NAME:-Leafmark}
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${APP_KEY}
+      - APP_URL=${APP_URL}
+      - APP_LOCALE=${APP_LOCALE:-en}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - GOOGLE_BOOKS_API_KEY=${GOOGLE_BOOKS_API_KEY:-}
+      - LOG_CHANNEL=stderr
+      - DB_CONNECTION=pgsql
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      # Kein Queue-Worker nötig: Leafmark stellt keine Jobs in die Queue.
+      - QUEUE_CONNECTION=sync
+      - SESSION_DRIVER=file
+      - CACHE_STORE=file
+    volumes:
+      - app-storage:/var/www/html/storage
+    networks:
+      - coolify
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+# Über dieses Netz erreicht die App den Datenbank-Service in Coolify.
+networks:
+  coolify:
+    external: true
+
+volumes:
+  app-storage:

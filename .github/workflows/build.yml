@@ -1,0 +1,124 @@
+# .github/workflows/build.yml
+name: Build & Push
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '17 4 * * 1'   # wöchentlich: neueste PHP-Patches übernehmen
+  workflow_dispatch:
+    inputs:
+      no_cache:
+        description: 'Ohne Cache bauen (Sicherheits-Update)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: leafmark_test
+          POSTGRES_USER: leafmark
+          POSTGRES_PASSWORD: leafmark
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U leafmark"
+          --health-interval 5s
+          --health-retries 10
+    strategy:
+      matrix:
+        db: [sqlite, pgsql]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: intl, gd, zip, bcmath, exif, pdo_pgsql, pdo_sqlite
+          coverage: none
+
+      - run: composer install --no-interaction --prefer-dist
+
+      - name: Tests (${{ matrix.db }})
+        env:
+          DB_CONNECTION: ${{ matrix.db }}
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: ${{ matrix.db == 'pgsql' && 'leafmark_test' || ':memory:' }}
+          DB_USERNAME: leafmark
+          DB_PASSWORD: leafmark
+        run: vendor/bin/phpunit
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          load: ${{ github.event_name == 'pull_request' }}
+          pull: true                      # Base-Image immer frisch (neuester PHP-Patch)
+          no-cache: ${{ inputs.no_cache == true }}
+          build-args: |
+            GIT_SHA=${{ steps.sha.outputs.short }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: PHP-Version im Image ausgeben
+        run: docker run --rm --entrypoint php ${{ fromJSON(steps.meta.outputs.json).tags[0] }} -v
+
+      # Standard 12.3: Keine API-Keys im ausgelieferten Frontend. Ein Treffer blockiert das Release.
+      - name: Frontend-Bundle auf Schlüssel prüfen
+        run: |
+          id=$(docker create ${{ fromJSON(steps.meta.outputs.json).tags[0] }})
+          docker cp "$id:/var/www/html/public/build" ./bundle-check
+          docker rm "$id"
+          if grep -rEi "sk-|api[_-]?key|secret" ./bundle-check; then
+            echo "::error::Möglicher Schlüssel im Frontend-Bundle gefunden"
+            exit 1
+          fi
+
+      # Optional: Coolify nach erfolgreichem Push anstossen.
+      # Weglassen, wenn du lieber von Hand auf Deploy klickst.
+      - name: Trigger Coolify deploy
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AUTO_DEPLOY == 'true'
+        run: |
+          curl -fsS -X GET "${{ secrets.COOLIFY_WEBHOOK }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"

@@ -1,0 +1,47 @@
+# Lokale Entwicklung und Codespaces.
+#   docker compose up -d db        → nur Postgres (für php artisan serve im Devcontainer)
+#   docker compose up -d --build   → App im Produktions-Image mit Bind-Mount des Codes
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - AUTORUN_ENABLED=true
+      - AUTORUN_LARAVEL_CONFIG_CACHE=false
+      - AUTORUN_LARAVEL_ROUTE_CACHE=false
+      - AUTORUN_LARAVEL_VIEW_CACHE=false
+      - AUTORUN_LARAVEL_EVENT_CACHE=false
+      - AUTORUN_LARAVEL_OPTIMIZE=false
+      - PHP_OPCACHE_ENABLE=0
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=leafmark
+      - DB_USERNAME=leafmark
+      - DB_PASSWORD=leafmark
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=leafmark
+      - POSTGRES_USER=leafmark
+      - POSTGRES_PASSWORD=leafmark
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leafmark"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  db-data:
