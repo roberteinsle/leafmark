@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="P83A54mzktESaX8bAfsLcUk9Ex-jUq5TNtUMmO59gaQ" />
+    @if(config('services.google_site_verification'))
+    <meta name="google-site-verification" content="{{ config('services.google_site_verification') }}" />
+    @endif
 
     <!-- SEO Meta Tags -->
     <title>{{ config('app.name') }} - {{ __('app.welcome.meta_title') }}</title>

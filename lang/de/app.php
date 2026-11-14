@@ -464,7 +464,7 @@ return [
         'mode_invitation' => 'Nur per Einladung',
         'mode_code' => 'Mit persönlichem Code',
         'allowed_domains' => 'Erlaubte E-Mail-Domains',
-        'allowed_domains_help' => 'Komma-getrennte Liste (z.B. einsle.com, example.org)',
+        'allowed_domains_help' => 'Komma-getrennte Liste (z.B. example.com, example.org)',
         'registration_code' => 'Registrierungscode',
         'registration_code_help' => 'Benutzer müssen diesen Code bei der Registrierung eingeben',
         'save_settings' => 'Einstellungen speichern',
@@ -516,50 +516,7 @@ return [
         'copy_failed' => 'Fehler beim Kopieren. Bitte kopiere den Link manuell.',
     ],
 
-    // Password Reset
-    'password_reset' => [
-        'email_subject' => 'Passwort zurücksetzen',
-        'forgot_password' => 'Passwort vergessen',
-        'forgot_password_intro' => 'Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.',
-        'send_reset_link' => 'Link zum Zurücksetzen senden',
-        'back_to_login' => 'Zurück zur Anmeldung',
-        'link_sent' => 'Wir haben Ihnen einen Link zum Zurücksetzen des Passworts per E-Mail gesendet!',
-        'reset_password' => 'Passwort zurücksetzen',
-        'new_password' => 'Neues Passwort',
-        'confirm_password' => 'Passwort bestätigen',
-        'submit' => 'Passwort zurücksetzen',
-        'invalid_token' => 'Dieser Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen.',
-        'success' => 'Ihr Passwort wurde zurückgesetzt! Sie können sich jetzt anmelden.',
-        'email_greeting' => 'Hallo!',
-        'email_intro' => 'Sie erhalten diese E-Mail, weil wir eine Anfrage zum Zurücksetzen des Passworts für Ihr Konto erhalten haben.',
-        'email_button' => 'Passwort zurücksetzen',
-        'email_outro' => 'Dieser Link zum Zurücksetzen des Passworts läuft in 60 Minuten ab.',
-        'email_notice' => 'Wenn Sie Probleme beim Klicken auf den Button haben, kopieren Sie die folgende URL in Ihren Webbrowser:',
-        'email_ignore' => 'Wenn Sie kein Zurücksetzen des Passworts angefordert haben, ist keine weitere Aktion erforderlich.',
-        'email_footer' => 'Ihre persönliche Buch-Tracking-Anwendung',
-    ],
 
-    // Email Verification
-    'email_verification' => [
-        'email_subject' => 'E-Mail-Adresse verifizieren',
-        'verify_email' => 'E-Mail verifizieren',
-        'verify_button' => 'E-Mail verifizieren',
-        'resend_button' => 'Verifizierungs-E-Mail erneut senden',
-        'resend_title' => 'Verifizierungs-E-Mail erneut senden',
-        'resend_intro' => 'Haben Sie die Verifizierungs-E-Mail nicht erhalten? Geben Sie Ihre E-Mail-Adresse unten ein, um sie erneut zu senden.',
-        'check_email' => 'Vielen Dank für Ihre Registrierung! Bevor Sie beginnen, verifizieren Sie bitte Ihre E-Mail-Adresse, indem Sie auf den Link klicken, den wir Ihnen gerade gesendet haben. Wenn Sie die E-Mail nicht erhalten haben, können wir Ihnen eine weitere senden.',
-        'verified' => 'Ihre E-Mail wurde verifiziert! Sie können sich jetzt anmelden.',
-        'already_verified' => 'Ihre E-Mail ist bereits verifiziert. Sie können sich jetzt anmelden.',
-        'invalid_link' => 'Dieser Verifizierungslink ist ungültig oder abgelaufen.',
-        'not_verified' => 'Ihre E-Mail-Adresse ist nicht verifiziert. Bitte überprüfen Sie Ihren Posteingang auf die Verifizierungs-E-Mail.',
-        'email_greeting' => 'Hallo :name!',
-        'email_intro' => 'Bitte klicken Sie auf den Button unten, um Ihre E-Mail-Adresse zu verifizieren.',
-        'email_button' => 'E-Mail-Adresse verifizieren',
-        'email_outro' => 'Wenn Sie kein Konto erstellt haben, ist keine weitere Aktion erforderlich.',
-        'email_notice' => 'Wenn Sie Probleme beim Klicken auf den Button haben, kopieren Sie die folgende URL in Ihren Webbrowser:',
-        'email_ignore' => 'Wenn Sie sich nicht für ein Konto angemeldet haben, können Sie diese E-Mail sicher ignorieren.',
-        'email_footer' => 'Ihre persönliche Buch-Tracking-Anwendung',
-    ],
 
     // Family
     'family' => [
@@ -574,7 +531,7 @@ return [
         // Create Family
         'create_description' => 'Erstelle eine neue Familie und lade Freunde oder Familienmitglieder ein',
         'family_name' => 'Familienname',
-        'family_name_placeholder' => 'z.B. Familie Müller, Buchclub Hamburg',
+        'family_name_placeholder' => 'z.B. Familie Müller, Lesekreis am Montag',
         'family_name_help' => 'Wähle einen Namen, der deine Gruppe beschreibt',
         'what_happens' => 'Was passiert?',
         'create_info_1' => 'Du wirst automatisch Owner der Familie',

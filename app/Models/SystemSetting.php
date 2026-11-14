@@ -104,28 +104,4 @@ class SystemSetting extends Model
             'from_name' => static::get('smtp_from_name', 'Leafmark'),
         ];
     }
-
-    /**
-     * Check if Turnstile is enabled
-     */
-    public static function isTurnstileEnabled(): bool
-    {
-        return static::get('turnstile_enabled', 'false') === 'true';
-    }
-
-    /**
-     * Get Turnstile site key
-     */
-    public static function getTurnstileSiteKey(): string
-    {
-        return static::get('turnstile_site_key', '');
-    }
-
-    /**
-     * Get Turnstile secret key
-     */
-    public static function getTurnstileSecretKey(): string
-    {
-        return static::get('turnstile_secret_key', '');
-    }
 }

@@ -32,6 +32,16 @@
     </div>
     @endif
 
+    @if($errors->any())
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6" role="alert">
+        <ul class="text-red-800 text-sm list-disc list-inside">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <!-- Registration Settings -->
     <div class="bg-white rounded-lg shadow p-6 mb-6">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">{{ __('app.admin.registration_settings') }}</h2>
@@ -43,6 +53,8 @@
             <!-- Enable/Disable Registration -->
             <div class="mb-6">
                 <label class="flex items-center">
+                    {{-- Ein nicht angehakter Checkbox-Wert wird nicht gesendet; das Hidden-Feld liefert dann "0" --}}
+                    <input type="hidden" name="registration_enabled" value="0">
                     <input type="checkbox" name="registration_enabled" value="1" {{ $registrationEnabled ? 'checked' : '' }}
                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                     <span class="ml-2 text-sm text-gray-700">{{ __('app.admin.registration_enabled') }}</span>
@@ -74,7 +86,7 @@
                 </label>
                 <input type="text" name="allowed_email_domains" value="{{ $allowedDomains }}"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                       placeholder="einsle.com, example.org">
+                       placeholder="example.com, example.org">
                 <p class="mt-1 text-sm text-gray-500">{{ __('app.admin.allowed_domains_help') }}</p>
             </div>
 

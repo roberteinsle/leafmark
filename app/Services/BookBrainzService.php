@@ -22,7 +22,7 @@ class BookBrainzService
         try {
             // BookBrainz uses a different search endpoint
             $response = Http::withHeaders([
-                'User-Agent' => 'Leafmark/1.0 (https://github.com/roberteinsle/leafmark)',
+                'User-Agent' => 'Leafmark/'.config('app.version').' (+'.config('app.url').')',
                 'Accept' => 'application/json',
             ])->get(self::SEARCH_URL, [
                 'q' => $query,

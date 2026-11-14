@@ -29,7 +29,7 @@ return [
         'feature8_desc' => 'Organize book series and track your progress through multi-book collections.',
         'feature9_title' => 'Rate & Review',
         'feature9_desc' => 'Rate books with a star system and write reviews to remember your thoughts.',
-        'footer' => '© ' . date('Y') . ' Leafmark. Made with ❤️ in Hamburg',
+        'footer' => '© ' . date('Y') . ' Leafmark',
     ],
 
     // Navigation
@@ -564,7 +564,7 @@ return [
         'mode_invitation' => 'Invitation Only',
         'mode_code' => 'Personal Code Required',
         'allowed_domains' => 'Allowed Email Domains',
-        'allowed_domains_help' => 'Comma-separated list (e.g. einsle.com, example.org)',
+        'allowed_domains_help' => 'Comma-separated list (e.g. example.com, example.org)',
         'registration_code' => 'Registration Code',
         'registration_code_help' => 'Users must enter this code during registration',
         'save_settings' => 'Save Settings',
@@ -607,50 +607,7 @@ return [
 
     ],
 
-    // Password Reset
-    'password_reset' => [
-        'email_subject' => 'Reset Your Password',
-        'forgot_password' => 'Forgot Password',
-        'forgot_password_intro' => 'Enter your email address and we will send you a link to reset your password.',
-        'send_reset_link' => 'Send Reset Link',
-        'back_to_login' => 'Back to Login',
-        'link_sent' => 'We have emailed your password reset link!',
-        'reset_password' => 'Reset Password',
-        'new_password' => 'New Password',
-        'confirm_password' => 'Confirm Password',
-        'submit' => 'Reset Password',
-        'invalid_token' => 'This password reset link is invalid or has expired.',
-        'success' => 'Your password has been reset! You can now log in.',
-        'email_greeting' => 'Hello!',
-        'email_intro' => 'You are receiving this email because we received a password reset request for your account.',
-        'email_button' => 'Reset Password',
-        'email_outro' => 'This password reset link will expire in 60 minutes.',
-        'email_notice' => 'If you\'re having trouble clicking the button, copy and paste the URL below into your web browser:',
-        'email_ignore' => 'If you did not request a password reset, no further action is required.',
-        'email_footer' => 'Your Personal Book Tracking Application',
-    ],
 
-    // Email Verification
-    'email_verification' => [
-        'email_subject' => 'Verify Your Email Address',
-        'verify_email' => 'Verify Email',
-        'verify_button' => 'Verify Email',
-        'resend_button' => 'Resend Verification Email',
-        'resend_title' => 'Resend Verification Email',
-        'resend_intro' => 'Didn\'t receive the verification email? Enter your email address below to resend it.',
-        'check_email' => 'Thanks for signing up! Before getting started, please verify your email address by clicking the link we just sent you. If you didn\'t receive the email, we can send you another one.',
-        'verified' => 'Your email has been verified! You can now log in.',
-        'already_verified' => 'Your email is already verified. You can log in now.',
-        'invalid_link' => 'This verification link is invalid or has expired.',
-        'not_verified' => 'Your email address is not verified. Please check your inbox for the verification email.',
-        'email_greeting' => 'Hello :name!',
-        'email_intro' => 'Please click the button below to verify your email address.',
-        'email_button' => 'Verify Email Address',
-        'email_outro' => 'If you did not create an account, no further action is required.',
-        'email_notice' => 'If you\'re having trouble clicking the button, copy and paste the URL below into your web browser:',
-        'email_ignore' => 'If you did not sign up for an account, you can safely ignore this email.',
-        'email_footer' => 'Your Personal Book Tracking Application',
-    ],
 
     // Contact Form
     'contact' => [

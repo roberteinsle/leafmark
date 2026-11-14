@@ -6,7 +6,7 @@ Leafmark follows the pattern **GitHub → GHCR → Coolify**: GitHub Actions bui
 push to main ──► GitHub Action (tests on Postgres, docker build, PHP 8.5 base image pulled fresh)
 weekly rebuild ─┘        │
                          ▼
-             ghcr.io/roberteinsle/leafmark:latest  (+ sha-xxxxxxx, semver tags)
+             ghcr.io/<owner>/leafmark:latest  (+ sha-xxxxxxx, semver tags)
                          │
                          ▼
              Coolify "Docker Compose Empty" resource ──► Deploy = docker compose pull && up -d
@@ -17,7 +17,7 @@ weekly rebuild ─┘        │
 
 1. **GHCR pull access on the Coolify server:** create a GitHub personal access token (classic) with only the `read:packages` scope, then on the server:
    ```bash
-   echo '<PAT>' | docker login ghcr.io -u roberteinsle --password-stdin
+   echo '<PAT>' | docker login ghcr.io -u <github-account> --password-stdin
    ```
 2. **Postgres resource:** Project → Environment `production` → New Resource → **PostgreSQL 16** as a standalone Coolify service (not publicly available). Note its internal hostname from "Postgres URL (internal)".
 3. **App resource:** New Resource → **Docker Compose Empty**. Paste [deploy/docker-compose.coolify.yml](deploy/docker-compose.coolify.yml). The app joins the external `coolify` network to reach the Postgres resource.
@@ -26,17 +26,19 @@ weekly rebuild ─┘        │
    | Variable | Value |
    |---|---|
    | `APP_KEY` | `php artisan key:generate --show`. **Never change it afterwards**: it encrypts users' 2FA secrets |
-   | `APP_URL` | `https://www.leafmark.app` (also the passkey relying party) |
+   | `APP_URL` | your public URL, e.g. `https://books.example.com` (also the passkey relying party) |
    | `DB_HOST` | internal hostname of the Postgres resource |
    | `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | credentials of the Postgres resource |
    | `ADMIN_EMAIL` | optional, auto-admin on registration |
    | `APP_LOCALE` | optional default language |
+   | `APP_IMAGE` | `ghcr.io/<owner>/leafmark` (the image the workflow pushes) |
    | `APP_TAG` | leave empty (= `latest`); set for rollbacks |
+   | `GOOGLE_SITE_VERIFICATION` | optional, Google Search Console token (renders the meta tag) |
 
 5. **Domain:** on service `app`, set the domain with internal port **8080**.
    If the container restart-loops with "storage is not writable": Coolify created the `app-storage` volume empty and owned by root. Fix once:
    ```bash
-   docker run --rm -u root -v <resource-uuid>_app-storage:/s --entrypoint sh ghcr.io/roberteinsle/leafmark:latest -c 'chown -R 82:82 /s'
+   docker run --rm -u root -v <resource-uuid>_app-storage:/s --entrypoint sh ghcr.io/<owner>/leafmark:latest -c 'chown -R 82:82 /s'
    ```
 6. **Backups:** enable daily backups on the Postgres resource. The `app-storage` volume (covers) is covered by the server backup.
 7. **Optional auto-deploy:** add the repo secrets `COOLIFY_WEBHOOK` and `COOLIFY_TOKEN`, plus the repo variable `AUTO_DEPLOY=true`.
@@ -46,7 +48,7 @@ weekly rebuild ─┘        │
 Merge to `main` → wait for the action to turn green → click **Deploy** in Coolify. On start, the container runs migrations, `storage:link` and the caches (serversideup AUTORUN). Expect a few seconds of downtime.
 
 After deploying, check:
-- `https://www.leafmark.app/up` returns 200
+- `<APP_URL>/up` returns 200
 - `docker exec <app-container> php -v` shows the current patched PHP 8.5
 
 ## Releases and rollback

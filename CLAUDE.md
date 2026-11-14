@@ -17,8 +17,10 @@ Version: `app.version` in `config/app.php`, shown in the footer with the commit 
 - **Postgres only** (production, CI and tests). Postgres `LIKE` is case-sensitive: use `whereLike()` for user-facing search. Tests need the Postgres container running (`docker compose up -d db`).
 - **`APP_KEY` must never change in production**: 2FA secrets and recovery codes are stored with the `encrypted` cast.
 - **`env()` only inside `config/`.** The container runs `config:cache` on start, so `env()` elsewhere returns null (e.g. `ADMIN_EMAIL` is read via `config('app.admin_email')`).
-- **`SystemSetting` reads the DB directly (no cache)**; SMTP is configured at runtime from `system_settings` by `DynamicMailConfigServiceProvider`.
-- **Merging to `main` deploys to production.** The workflow pushes `ghcr.io/roberteinsle/leafmark:latest` and, because the repo variable `AUTO_DEPLOY=true` is set, triggers the Coolify webhook. Work on branches.
+- **`SystemSetting` reads the DB directly (no cache)**; SMTP is configured at runtime from `system_settings` by `DynamicMailConfigServiceProvider`. Admin → System Settings only edits registration; SMTP (`smtp_*`) and API keys (`google_books_api_key`, `bigbook_api_key`) have no UI yet.
+- **Merging to `main` deploys to production.** The workflow pushes `ghcr.io/<owner>/leafmark:latest` and, because the repo variable `AUTO_DEPLOY=true` is set, triggers the Coolify webhook. Work on branches.
+- **No personal data of the maintainer** in code, docs, commits or issues: no names, email addresses, private domains, locations or account-specific tokens. Use placeholders (`<owner>`, `example.com`) and environment variables (e.g. `APP_IMAGE`, `GOOGLE_SITE_VERIFICATION`).
+- **One container only.** Nothing is queued (`QUEUE_CONNECTION=sync`) and nothing is scheduled (`routes/console.php` is empty), so there is no worker or scheduler. Adding queued jobs or scheduled tasks requires adding those containers to `deploy/docker-compose.coolify.yml`.
 
 ## Commands
 
@@ -56,7 +58,7 @@ Follows the owner's deployment standard: **Coolify never builds.**
 
 All logins set `last_login_at` through a `Login` event listener in `AppServiceProvider`. Settings → "Sign-in & security" (`SecuritySettingsController`, `/settings/security`) manages passkeys and 2FA.
 
-First registered user, or the user whose email matches `ADMIN_EMAIL`, becomes admin (`RegisterController`). Registration modes (open / domain / code) come from `SystemSetting`. `ForgotPasswordController`, `ResetPasswordController` and `VerificationController` exist but are **not routed**.
+First registered user, or the user whose email matches `ADMIN_EMAIL`, becomes admin (`RegisterController`). Registration modes (open / domain / code) come from `SystemSetting`.
 
 ### Rate limiting
 

@@ -35,6 +35,9 @@ return [
         ],
     ],
 
+    // Optional: Google Search Console Verifizierung (meta-Tag), nur wenn gesetzt
+    'google_site_verification' => env('GOOGLE_SITE_VERIFICATION'),
+
     'google_books' => [
         'api_key' => env('GOOGLE_BOOKS_API_KEY'),
     ],

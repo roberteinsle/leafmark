@@ -6,7 +6,8 @@
 # DB_HOST = interner Hostname dieser Resource (Coolify → Postgres → "Postgres URL (internal)").
 services:
   app:
-    image: ghcr.io/roberteinsle/leafmark:${APP_TAG:-latest}
+    # APP_IMAGE in Coolify setzen, z. B. ghcr.io/<github-account>/leafmark
+    image: ${APP_IMAGE}:${APP_TAG:-latest}
     pull_policy: always
     environment:
       - APP_NAME=${APP_NAME:-Leafmark}
@@ -17,6 +18,7 @@ services:
       - APP_LOCALE=${APP_LOCALE:-en}
       - ADMIN_EMAIL=${ADMIN_EMAIL}
       - GOOGLE_BOOKS_API_KEY=${GOOGLE_BOOKS_API_KEY:-}
+      - GOOGLE_SITE_VERIFICATION=${GOOGLE_SITE_VERIFICATION:-}
       - LOG_CHANNEL=stderr
       - DB_CONNECTION=pgsql
       - DB_HOST=${DB_HOST}

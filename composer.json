@@ -1,14 +1,14 @@
 {
     "name": "leafmark/leafmark",
     "type": "project",
-    "description": "Personal book tracking web application",
+    "description": "Multi-user book tracking web application",
     "keywords": [
         "laravel",
         "books",
         "reading",
         "tracker"
     ],
-    "license": "MIT",
+    "license": "AGPL-3.0-only",
     "require": {
         "php": "^8.5",
         "bacon/bacon-qr-code": "^3.1",

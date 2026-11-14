@@ -159,13 +159,14 @@ class AdminController extends Controller
     {
         // Registration settings
         $validated = $request->validate([
-            'registration_enabled' => 'required|boolean',
+            'registration_enabled' => 'nullable|boolean',
             'registration_mode' => 'required|in:open,domain,code',
-            'allowed_email_domains' => 'nullable|string',
+            'allowed_email_domains' => 'nullable|string|max:1000',
             'registration_code' => 'nullable|string|max:255',
         ]);
 
-        SystemSetting::set('registration_enabled', $validated['registration_enabled'] ? 'true' : 'false');
+        // Fehlt das Feld (Checkbox nicht angehakt), ist die Registrierung aus
+        SystemSetting::set('registration_enabled', $request->boolean('registration_enabled') ? 'true' : 'false');
         SystemSetting::set('registration_mode', $validated['registration_mode']);
         SystemSetting::set('allowed_email_domains', $validated['allowed_email_domains'] ?? '');
         SystemSetting::set('registration_code', $validated['registration_code'] ?? '');

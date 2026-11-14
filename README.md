@@ -2,8 +2,6 @@
 
 A multi-user book tracking web application built with Laravel 13 and PHP 8.5. Manage your book collection, track reading progress, view statistics, and organize books with tags.
 
-**Live:** [www.leafmark.app](https://www.leafmark.app)
-
 ## Features
 
 ### Book Management
@@ -65,8 +63,7 @@ A multi-user book tracking web application built with Laravel 13 and PHP 8.5. Ma
 - Passwordless sign-in via email link (when SMTP is configured)
 - Password sign-in always requires two-factor authentication (TOTP) with recovery codes
 - Rate limiting on sign-in, imports/exports and external API calls
-- Cloudflare Turnstile CAPTCHA support (optional)
-- Dynamic SMTP configuration via admin settings
+- SMTP configuration stored in the database and loaded at runtime
 
 ## Tech Stack
 
@@ -90,7 +87,7 @@ See [CODESPACES.md](CODESPACES.md) for details.
 ### Option 2: Local Development
 
 ```bash
-git clone https://github.com/roberteinsle/leafmark.git
+git clone https://github.com/<owner>/leafmark.git
 cd leafmark
 
 # Requires PHP 8.5, Composer, Node 22 and Docker (for Postgres)
@@ -121,7 +118,7 @@ See [DEPLOY.md](DEPLOY.md) for detailed deployment instructions.
 | `ADMIN_EMAIL` | Auto-admin assignment for this email | No |
 | `GOOGLE_BOOKS_API_KEY` | Google Books API key | No |
 
-SMTP, Turnstile CAPTCHA, and API keys can also be configured via Admin > System Settings in the UI.
+SMTP settings and the Google Books / Big Book API keys are read from the `system_settings` table. Admin → System Settings currently only covers registration.
 
 ## Development with Claude Code
 
@@ -147,4 +144,4 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+GNU Affero General Public License v3.0 only (AGPL-3.0-only) – see [LICENSE](LICENSE).

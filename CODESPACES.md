@@ -41,7 +41,7 @@ WebAuthn requires the page origin to match `APP_URL`. Set `APP_URL` in `.env` to
 
 ## Email
 
-`MAIL_MAILER=log` writes mails to `storage/logs/laravel.log`. Magic links only appear on the login page when SMTP is enabled under Admin → System Settings.
+`MAIL_MAILER=log` writes mails to `storage/logs/laravel.log`. Magic links only appear on the login page when `smtp_enabled` is `true` in the `system_settings` table (there is no admin UI for SMTP yet).
 
 ## Cost
 

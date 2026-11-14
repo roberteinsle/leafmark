@@ -1,8 +1,4 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
-
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+// Leafmark registriert keine eigenen Artisan-Closure-Commands und keine geplanten Tasks
+// (daher kein Scheduler-Container nötig).

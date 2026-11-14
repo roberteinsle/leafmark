@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="google-site-verification" content="P83A54mzktESaX8bAfsLcUk9Ex-jUq5TNtUMmO59gaQ" />
+    @if(config('services.google_site_verification'))
+    <meta name="google-site-verification" content="{{ config('services.google_site_verification') }}" />
+    @endif
     <title>{{ config('app.name', 'Leafmark') }} - @yield('title')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('head')
@@ -128,7 +130,7 @@
         <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col items-center">
                 <p class="text-center text-gray-500 text-sm">
-                    &copy; {{ date('Y') }} Leafmark. Made with ❤️ in Hamburg
+                    &copy; {{ date('Y') }} Leafmark
                 </p>
                 <p class="text-center text-gray-400 text-xs mt-1">
                     v{{ config('app.version') }}@if(config('app.commit_hash') && config('app.commit_hash') !== 'unknown') ({{ config('app.commit_hash') }})@endif
