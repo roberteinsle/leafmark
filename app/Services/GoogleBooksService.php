@@ -83,12 +83,24 @@ class GoogleBooksService
             return ['ok' => false, 'status' => null, 'message' => $e->getMessage()];
         }
 
+        if ($response->successful()) {
+            return ['ok' => true, 'status' => $response->status(), 'message' => 'OK'];
+        }
+
+        // Google nennt den genauen Grund in error.details[].reason, z. B. API_KEY_IP_ADDRESS_BLOCKED,
+        // API_KEY_SERVICE_BLOCKED oder SERVICE_DISABLED – aussagekräftiger als die Meldung selbst
+        $reasons = collect($response->json('error.details') ?? [])
+            ->pluck('reason')
+            ->merge(collect($response->json('error.errors') ?? [])->pluck('reason'))
+            ->filter()
+            ->unique()
+            ->implode(', ');
+        $message = $response->json('error.message') ?? $response->reason();
+
         return [
-            'ok' => $response->successful(),
+            'ok' => false,
             'status' => $response->status(),
-            'message' => $response->successful()
-                ? 'OK'
-                : ($response->json('error.message') ?? $response->reason()),
+            'message' => $reasons ? "{$message} ({$reasons})" : $message,
         ];
     }
 

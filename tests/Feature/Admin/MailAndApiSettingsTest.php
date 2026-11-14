@@ -106,10 +106,11 @@ class MailAndApiSettingsTest extends TestCase
         SystemSetting::setSecret('google_books_api_key', 'AIza-test-key');
 
         Http::fake(['www.googleapis.com/*' => Http::sequence()
-            ->push(['error' => ['message' => 'Requests from this IP are blocked.']], 403)
+            ->push(['error' => ['message' => 'Permission denied on the service.', 'details' => [['reason' => 'API_KEY_IP_ADDRESS_BLOCKED']]]], 403)
             ->push(['totalItems' => 1, 'items' => []], 200)]);
 
         $this->post(route('admin.settings.api-keys.test-google'))->assertSessionHasErrors('google');
+        $this->assertStringContainsString('API_KEY_IP_ADDRESS_BLOCKED', session('errors')->first('google'));
         $this->post(route('admin.settings.api-keys.test-google'))->assertSessionHas('success');
     }
 
