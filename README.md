@@ -8,7 +8,7 @@
 [![PHP](https://img.shields.io/badge/PHP-8.5-777BB4)](composer.json)
 [![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20)](composer.json)
 
-<img src=".github/social-preview.png" alt="Leafmark: search for books, track your reading progress and see your library statistics" width="800"/>
+<img src=".github/leafmark-social-preview.png" alt="Leafmark: search for books, track your reading progress and see your library statistics" width="800"/>
 
 </div>
 
