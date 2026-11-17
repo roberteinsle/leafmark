@@ -7,14 +7,14 @@
   <meta name="description" content="Leafmark is a free, self-hosted open-source web app to track your book collection and reading progress. Search by ISBN or import from Goodreads, set yearly reading challenges, and keep your library on your own server.">
   <meta name="theme-color" content="#4F46E5">
   <meta name="robots" content="index, follow, max-image-preview:large">
-  <link rel="canonical" href="https://leafmark.einsle.app/">
+  <link rel="canonical" href="__SITE__/">
   <meta property="og:title" content="Leafmark – your book collection. Always know what you've read.">
   <meta property="og:description" content="Free, open-source and self-hosted: track reading progress, set yearly challenges, import from Goodreads and six book APIs. For your whole family, on your own server.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://leafmark.einsle.app/">
+  <meta property="og:url" content="__SITE__/">
   <meta property="og:locale" content="en_GB">
   <meta property="og:site_name" content="Leafmark">
-  <meta property="og:image" content="https://leafmark.einsle.app/og.png">
+  <meta property="og:image" content="__SITE__/og.png">
   <meta property="og:image:width" content="1280">
   <meta property="og:image:height" content="640">
   <meta property="og:image:alt" content="Leafmark: your book collection, with reading progress, yearly challenges and statistics">
@@ -27,17 +27,17 @@
     "@graph": [
       {
         "@type": "SoftwareApplication",
-        "@id": "https://leafmark.einsle.app/#app",
+        "@id": "__SITE__/#app",
         "name": "Leafmark",
         "description": "Free, self-hosted open-source web app to track a book collection: reading status and page progress, yearly reading challenges, statistics, tags, series, cover images, import from Goodreads CSV and six external book APIs, multi-user with family accounts.",
         "applicationCategory": "LifestyleApplication",
         "operatingSystem": "Web browser; server: Docker with PostgreSQL",
-        "url": "https://leafmark.einsle.app/",
-        "image": "https://leafmark.einsle.app/og.png",
+        "url": "__SITE__/",
+        "image": "__SITE__/og.png",
         "license": "https://www.gnu.org/licenses/agpl-3.0.html",
         "isAccessibleForFree": true,
-        "codeRepository": "https://github.com/roberteinsle/leafmark",
-        "softwareHelp": "https://github.com/roberteinsle/leafmark/wiki",
+        "codeRepository": "https://github.com/__REPO__",
+        "softwareHelp": "https://github.com/__REPO__/wiki",
         "programmingLanguage": "PHP",
         "inLanguage": ["en", "de", "fr", "it", "es", "pl"],
         "featureList": [
@@ -56,11 +56,11 @@
       },
       {
         "@type": "WebSite",
-        "@id": "https://leafmark.einsle.app/#website",
-        "url": "https://leafmark.einsle.app/",
+        "@id": "__SITE__/#website",
+        "url": "__SITE__/",
         "name": "Leafmark",
         "inLanguage": "en",
-        "about": { "@id": "https://leafmark.einsle.app/#app" }
+        "about": { "@id": "__SITE__/#app" }
       },
       {
         "@type": "FAQPage",
@@ -96,7 +96,7 @@
       <a href="#modules">What's included</a>
       <a href="#install">Installation</a>
       <a href="#faq">FAQ</a>
-      <a class="gh" href="https://github.com/roberteinsle/leafmark">GitHub</a>
+      <a class="gh" href="https://github.com/__REPO__">GitHub</a>
     </nav>
   </div>
 </header>
@@ -112,7 +112,7 @@
       <p class="lead">Leafmark tracks your library, reading progress and yearly goals — with import from Goodreads, six book APIs and Amazon. For your whole family, on your own server.</p>
       <div class="ctas">
         <a class="btn btn-primary" href="#install">Install Leafmark</a>
-        <a class="btn btn-ghost" href="https://github.com/roberteinsle/leafmark">Source code on GitHub</a>
+        <a class="btn btn-ghost" href="https://github.com/__REPO__">Source code on GitHub</a>
       </div>
       <ul class="facts">
         <li><strong>0 €</strong><span>licence fees</span></li>
@@ -262,7 +262,7 @@
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
         <h3>Six book sources</h3>
         <p>Google Books, Open Library, BookBrainz and the Deutsche Nationalbibliothek need no API key. Big Book API and Google Books gain richer data with an optional key set in the admin settings.</p>
-        <a class="more" href="https://github.com/roberteinsle/leafmark/wiki/B%C3%BCcher-und-Import">About import sources →</a>
+        <a class="more" href="https://github.com/__REPO__/wiki/B%C3%BCcher-und-Import">About import sources →</a>
       </article>
     </div>
   </div>
@@ -275,15 +275,15 @@
     <h2>What Leafmark covers</h2>
     <p class="intro">Every feature is described in detail in the wiki.</p>
     <div class="grid">
-      <article class="card"><h3>Books & shelves</h3><p>Add, edit, rate and review books. Grid and table views with configurable columns per shelf.</p><a class="more" href="https://github.com/roberteinsle/leafmark/wiki/B%C3%BCcher-und-Import">Read more →</a></article>
-      <article class="card"><h3>Reading progress</h3><p>Current page, percentage done, history chart and purchase details (date, price, format).</p><a class="more" href="https://github.com/roberteinsle/leafmark/wiki/Lesen-und-Statistik">Read more →</a></article>
-      <article class="card"><h3>Statistics</h3><p>Books and pages per year, year-over-year chart, top authors, language and format breakdown.</p><a class="more" href="https://github.com/roberteinsle/leafmark/wiki/Lesen-und-Statistik">Read more →</a></article>
-      <article class="card"><h3>Reading challenges</h3><p>Yearly goals with automatic tracking; integrated into the stats page.</p><a class="more" href="https://github.com/roberteinsle/leafmark/wiki/Lesen-und-Statistik">Read more →</a></article>
-      <article class="card"><h3>Tags & series</h3><p>Colour-coded tags, bulk operations and series with position ordering and a series view.</p><a class="more" href="https://github.com/roberteinsle/leafmark/wiki/B%C3%BCcher-und-Import">Read more →</a></article>
-      <article class="card"><h3>Import & export</h3><p>Goodreads CSV, library ZIP backup, Amazon URLs and six external book APIs.</p><a class="more" href="https://github.com/roberteinsle/leafmark/wiki/B%C3%BCcher-und-Import">Read more →</a></article>
-      <article class="card"><h3>Family accounts</h3><p>Individual collections, join codes, family group view.</p><a class="more" href="https://github.com/roberteinsle/leafmark/wiki/Anmeldung-und-Sicherheit">Read more →</a></article>
-      <article class="card"><h3>Sign-in & security</h3><p>Passkeys, single-use email links, password with mandatory TOTP 2FA and recovery codes.</p><a class="more" href="https://github.com/roberteinsle/leafmark/wiki/Anmeldung-und-Sicherheit">Read more →</a></article>
-      <article class="card"><h3>Administration</h3><p>User management, registration modes, SMTP and API key settings — all from the browser.</p><a class="more" href="https://github.com/roberteinsle/leafmark/wiki/Administration">Read more →</a></article>
+      <article class="card"><h3>Books & shelves</h3><p>Add, edit, rate and review books. Grid and table views with configurable columns per shelf.</p><a class="more" href="https://github.com/__REPO__/wiki/B%C3%BCcher-und-Import">Read more →</a></article>
+      <article class="card"><h3>Reading progress</h3><p>Current page, percentage done, history chart and purchase details (date, price, format).</p><a class="more" href="https://github.com/__REPO__/wiki/Lesen-und-Statistik">Read more →</a></article>
+      <article class="card"><h3>Statistics</h3><p>Books and pages per year, year-over-year chart, top authors, language and format breakdown.</p><a class="more" href="https://github.com/__REPO__/wiki/Lesen-und-Statistik">Read more →</a></article>
+      <article class="card"><h3>Reading challenges</h3><p>Yearly goals with automatic tracking; integrated into the stats page.</p><a class="more" href="https://github.com/__REPO__/wiki/Lesen-und-Statistik">Read more →</a></article>
+      <article class="card"><h3>Tags & series</h3><p>Colour-coded tags, bulk operations and series with position ordering and a series view.</p><a class="more" href="https://github.com/__REPO__/wiki/B%C3%BCcher-und-Import">Read more →</a></article>
+      <article class="card"><h3>Import & export</h3><p>Goodreads CSV, library ZIP backup, Amazon URLs and six external book APIs.</p><a class="more" href="https://github.com/__REPO__/wiki/B%C3%BCcher-und-Import">Read more →</a></article>
+      <article class="card"><h3>Family accounts</h3><p>Individual collections, join codes, family group view.</p><a class="more" href="https://github.com/__REPO__/wiki/Anmeldung-und-Sicherheit">Read more →</a></article>
+      <article class="card"><h3>Sign-in & security</h3><p>Passkeys, single-use email links, password with mandatory TOTP 2FA and recovery codes.</p><a class="more" href="https://github.com/__REPO__/wiki/Anmeldung-und-Sicherheit">Read more →</a></article>
+      <article class="card"><h3>Administration</h3><p>User management, registration modes, SMTP and API key settings — all from the browser.</p><a class="more" href="https://github.com/__REPO__/wiki/Administration">Read more →</a></article>
     </div>
   </div>
 </section>
@@ -299,7 +299,7 @@
       <li><h3>Deploy the image</h3><p>Start the Leafmark image with its environment variables using <code>deploy/docker-compose.coolify.yml</code>. Set the domain, the app key and the database credentials.</p></li>
       <li><h3>Register &amp; start reading</h3><p>Open your domain. The first registered account becomes the admin. Search for a book, add it and start tracking.</p></li>
     </ol>
-    <p style="margin-top: 28px;"><a class="btn btn-primary" href="https://github.com/roberteinsle/leafmark/wiki/Installation-und-Betrieb">Step-by-step installation guide</a></p>
+    <p style="margin-top: 28px;"><a class="btn btn-primary" href="https://github.com/__REPO__/wiki/Installation-und-Betrieb">Step-by-step installation guide</a></p>
   </div>
 </section>
 
@@ -324,10 +324,10 @@
   <div class="wrap">
     <span>Leafmark · open source under AGPL-3.0</span>
     <nav aria-label="Footer">
-      <a href="https://github.com/roberteinsle/leafmark">GitHub</a>
-      <a href="https://github.com/roberteinsle/leafmark/wiki">Wiki</a>
-      <a href="https://github.com/roberteinsle/leafmark/issues">Issues</a>
-      <a href="https://github.com/roberteinsle/leafmark/blob/main/LICENSE">License</a>
+      <a href="https://github.com/__REPO__">GitHub</a>
+      <a href="https://github.com/__REPO__/wiki">Wiki</a>
+      <a href="https://github.com/__REPO__/issues">Issues</a>
+      <a href="https://github.com/__REPO__/blob/main/LICENSE">License</a>
     </nav>
   </div>
 </footer>
