@@ -71,7 +71,7 @@ class AdminController extends Controller
                 'email',
                 'unique:users,email,' . $user->id . ',id'
             ],
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
         ];
 
         $validated = $request->validate($rules);
@@ -89,7 +89,11 @@ class AdminController extends Controller
 
         // Only allow changing admin status if not changing own account
         if ($user->id !== auth()->id()) {
-            $data['is_admin'] = $request->has('is_admin') ? true : false;
+            $newAdminStatus = $request->has('is_admin');
+            if ($user->is_admin && !$newAdminStatus && User::where('is_admin', true)->where('id', '!=', $user->id)->count() === 0) {
+                return back()->withErrors(['error' => 'Cannot remove the last administrator.']);
+            }
+            $data['is_admin'] = $newAdminStatus;
         }
 
         $user->update($data);
@@ -104,6 +108,10 @@ class AdminController extends Controller
     {
         if ($user->id === auth()->id()) {
             return back()->withErrors(['error' => 'You cannot change your own admin status.']);
+        }
+
+        if ($user->is_admin && User::where('is_admin', true)->where('id', '!=', $user->id)->count() === 0) {
+            return back()->withErrors(['error' => 'Cannot remove the last administrator.']);
         }
 
         $user->update(['is_admin' => !$user->is_admin]);

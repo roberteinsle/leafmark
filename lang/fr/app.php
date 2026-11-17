@@ -153,6 +153,7 @@ return [
         'amazon_url_instructions' => 'Collez une URL de livre Amazon. Les données du livre seront extraites et importées automatiquement.',
         'amazon_url_example' => 'Exemple',
         'import' => 'Importer',
+        'amazon_url_invalid' => 'Veuillez saisir une URL Amazon valide (doit commencer par https://amazon.).',
         'amazon_scrape_failed' => 'Impossible de récupérer les données du livre depuis Amazon. Veuillez réessayer ou ajouter le livre manuellement.',
 
         'edit' => 'Modifier',

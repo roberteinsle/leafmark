@@ -84,6 +84,7 @@ return [
         'amazon_url_instructions' => 'Füge eine Amazon-Buch-URL ein. Die Buchdaten werden automatisch abgerufen und importiert.',
         'amazon_url_example' => 'Beispiel',
         'import' => 'Importieren',
+        'amazon_url_invalid' => 'Bitte eine gültige Amazon-URL eingeben (muss mit https://amazon. beginnen).',
         'amazon_scrape_failed' => 'Buchdaten konnten nicht von Amazon abgerufen werden. Bitte versuche es erneut oder füge das Buch manuell hinzu.',
 
         'edit' => 'Bearbeiten',

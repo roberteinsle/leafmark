@@ -145,6 +145,7 @@ return [
         'amazon_url_instructions' => 'Wklej URL książki z Amazon. Dane książki zostaną automatycznie pobrane i zaimportowane.',
         'amazon_url_example' => 'Przykład',
         'import' => 'Importuj',
+        'amazon_url_invalid' => 'Podaj prawidłowy adres URL Amazon (musi zaczynać się od https://amazon.).',
         'amazon_scrape_failed' => 'Nie udało się pobrać danych książki z Amazon. Spróbuj ponownie lub dodaj książkę ręcznie.',
 
         'edit' => 'Edytuj',

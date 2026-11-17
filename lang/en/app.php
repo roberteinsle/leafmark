@@ -115,6 +115,7 @@ return [
         'amazon_url_instructions' => 'Paste an Amazon book URL. The book data will be scraped and imported automatically.',
         'amazon_url_example' => 'Example',
         'import' => 'Import',
+        'amazon_url_invalid' => 'Please enter a valid Amazon URL (must start with https://amazon.).',
         'amazon_scrape_failed' => 'Could not fetch book data from Amazon. Please try again or add the book manually.',
 
         'edit' => 'Edit',

@@ -270,6 +270,12 @@ class BookController extends Controller implements HasMiddleware
             'amazon_url' => 'required|url',
         ]);
 
+        $host = strtolower(parse_url($validated['amazon_url'], PHP_URL_HOST) ?? '');
+        $isAmazon = preg_match('/(?:^|\.)amazon\.(com|de|co\.uk|fr|it|es|co\.jp|ca|com\.br|com\.au|nl|pl|se|sg|in|com\.mx|com\.tr|ae|sa|eg)$/', $host);
+        if (!$isAmazon || parse_url($validated['amazon_url'], PHP_URL_SCHEME) !== 'https') {
+            return back()->withErrors(['amazon_url' => __('app.books.amazon_url_invalid')])->withInput();
+        }
+
         $bookData = $amazonScraper->scrapeFromUrl($validated['amazon_url']);
 
         if (!$bookData || empty($bookData['title'])) {

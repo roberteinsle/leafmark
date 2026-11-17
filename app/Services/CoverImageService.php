@@ -18,9 +18,14 @@ class CoverImageService
     public function downloadAndStore(string $url, ?string $bookIdentifier = null): ?string
     {
         try {
-            // Validate URL
+            // Validate URL — only http/https to prevent SSRF via other schemes
             if (!filter_var($url, FILTER_VALIDATE_URL)) {
                 Log::warning('Invalid cover URL provided', ['url' => $url]);
+                return null;
+            }
+            $scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
+            if (!in_array($scheme, ['http', 'https'], true)) {
+                Log::warning('Cover URL scheme not allowed', ['url' => $url, 'scheme' => $scheme]);
                 return null;
             }
 

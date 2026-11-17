@@ -30,7 +30,7 @@ class UserSettingsController extends Controller
             'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
             'preferred_language' => 'required|in:' . implode(',', $availableLanguages),
             'current_password' => 'nullable|string',
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
         ]);
 
         // Handle password change

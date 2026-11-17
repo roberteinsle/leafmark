@@ -284,7 +284,7 @@ class LibraryImportService
             'openlibrary_edition_id' => $bookData['openlibrary_edition_id'] ?? null,
             'goodreads_id' => $bookData['goodreads_id'] ?? null,
             'librarything_id' => $bookData['librarything_id'] ?? null,
-            'openlibrary_url' => $bookData['openlibrary_url'] ?? null,
+            'openlibrary_url' => $this->sanitizeHttpsUrl($bookData['openlibrary_url'] ?? null),
         ];
 
         // Only include purchase_currency if present (column has a NOT NULL default)
@@ -315,7 +315,13 @@ class LibraryImportService
                 continue;
             }
 
-            $ext = pathinfo($imageFile, PATHINFO_EXTENSION) ?: 'jpg';
+            $ext = match ($mimeType) {
+                'image/jpeg' => 'jpg',
+                'image/png'  => 'png',
+                'image/gif'  => 'gif',
+                'image/webp' => 'webp',
+                default      => 'jpg',
+            };
             $filename = 'covers/import_' . $book->id . '_' . uniqid() . '.' . $ext;
 
             Storage::disk('public')->makeDirectory('covers');
@@ -419,6 +425,14 @@ class LibraryImportService
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    private function sanitizeHttpsUrl(?string $url): ?string
+    {
+        if ($url === null || $url === '') {
+            return null;
+        }
+        return str_starts_with($url, 'https://') ? $url : null;
     }
 
     private function isPathSafe(string $path): bool
